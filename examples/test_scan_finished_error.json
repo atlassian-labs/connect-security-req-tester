@@ -1,0 +1,35 @@
+{
+  "host": "secdsc.pw",
+  "port": 443,
+  "protocol": "http",
+  "isPublic": false,
+  "status": "READY",
+  "startTime": 1595972212884,
+  "testTime": 1595972213140,
+  "engineVersion": "2.1.5",
+  "criteriaVersion": "2009q",
+  "cacheExpiryTime": 1595972813140,
+  "endpoints": [
+    {
+      "ipAddress": "161.35.226.203",
+      "statusMessage": "Unable to connect to the server",
+      "statusDetails": "TESTING_PROTO_2_0",
+      "statusDetailsMessage": "Testing SSL 2.0",
+      "duration": 46,
+      "delegation": 1,
+      "details": {
+        "hostStartTime": 1595972212884,
+        "certChains": [],
+        "protocols": [],
+        "prefixDelegation": false,
+        "nonPrefixDelegation": true,
+        "zeroRTTEnabled": -1,
+        "zombiePoodle": 0,
+        "goldenDoodle": 0,
+        "zeroLengthPaddingOracle": 0,
+        "sleepingPoodle": 0
+      }
+    }
+  ],
+  "certs": []
+}

