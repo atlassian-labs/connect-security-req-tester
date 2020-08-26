@@ -14,6 +14,7 @@ Example: `pipenv run python3 main.py https://example.com/atlassian-connect.json`
 `docker build -t atlas-connect-sec-test .`
 `docker run -v $(pwd)/out:/app/out atlas-connect-sec-test`
 
+### Arguments
 | Argument | Argument Description |
 |----------|----------------------|
 |--force_scan | Ignores cache for SSL/TLS validation scans and will make the scan run longer, **default: False** |
