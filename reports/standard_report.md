@@ -1,5 +1,11 @@
 # Connect Security Requirements Scan
-Generated for **{{ results.name }}** ({{ results.key }}) hosted at: [{{ results.base_url }}]({{ results.base_url }}) on **{{ today }}**
+Report generated for:
+
+* Connect App: **{{ results.name }}**
+* Connect App Key: **{{ results.key }}**
+* Connect Base URL: [{{ results.base_url }}]({{ results.base_url }})
+* Connect Descriptor URL: [{{ results['app_descriptor_url'] }}]({{ results['app_descriptor_url'] }})
+* Scan Performed: **{{ today }}**
 
 **{{ results.name }}** was evaluated against the [Security Requirements for Cloud Applications](https://developer.atlassian.com/platform/marketplace/security-requirements/). For additional information on requirements, visit the [addditional information guide on security requirements](https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/).
 
@@ -38,7 +44,7 @@ Obtained via the [Qualys SSL Labs API](https://www.ssllabs.com/ssltest/)
 {{ results['tls_scan_raw'] }}
 ```
 
-### Connect App Descriptor Evaluation
+### Connect App Descriptor Evaluation Raw Output
 Obtained via the App Descriptor located at: [{{ results['app_descriptor_url'] }}]({{ results['app_descriptor_url'] }})
 
 ```

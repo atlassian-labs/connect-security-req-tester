@@ -1,14 +1,17 @@
-from datetime import datetime
-from jinja2 import Template
-from pathlib import Path
-from datetime import date
-import reports.constants
-import markdown2
-import re
+import json
 import logging
+import re
+from datetime import date, datetime
+from pathlib import Path
 
-TEMPLATE_FILE = 'reports/standard_report.md'
-pattern = (
+import markdown2
+from jinja2 import Template
+
+import reports.constants
+
+MARKDOWN_TEMPLATE = 'reports/standard_report.md'
+HTML_TEMPLATE = 'reports/report_template.html'
+LINK_REGEX = (
     r'((([A-Za-z]{3,9}:(?:\/\/)?)'  # scheme
     r'(?:[\-;:&=\+\$,\w]+@)?[A-Za-z0-9\.\-]+(:\[0-9]+)?'  # user@hostname:port
     r'|(?:www\.|[\-;:&=\+\$,\w]+@)[A-Za-z0-9\.\-]+)'  # www.|user@hostname
@@ -18,58 +21,50 @@ pattern = (
     r'(?![^<]*?(?:<\/\w+>|\/?>))'  # ignore anchor HTML tags
     r'(?![^\(]*?\))'  # ignore links in brackets (Markdown links and images)
 )
-link_patterns = [(re.compile(pattern), r'\1')]
+LINK_PATTERNS = [(re.compile(LINK_REGEX), r'\1')]
 
 
 class ReportGenerator(object):
     def __init__(self, results, out_dir):
-        self.template = Template(open(TEMPLATE_FILE, 'r').read())
         self.results = results
         self.out_dir = out_dir
+        self.file_name = f"{results.key}-{date.today()}"
 
-    def generate(self):
-        logging.info('Generating markdown results from template...')
-        return self.template.render(
+    def _jinja_render(self, template, **kwargs):
+        logging.debug(f"Rendering {template} with {kwargs.keys()}")
+        jinja_template = Template(open(template, 'r').read())
+        return jinja_template.render(kwargs)
+
+    def _get_report_path(self, fname):
+        return str(Path(self.out_dir + '/' + fname).resolve())
+
+    def _write_output(self, contents, fname):
+        Path(self.out_dir).mkdir(exist_ok=True, parents=True)
+        with open(self._get_report_path(fname), 'w') as file:
+            file.write(contents)
+
+    def save_report(self):
+        markdown_report = self._jinja_render(
+            template=MARKDOWN_TEMPLATE,
             today=datetime.now(),
             titles=reports.constants.REQ_TITLES,
             constants=reports.constants,
             results=self.results
         )
+        markdown_to_html = markdown2.markdown(
+            markdown_report,
+            extras=['fenced-code-blocks', 'target-blank-links', 'link-patterns'],
+            link_patterns=LINK_PATTERNS
+        )
+        final_report = self._jinja_render(
+            template=HTML_TEMPLATE,
+            report_body=markdown_to_html
+        )
 
-    def save_report(self):
-        report = self.generate()
+        html_name = f"{self.file_name}.html"
+        json_name = f"{self.file_name}.json"
 
-        Path(self.out_dir).mkdir(exist_ok=True, parents=True)
-        fname = f"{self.results.key}-{date.today()}.html"
+        self._write_output(final_report, html_name)
+        self._write_output(json.dumps(self.results.to_json(), indent=3), json_name)
 
-        logging.info(f"Writing HTML Report to: {Path('./' + self.out_dir + '/' + fname).resolve()}")
-
-        with open(f"{self.out_dir}/{fname}", 'w') as file:
-            base = '''
-                <html>
-                <head>
-                    <meta name="viewport" content="width=device-width, initial-scale=1">
-                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/4.0.0/github-markdown.min.css" integrity="sha512-Oy18vBnbSJkXTndr2n6lDMO5NN31UljR8e/ICzVPrGpSud4Gkckb8yUpqhKuUNoE+o9gAb4O/rAxxw1ojyUVzg==" crossorigin="anonymous" />
-                    <style>
-                        .markdown-body {{
-                            box-sizing: border-box;
-                            min-width: 200px;
-                            max-width: 980px;
-                            margin: 0 auto;
-                            padding: 45px;
-                        }}
-
-                        @media (max-width: 767px) {{
-                            .markdown-body {{
-                                padding: 15px;
-                            }}
-                        }}
-                    </style>
-                </head>
-                <body class="markdown-body">
-                {}
-                </body>
-                </html>
-            '''
-            base = base.format(markdown2.markdown(report, extras=['fenced-code-blocks', 'target-blank-links', 'link-patterns'], link_patterns=link_patterns))
-            file.write(base)
+        logging.info(f"Wrote reports to:\n\t{self._get_report_path(html_name)}\n\t{self._get_report_path(json_name)}")

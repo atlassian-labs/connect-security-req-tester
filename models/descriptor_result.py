@@ -1,4 +1,5 @@
-from jsonobject import JsonObject, StringProperty, ListProperty, DefaultProperty, DictProperty
+from jsonobject import (DefaultProperty, DictProperty, JsonObject,
+                        ListProperty, StringProperty)
 
 
 class DescriptorLink(JsonObject):

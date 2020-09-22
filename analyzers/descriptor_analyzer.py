@@ -1,6 +1,9 @@
 import json
+
 from models.requirements import RequirementsResult
-from reports.constants import NO_ISSUES, MISSING_ATTRS_SESSION_COOKIE, MISSING_CACHE_HEADERS, MISSING_REF_HEADERS, MISSING_AUTHN_AUTHZ
+from reports.constants import (MISSING_ATTRS_SESSION_COOKIE,
+                               MISSING_AUTHN_AUTHZ, MISSING_CACHE_HEADERS,
+                               MISSING_REF_HEADERS, NO_ISSUES)
 
 REQ_CACHE_HEADERS = ['no-cache', 'no-store']
 REF_DENYLIST = ['no-referrer-when-downgrade', 'unsafe-url']
@@ -48,7 +51,6 @@ class DescriptorAnalyzer(object):
             cookies = scan_res[link].session_cookies
             for cookie in cookies:
                 cookie = cookie.split('; ')
-                print(f"COOKIE LOOKS LIKE {cookie}")
                 secure = bool(cookie[2])
                 httponly = bool(cookie[3])
 

@@ -1,40 +1,43 @@
-import requests
-import json
-import utils
 import logging
+import re
 from collections import defaultdict
-from models.descriptor_result import DescriptorResult, DescriptorLink
+
+import requests
+
+from models.descriptor_result import DescriptorLink, DescriptorResult
 
 COMMON_SESSION_COOKIES = ['PHPSESSID', 'JSESSIONID', 'CFID', 'CFTOKEN', 'ASP.NET_SESSIONID']
+KEY_IGNORELIST = ['icon', 'icons', 'documentation']
+CONDITION_MATCHER = r'{condition\..*}'
+BRACES_MATCHER = r'\$?{.*}'
 
 
 class DescriptorScan(object):
-    def __init__(self, descriptor_url):
+    def __init__(self, descriptor_url, descriptor):
         self.descriptor_url = descriptor_url
-        self.descriptor, self.base_url = self._get_descriptor_and_base_url(self.descriptor_url)
+        self.descriptor = descriptor
+        self.base_url = descriptor['baseUrl'] if not descriptor['baseUrl'].endswith('/') else descriptor['baseUrl'][:-1]
         self.links = self._get_links()
-
-    def _get_descriptor_and_base_url(self, descriptor_url):
-        headers = {'Accept': 'application/json'}
-        res = requests.get(descriptor_url, headers=headers).json()
-        base_url = res['baseUrl'] if not res['baseUrl'].endswith('/') else res['baseUrl'][:-1]
-
-        return res, base_url
 
     def _get_links(self):
         res = []
         lifecycle_events = self.descriptor.get('lifecycle', [])
-        for evt in lifecycle_events:
-            res.append(self._convert_to_full_link(evt))
         modules = self.descriptor.get('modules', [])
-        modules_urls = []
-        for module in modules:
-            modules_urls.extend(utils.find_url_in_module(modules[module]))
+        # Grab all lifecycle events
+        urls = [evt for evt in lifecycle_events]
+        # Grab all URLs from modules, this magic flattens a list of lists to a single list structure
+        urls += [item for sublist in [self._find_urls_in_module(modules[x]) for x in modules] for item in sublist]
 
-        for url in modules_urls:
+        # Remove duplicates
+        urls = list(set(urls))
+
+        for url in urls:
+            # Replace context vars eg. {project.issue} and {condition.is_admin}
+            url = self._fill_context_vars(url)
+            # Build each module url to be a full link eg. https://example.com/test
             res.append(self._convert_to_full_link(url))
 
-        return list(set(res))
+        return res
 
     def _convert_to_full_link(self, link):
         if not link.startswith('http://') and not link.startswith('https://'):
@@ -42,6 +45,31 @@ class DescriptorScan(object):
             link = f"{self.base_url}/{link}"
 
         return link
+
+    def _fill_context_vars(self, url):
+        url = re.sub(CONDITION_MATCHER, 'true', url, flags=re.IGNORECASE)
+        url = re.sub(BRACES_MATCHER, 'test', url)
+
+        return url
+
+    def _find_urls_in_module(self, module):
+        # Takes a connect module and traverses the JSON to find URLs - Handles both lists and dicts
+        # Returns a list of lists
+        urls = []
+        if type(module) is list:
+            for item in module:
+                urls.extend(self._find_urls_in_module(item))
+        elif type(module) is dict:
+            for key, value in module.items():
+                if key in KEY_IGNORELIST:
+                    continue
+                if type(value) is dict:
+                    urls.extend(self._find_urls_in_module(value))
+                if key == 'url':
+                    return [value]
+        else:
+            return urls
+        return urls
 
     def _visit_link(self, link):
         res = requests.get(link)

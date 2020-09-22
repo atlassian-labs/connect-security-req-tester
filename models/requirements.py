@@ -1,4 +1,5 @@
-from jsonobject import JsonObject, StringProperty, ListProperty, ObjectProperty, BooleanProperty
+from jsonobject import (BooleanProperty, JsonObject, ListProperty,
+                        ObjectProperty, StringProperty)
 
 
 class RequirementsResult(JsonObject):

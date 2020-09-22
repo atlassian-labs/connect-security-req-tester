@@ -1,4 +1,6 @@
-from jsonobject import JsonObject, StringProperty, ListProperty, DefaultProperty, IntegerProperty, BooleanProperty, DictProperty
+from jsonobject import (BooleanProperty, DefaultProperty, DictProperty,
+                        IntegerProperty, JsonObject, ListProperty,
+                        StringProperty)
 
 
 class IpResult(JsonObject):

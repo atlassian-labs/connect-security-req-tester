@@ -1,6 +1,8 @@
 import json
+
 from models.requirements import RequirementsResult
-from reports.constants import TLS_PROTOCOLS, HSTS_MISSING, NO_ISSUES, CERT_NOT_VALID
+from reports.constants import (CERT_NOT_VALID, HSTS_MISSING, NO_ISSUES,
+                               TLS_PROTOCOLS)
 
 PROTO_DENYLIST = ['TLS 1.0', 'TLS 1.1', 'SSL 3.0']
 

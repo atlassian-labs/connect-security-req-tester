@@ -1,4 +1,4 @@
-# Atlassian Connect - Security Requirements Test Suite
+# Connect Security Requirements Tester (CSRT)
 
 The purpose of this tool is help you scan your Atlassian Connect app for compliance against the [Atlassian Connect Security Requirements](https://developer.atlassian.com/platform/marketplace/security-requirements/) and potential security misconfigurations.
 
@@ -17,16 +17,16 @@ Example: `pipenv run python3 main.py https://example.com/atlassian-connect.json`
 ### Arguments
 | Argument | Argument Description |
 |----------|----------------------|
-|--force_scan | Ignores cache for SSL/TLS validation scans and will make the scan run longer, **default: False** |
-|--out_dir  | The directory to store the HTML Report from the scan, **default: ./out** |
-|--debug | Turns on debug level logging exposing the network calls being performed, **default: False** |
+|--force_scan   | Ignores cache for SSL/TLS validation scans and will make the scan run longer, **default: False**  |
+|--out_dir      | The directory to store the HTML Report from the scan, **default: ./out**                          |
+|--debug        | Turns on debug level logging exposing the network calls being performed, **default: False**       |
 
 ## Useful Information
 This tool assumes your connect app is reachable by the machine running this tool. If your connect app is not reachable, the tool will fail to produce any meaningful results. The following internet addresses are required to be accessible for this tool to work:
 * Your connect app's `base_url`
-* Qualys SSL Labs (https://ssllabs.com)
+* Qualys SSL Labs API (https://ssllabs.com)
 
-This tool will make network requests on from your computer. Please ensure this is allowed from your organization if running this from a work network.
+This tool will make network requests on from your computer. Please ensure this is allowed from your organization if running this from a monitored network.
 
 Additional information about the Atlassian Connect Security Requirements can be found at: [https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/](https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/)
 

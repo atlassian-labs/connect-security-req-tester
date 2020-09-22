@@ -1,13 +1,16 @@
-import requests
+import json
 import logging
 import time
-import json
 from collections import defaultdict
+
+import requests
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
-from models.tls_result import TlsResult, IpResult
+
+from models.tls_result import IpResult, TlsResult
 
 BASE_API = 'https://api.ssllabs.com/api/v3'
+POLL_TIME = 10
 
 
 class TlsScanError(Exception):
@@ -46,27 +49,32 @@ class TlsScan(object):
         params = {
             'host': self.base_url,
             'all': 'done',
-            'fromCache': 'on',
-            'maxAge': '1'
+            'fromCache': 'off' if ignore_cache else 'on',
+            'maxAge': '1',
+            'startNew': 'on' if ignore_cache else 'off'
         }
 
-        if ignore_cache:
-            params['startNew'] = 'on'
-            del params['fromCache']
-            del params['maxAge']
-            # Initial request may start a new scan, all subsequent polling requests should omit it
-            res = self._call_api(path, params)
-            del params['startNew']
-            logging.debug(f"Forcing scan of {self.base_url} - Waiting initial 1 minute for results.")
-            time.sleep(60)
+        # Kick off a scan - Wait 5 seconds for the API to perform an initial lookup and setup
+        logging.info(f"Starting SSL/TLS scan for: {self.base_url}")
+        res = self._call_api(path, params)
+        del params['startNew']
+        time.sleep(5)
 
-        # Poll the endpoint because that's what Qualys says to do
-        while True:
+        # Attempt to intelligently guess the length of the scan based on the number of IPs Qualys needs to scan
+        # If we underguess, fall-back to a POLL_TIME many seconds poll
+        long_initial_poll = True
+        while (res.get('status', None)) != 'READY':
             res = self._call_api(path, params)
-            if res.get('status', None) == 'READY':
-                break
-            logging.debug(f"Scan for {self.base_url} is not ready. Waiting 10 more seconds.")
-            time.sleep(10)
+            num_ips = len(res.get('endpoints', []))
+            poll_amount = POLL_TIME if not long_initial_poll else num_ips * 60
+
+            if long_initial_poll:
+                logging.info(f"Qualys found {num_ips} endpoint(s). Waiting {poll_amount} seconds for scan completion.")
+                long_initial_poll = False
+            else:
+                logging.debug(f"Scan for {self.base_url} still not ready. Waiting {poll_amount} more seconds.")
+
+            time.sleep(poll_amount)
 
         return res
 

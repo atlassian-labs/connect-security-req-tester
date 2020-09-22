@@ -1,25 +1,36 @@
-KEY_IGNORELIST = ['icon', 'icons', 'documentation']
+import logging
+import sys
+
+import requests
+import validators
 
 
-def get_vals_from_nested_dict(nested_dict):
-    res = []
-    for key, value in nested_dict.items():
-        if key in KEY_IGNORELIST:
-            continue
-        if type(value) is dict:
-            res.extend(get_vals_from_nested_dict(value))
-        if key == 'url':
-            res.extend([value])
+def validate_and_resolve_descriptor(url):
+    """Validate that the connect descriptor URL provided is valid, and then request
+    the descriptor from the remote URL. Return the descriptor URL from the descriptor
+    file instead of trusting user-input.
 
-    return res
+    Args:
+        url (str): The user-supplied descriptor URL
 
+    Returns:
+        tuple(str,str): The determined descriptor url and full descriptor file json parsed
+    """
+    if not validators.url(url):
+        logging.error(
+            'Descriptor URL appears invalid, confirm the link to your Connect Descriptor.'
+        )
+        sys.exit(1)
+    # Attempt to resolve descriptor...
+    res = requests.get(url)
+    res.raise_for_status()
 
-def find_url_in_module(module):
-    urls = []
-    if type(module) is list:
-        for item in module:
-            urls.extend(get_vals_from_nested_dict(item))
-    else:
-        urls.extend(get_vals_from_nested_dict(module))
+    descriptor = res.json()
+    remote_url = descriptor.get('links', {}).get('self', None)
 
-    return urls
+    if not remote_url:
+        base_url = descriptor['baseUrl'] if descriptor['baseUrl'].endswith('/') else descriptor['baseUrl'] + '/'
+        remote_url = base_url + 'atlassian-connect.json'
+
+    logging.debug(f"Resolved descriptor location: {remote_url}")
+    return remote_url, descriptor
