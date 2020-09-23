@@ -55,7 +55,6 @@ class TlsScan(object):
         }
 
         # Kick off a scan - Wait 5 seconds for the API to perform an initial lookup and setup
-        logging.info(f"Starting SSL/TLS scan for: {self.base_url}")
         res = self._call_api(path, params)
         del params['startNew']
         time.sleep(5)
@@ -79,7 +78,7 @@ class TlsScan(object):
         return res
 
     def scan(self, ignore_cache=False):
-        logging.info('Starting SSL/TLS Scan. Hang in there, this will take some time...')
+        logging.info(f"Starting SSL/TLS scan for: {self.base_url}. This may take some time, please be patient.")
         scan_data = self._run_ssl_scan(ignore_cache)
         res = TlsResult(
             ips_scanned=len(scan_data.get('endpoints', [])),

@@ -69,7 +69,8 @@ class DescriptorAnalyzer(object):
             res_code = int(scan_res[link].res_code)
             if res_code >= 200 and res_code < 400:
                 passed = False
-                proof.append(link)
+                proof_text = f"{link} - Using an invalid JWT token" if scan_res['link'].jwt_used else link
+                proof.append(proof_text)
 
         return passed, proof
 

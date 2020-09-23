@@ -1,11 +1,12 @@
-from jsonobject import (DefaultProperty, DictProperty, JsonObject,
-                        ListProperty, StringProperty)
+from jsonobject import (BooleanProperty, DefaultProperty, DictProperty,
+                        JsonObject, ListProperty, StringProperty)
 
 
 class DescriptorLink(JsonObject):
     cache_header = StringProperty()
     referrer_header = StringProperty()
     session_cookies = ListProperty(StringProperty())
+    jwt_used = BooleanProperty()
     res_code = StringProperty()
 
 
