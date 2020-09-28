@@ -25,6 +25,7 @@ class Requirements(JsonObject):
     req13 = ObjectProperty(RequirementsResult, name='13')
     req14 = ObjectProperty(RequirementsResult, name='14')
     req15 = ObjectProperty(RequirementsResult, name='15')
+    req16 = ObjectProperty(RequirementsResult, name='16')
 
 
 class Results(JsonObject):

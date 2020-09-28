@@ -97,6 +97,7 @@ class DescriptorScan(object):
     def _visit_link(self, link):
         get_hs256, get_none = self._generate_fake_jwts(link, 'GET')
         post_hs256, post_none = self._generate_fake_jwts(link, 'POST')
+        # Test for both incorrectly signed JWT and JWT using the None/Null algorithm
         tasks = [
             {'method': 'GET', 'headers': None},
             {'method': 'GET', 'headers': {'Authorization': f"JWT {get_hs256}"}},
@@ -110,7 +111,8 @@ class DescriptorScan(object):
         for task in tasks:
             res = requests.request(task['method'], link, headers=task['headers'])
             if res.status_code < 400:
-                return res, True
+                # Return True if we got a <400 response with a fake JWT, else False
+                return res, True if task['headers'] else False
 
         return res, False
 
@@ -136,12 +138,12 @@ class DescriptorScan(object):
         )
         scan_res = defaultdict()
         for link in self.links:
-            r, jwt_used = self._visit_link(link)
+            r, fake_jwt = self._visit_link(link)
             scan_res[link] = DescriptorLink(
                 cache_header=r.headers.get('Cache-Control', 'Header missing'),
                 referrer_header=r.headers.get('Referrer-Policy', 'Header missing'),
                 session_cookies=self._get_session_cookies(r.cookies),
-                jwt_used=jwt_used,
+                fake_jwt=fake_jwt,
                 res_code=str(r.status_code)
             )
 

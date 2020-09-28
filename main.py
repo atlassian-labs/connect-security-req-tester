@@ -4,15 +4,17 @@ import logging
 import fire
 
 import utils
+from analyzers.branding_analyzer import BrandingAnalyzer
 from analyzers.descriptor_analyzer import DescriptorAnalyzer
 from analyzers.tls_analyzer import TlsAnalyzer
 from models.requirements import Requirements, Results
+from reports.constants import NO_SCAN_INFO
 from reports.generator import ReportGenerator
 from scans.descriptor_scan import DescriptorScan
 from scans.tls_scan import TlsScan
 
 
-def main(descriptor_url, force_scan=False, debug=False, out_dir='out'):
+def main(descriptor_url, force_scan=False, skip_branding=False, debug=False, out_dir='out'):
     # Setup our logging
     setup_logging(debug)
     # Validate and fetch the provided connect descriptor to confirm it works
@@ -43,6 +45,12 @@ def main(descriptor_url, force_scan=False, debug=False, out_dir='out'):
 
     descriptor_analyzer = DescriptorAnalyzer(descriptor_res, results.requirements)
     results.requirements = descriptor_analyzer.analyze()
+
+    if not skip_branding:
+        branding_analyzer = BrandingAnalyzer(descriptor_res.links, descriptor_res.name, results.requirements)
+        results.requirements = branding_analyzer.analyze()
+        # Slightly gross hack that tells the tool we are actually running branding scans
+        del NO_SCAN_INFO['16']
 
     logging.info('Finished analysis')
 

@@ -14,6 +14,7 @@ jinja2 = "*"
 markdown2 = "*"
 validators = "*"
 pyjwt = "*"
+tldextract = "*"
 
 [requires]
 python_version = "3.8"

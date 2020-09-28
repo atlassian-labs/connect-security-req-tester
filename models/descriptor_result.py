@@ -6,7 +6,7 @@ class DescriptorLink(JsonObject):
     cache_header = StringProperty()
     referrer_header = StringProperty()
     session_cookies = ListProperty(StringProperty())
-    jwt_used = BooleanProperty()
+    fake_jwt = BooleanProperty()
     res_code = StringProperty()
 
 

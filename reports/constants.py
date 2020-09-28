@@ -13,7 +13,8 @@ REQ_TITLES = {
     '12': 'Referrer Policy',
     '13': 'URL Tampering',
     '14': 'Use of External Components',
-    '15': 'Security SLAs'
+    '15': 'Security SLAs',
+    '16': 'App Name and Domain Branding Violations'
 }
 
 NO_ISSUES = 'We did not detect any issues for this check.'
@@ -26,6 +27,7 @@ MISSING_CACHE_HEADERS = 'We did not detect the correct Cache-Control header on o
 MISSING_REF_HEADERS = 'We did not detect the correct Referrer-Policy header on one or more endpoints.'
 MISSING_ATTRS_SESSION_COOKIE = 'We did not detect the "Secure" or "HttpOnly" attribute on one or more session cookies set by your app.'
 MISSING_AUTHN_AUTHZ = 'One or more endpoints returned a <400 status code without authentication information. This may indicate that your app is not performing authentication and authorization checks.'
+BRANDING_ISSUE = 'Your app name or domain contained words that are not allowed. Please refer to our branding guidelines at: https://developer.atlassian.com/platform/marketplace/atlassian-brand-guidelines-for-marketplace-vendors/#app-names for more information.'
 
 NO_SCAN_INFO = {
     '4': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#domain-and-subdomain-takeover for more information.',
@@ -36,5 +38,6 @@ NO_SCAN_INFO = {
     '10': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#collection-of-atlassian-credentials for more information.',
     '13': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#url-tampering for more information.',
     '14': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#use-of-external-components for more information.',
-    '15': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#security-slas for more information.'
+    '15': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#security-slas for more information.',
+    '16': 'Refer to https://developer.atlassian.com/platform/marketplace/atlassian-brand-guidelines-for-marketplace-vendors/#app-names for more information.'
 }
