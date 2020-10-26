@@ -5,6 +5,9 @@ verify_ssl = true
 
 [dev-packages]
 flake8 = "*"
+pytest = "*"
+requests-mock = "*"
+pytest-cov = "*"
 
 [packages]
 requests = "*"
@@ -18,3 +21,6 @@ tldextract = "*"
 
 [requires]
 python_version = "3.8"
+
+[scripts]
+test = "pipenv run pytest -s --cov --cov-config=.coveragerc"

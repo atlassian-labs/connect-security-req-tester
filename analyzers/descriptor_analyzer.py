@@ -1,4 +1,6 @@
 import json
+import re
+from distutils import util
 
 from models.requirements import RequirementsResult
 from reports.constants import (MISSING_ATTRS_SESSION_COOKIE,
@@ -7,6 +9,7 @@ from reports.constants import (MISSING_ATTRS_SESSION_COOKIE,
 
 REQ_CACHE_HEADERS = ['no-cache', 'no-store']
 REF_DENYLIST = ['no-referrer-when-downgrade', 'unsafe-url']
+COOKIE_PARSE = r'(.*); Domain=(.*); Secure=(.*); HttpOnly=(.*)'
 
 
 class DescriptorAnalyzer(object):
@@ -50,11 +53,12 @@ class DescriptorAnalyzer(object):
         for link in scan_res:
             cookies = scan_res[link].session_cookies
             for cookie in cookies:
-                cookie = cookie.split('; ')
-                secure = bool(cookie[2])
-                httponly = bool(cookie[3])
+                # Parsing the cookie string became messy, so we use a regex to match and tear
+                # the string apart into its relevant pieces
+                parsed = re.match(COOKIE_PARSE, cookie)
+                secure = bool(util.strtobool(parsed.group(3)))
+                httponly = bool(util.strtobool(parsed.group(4)))
 
-                proof = f"{link} - "
                 if not secure or not httponly:
                     proof.append(f"{link} - {cookie}")
                 passed = passed and secure and httponly

@@ -1,0 +1,589 @@
+{
+   "key": "confluence-helloworld-addon",
+   "name": "Hello World",
+   "base_url": "https://bbc7069740af.ngrok.io",
+   "app_descriptor_url": "https://bbc7069740af.ngrok.io/atlassian-connect.json",
+   "app_descriptor": {
+      "key": "confluence-helloworld-addon",
+      "name": "Hello World",
+      "description": "XSS-Test app <a href=javascript:alert(document.domain)>Click Me</a>",
+      "vendor": {
+         "name": "<svg/onload=prompt(document.domain)>",
+         "url": "https://example.com"
+      },
+      "baseUrl": "https://bbc7069740af.ngrok.io/",
+      "links": {
+         "self": "https://bbc7069740af.ngrok.io//atlassian-connect.json",
+         "homepage": "https://bbc7069740af.ngrok.io//atlassian-connect.json"
+      },
+      "authentication": {
+         "type": "jwt"
+      },
+      "lifecycle": {
+         "installed": "/installed"
+      },
+      "scopes": [
+         "READ"
+      ],
+      "modules": {
+         "adminPages": [
+            {
+               "url": "/my-admin-page",
+               "name": {
+                  "value": "My Admin Page"
+               },
+               "key": "my-admin-page"
+            }
+         ],
+         "configurePage": {
+            "url": "/my-config-page",
+            "name": {
+               "value": "My Configure Page"
+            },
+            "key": "my-config-page"
+         },
+         "blueprints": [
+            {
+               "template": {
+                  "url": "/blueprints/blueprint.xml",
+                  "blueprintContext": {
+                     "url": "/blueprints/context"
+                  }
+               },
+               "createResult": "edit",
+               "description": {
+                  "value": "This is a description."
+               },
+               "icon": {
+                  "width": 48,
+                  "height": 48,
+                  "url": "/my-blueprint-icon.png"
+               },
+               "name": {
+                  "value": "Simple Remote Blueprint"
+               },
+               "key": "remote-blueprint"
+            }
+         ],
+         "contentBylineItems": [
+            {
+               "url": "/my-byline-item",
+               "context": "addon",
+               "target": {
+                  "type": "inlinedialog"
+               },
+               "tooltip": {
+                  "value": "Item Tooltip"
+               },
+               "icon": {
+                  "width": 16,
+                  "height": 16,
+                  "url": "/my-icon.png"
+               },
+               "name": {
+                  "value": "Item Text"
+               },
+               "key": "byline-item"
+            }
+         ],
+         "customContent": [
+            {
+               "uiSupport": {
+                  "contentViewComponent": {
+                     "addonKey": "addon-key",
+                     "moduleKey": "dialog-module-key"
+                  },
+                  "icons": {
+                     "item": {
+                        "width": 16,
+                        "height": 16,
+                        "url": "/item.png"
+                     }
+                  }
+               },
+               "apiSupport": {
+                  "bodyType": "storage",
+                  "supportedContainerTypes": [
+                     "space",
+                     "page"
+                  ],
+                  "supportedChildTypes": [
+                     "attachment",
+                     "comment"
+                  ],
+                  "supportedSpacePermissions": [],
+                  "preventDuplicateTitle": false,
+                  "indexing": {
+                     "enabled": true
+                  }
+               },
+               "name": {
+                  "value": "My Content Type Name"
+               },
+               "key": "my-custom-content"
+            }
+         ],
+         "dialogs": [
+            {
+               "url": "/my-dialog-content",
+               "options": {
+                  "size": "fullscreen",
+                  "header": {
+                     "value": "Example Dialog"
+                  }
+               },
+               "key": "dialog-module-key"
+            }
+         ],
+         "dynamicContentMacros": [
+            {
+               "width": "200px",
+               "height": "200px",
+               "renderModes": {
+                  "pdf": {
+                     "url": "/render-map-pdf"
+                  },
+                  "default": {
+                     "url": "/render-map-static"
+                  }
+               },
+               "url": "/render-map?pageTitle={page.title}",
+               "description": {
+                  "value": "Shows a configurable map"
+               },
+               "icon": {
+                  "width": 80,
+                  "height": 80,
+                  "url": "/maps/icon.png"
+               },
+               "documentation": {
+                  "url": "http://docs.example.com/addons/maps"
+               },
+               "categories": [
+                  "visuals"
+               ],
+               "outputType": "block",
+               "bodyType": "none",
+               "aliases": [
+                  "map"
+               ],
+               "featured": true,
+               "parameters": [
+                  {
+                     "identifier": "view",
+                     "name": {
+                        "value": "Map View"
+                     },
+                     "description": {
+                        "value": "Allows switching between view types"
+                     },
+                     "type": "enum",
+                     "required": true,
+                     "multiple": false,
+                     "defaultValue": "Map",
+                     "values": [
+                        "Map",
+                        "Satellite"
+                     ],
+                     "hidden": false
+                  }
+               ],
+               "autoconvert": {
+                  "urlParameter": "url",
+                  "matchers": [
+                     {
+                        "pattern": "https://www.example.com/maps/{}/{}"
+                     },
+                     {
+                        "pattern": "https://www.example.com/map-editor/{}"
+                     }
+                  ]
+               },
+               "editor": {
+                  "url": "/map-editor",
+                  "editTitle": {
+                     "value": "Edit Map"
+                  },
+                  "insertTitle": {
+                     "value": "Insert Map"
+                  }
+               },
+               "name": {
+                  "value": "Maps"
+               },
+               "key": "dynamic-macro-example"
+            }
+         ],
+         "generalPages": [
+            {
+               "url": "/macro",
+               "icon": {
+                  "width": 80,
+                  "height": 80,
+                  "url": "/maps/icon.png"
+               },
+               "name": {
+                  "value": "My General Page"
+               },
+               "key": "my-general-page"
+            }
+         ],
+         "postInstallPage": {
+            "url": "/my-post-install-page",
+            "name": {
+               "value": "My Post-Install Page",
+               "i18n": "mypostinstallpage.name"
+            },
+            "key": "my-post-install-page"
+         },
+         "spaceToolsTabs": [
+            {
+               "url": "/space-tools-tab?space_key={space.key}",
+               "location": "contenttools",
+               "name": {
+                  "value": "Space Tools Tab"
+               },
+               "key": "my-space-tools-tab"
+            }
+         ],
+         "staticContentMacros": [
+            {
+               "renderingMethod": "get",
+               "url": "/render-map?pageTitle={page.title}",
+               "description": {
+                  "value": "Shows a configurable map"
+               },
+               "icon": {
+                  "width": 80,
+                  "height": 80,
+                  "url": "/maps/icon.png"
+               },
+               "documentation": {
+                  "url": "http://docs.example.com/addons/maps"
+               },
+               "categories": [
+                  "visuals"
+               ],
+               "outputType": "block",
+               "bodyType": "none",
+               "aliases": [
+                  "map"
+               ],
+               "featured": true,
+               "parameters": [
+                  {
+                     "identifier": "view",
+                     "name": {
+                        "value": "Map View"
+                     },
+                     "description": {
+                        "value": "Allows switching between view types"
+                     },
+                     "type": "enum",
+                     "required": true,
+                     "multiple": false,
+                     "defaultValue": "Map",
+                     "values": [
+                        "Map",
+                        "Satellite"
+                     ],
+                     "hidden": false
+                  }
+               ],
+               "autoconvert": {
+                  "urlParameter": "url",
+                  "matchers": [
+                     {
+                        "pattern": "https://www.example.com/maps/{}/{}"
+                     },
+                     {
+                        "pattern": "https://www.example.com/map-editor/{}"
+                     }
+                  ]
+               },
+               "editor": {
+                  "url": "/map-editor",
+                  "editTitle": {
+                     "value": "Edit Map"
+                  },
+                  "insertTitle": {
+                     "value": "Insert Map"
+                  }
+               },
+               "name": {
+                  "value": "Maps"
+               },
+               "key": "static-macro-example"
+            }
+         ],
+         "confluenceThemes": [
+            {
+               "routes": {
+                  "spaceview": {
+                     "url": "/my-spaceview/{space.key}"
+                  }
+               },
+               "icon": {
+                  "width": 110,
+                  "height": 70,
+                  "url": "/my-theme-icon.png"
+               },
+               "description": {
+                  "value": "Some description"
+               },
+               "lookAndFeel": {
+                  "headings": {
+                     "color": "#333333"
+                  },
+                  "links": {
+                     "color": "#3572B0"
+                  },
+                  "menus": {
+                     "hoverOrFocus": {
+                        "backgroundColor": "#3873AE"
+                     },
+                     "color": "#000000"
+                  },
+                  "bordersAndDividers": {
+                     "color": "#0D0E0E"
+                  },
+                  "header": {
+                     "backgroundColor": "#661F2D",
+                     "button": {
+                        "backgroundColor": "#894E59",
+                        "color": "#FFFFFF"
+                     },
+                     "primaryNavigation": {
+                        "hoverOrFocus": {
+                           "backgroundColor": "#863647",
+                           "color": "#FFFFFF"
+                        },
+                        "color": "#FFFFFF"
+                     },
+                     "secondaryNavigation": {
+                        "hoverOrFocus": {
+                           "backgroundColor": "#863647",
+                           "color": "#FFFFFF"
+                        },
+                        "color": "#000000"
+                     },
+                     "search": {
+                        "backgroundColor": "#9A636B",
+                        "color": "#FFFFFF"
+                     }
+                  },
+                  "content": {
+                     "screen": {
+                        "layer": {
+                           "width": "100%",
+                           "height": "250px",
+                           "backgroundImage": "url('http://path/to/img/skyline.jpg')",
+                           "backgroundSize": "cover",
+                           "backgroundRepeat": "no-repeat"
+                        },
+                        "gutterTop": "20px",
+                        "gutterRight": "small",
+                        "gutterBottom": "10px",
+                        "gutterLeft": "small",
+                        "background": "linear-gradient(45deg, rgba(176,104,112,1) 0%, rgba(244,212,216,1) 100%)"
+                     },
+                     "container": {
+                        "padding": "0 20px",
+                        "borderRadius": "10px",
+                        "background": "#F4D4D8"
+                     },
+                     "header": {
+                        "padding": "20px 0 90px 20px",
+                        "borderRadius": "5px 5px 0 0",
+                        "backgroundColor": "rgba(0, 0, 0, 0.2)"
+                     },
+                     "body": {
+                        "padding": "10px",
+                        "borderRadius": "0 0 5px 5px",
+                        "background": "#FFFFFF"
+                     }
+                  }
+               },
+               "name": {
+                  "value": "My Addon Theme"
+               },
+               "key": "my-addon-theme"
+            }
+         ],
+         "webItems": [
+            {
+               "location": "system.preset.filters",
+               "weight": 200,
+               "styleClasses": [
+                  "webitem",
+                  "system-present-webitem"
+               ],
+               "url": "javascript:alert(2);",
+               "context": "addon",
+               "target": {
+                  "type": "page"
+               },
+               "tooltip": {
+                  "value": "Example tooltip"
+               },
+               "icon": {
+                  "width": 16,
+                  "height": 16,
+                  "url": "/maps/icon.png"
+               },
+               "name": {
+                  "value": "My Web Item"
+               },
+               "key": "web-item-example"
+            }
+         ],
+         "webPanels": [
+            {
+               "url": "/web-panel",
+               "location": "atl.jira.view.issue.right.context",
+               "layout": {
+                  "width": "10px",
+                  "height": "100%"
+               },
+               "weight": 50,
+               "supportsNative": false,
+               "name": {
+                  "value": "My Web Panel"
+               },
+               "key": "my-web-panel"
+            }
+         ],
+         "webhooks": [
+            {
+               "event": "jira:issue_created",
+               "url": "/issue-created",
+               "excludeBody": false,
+               "filter": "project = HSA",
+               "propertyKeys": [
+                  "propertyKey",
+                  "otherPropertyKey"
+               ]
+            }
+         ]
+      }
+   },
+   "scopes": [
+      "READ"
+   ],
+   "links": [
+      "https://bbc7069740af.ngrok.io/installed",
+      "https://bbc7069740af.ngrok.io/my-admin-page",
+      "https://bbc7069740af.ngrok.io/space-tools-tab?space_key=test",
+      "https://bbc7069740af.ngrok.io/my-byline-item",
+      "https://bbc7069740af.ngrok.io/my-spaceview/test",
+      "https://bbc7069740af.ngrok.io/my-post-install-page",
+      "https://bbc7069740af.ngrok.io/javascript:alert(2);",
+      "https://bbc7069740af.ngrok.io/macro",
+      "https://bbc7069740af.ngrok.io/my-dialog-content",
+      "https://bbc7069740af.ngrok.io/blueprints/blueprint.xml",
+      "https://bbc7069740af.ngrok.io/web-panel",
+      "https://bbc7069740af.ngrok.io/my-config-page",
+      "https://bbc7069740af.ngrok.io/issue-created",
+      "https://bbc7069740af.ngrok.io/render-map?pageTitle=test"
+   ],
+   "scan_results": {
+      "https://bbc7069740af.ngrok.io/installed": {
+         "cache_header": "no-cache, no-store",
+         "referrer_header": "Header missing",
+         "session_cookies": [],
+         "fake_jwt": false,
+         "res_code": "401"
+      },
+      "https://bbc7069740af.ngrok.io/my-admin-page": {
+         "cache_header": "no-cache, no-store",
+         "referrer_header": "origin",
+         "session_cookies": [],
+         "fake_jwt": false,
+         "res_code": "404"
+      },
+      "https://bbc7069740af.ngrok.io/space-tools-tab?space_key=test": {
+         "cache_header": "no-cache, no-store",
+         "referrer_header": "origin",
+         "session_cookies": [],
+         "fake_jwt": false,
+         "res_code": "404"
+      },
+      "https://bbc7069740af.ngrok.io/my-byline-item": {
+         "cache_header": "no-cache, no-store",
+         "referrer_header": "origin",
+         "session_cookies": [],
+         "fake_jwt": false,
+         "res_code": "404"
+      },
+      "https://bbc7069740af.ngrok.io/my-spaceview/test": {
+         "cache_header": "no-cache, no-store",
+         "referrer_header": "origin",
+         "session_cookies": [],
+         "fake_jwt": false,
+         "res_code": "404"
+      },
+      "https://bbc7069740af.ngrok.io/my-post-install-page": {
+         "cache_header": "no-cache, no-store",
+         "referrer_header": "origin",
+         "session_cookies": [],
+         "fake_jwt": false,
+         "res_code": "429"
+      },
+      "https://bbc7069740af.ngrok.io/javascript:alert(2);": {
+         "cache_header": "no-cache, no-store",
+         "referrer_header": "origin",
+         "session_cookies": [],
+         "fake_jwt": false,
+         "res_code": "429"
+      },
+      "https://bbc7069740af.ngrok.io/macro": {
+         "cache_header": "no-cache, no-store",
+         "referrer_header": "origin",
+         "session_cookies": [],
+         "fake_jwt": false,
+         "res_code": "429"
+      },
+      "https://bbc7069740af.ngrok.io/my-dialog-content": {
+         "cache_header": "no-cache, no-store",
+         "referrer_header": "origin",
+         "session_cookies": [],
+         "fake_jwt": false,
+         "res_code": "429"
+      },
+      "https://bbc7069740af.ngrok.io/blueprints/blueprint.xml": {
+         "cache_header": "no-cache, no-store",
+         "referrer_header": "origin",
+         "session_cookies": [],
+         "fake_jwt": false,
+         "res_code": "429"
+      },
+      "https://bbc7069740af.ngrok.io/web-panel": {
+         "cache_header": "no-cache, no-store",
+         "referrer_header": "origin",
+         "session_cookies": [],
+         "fake_jwt": false,
+         "res_code": "429"
+      },
+      "https://bbc7069740af.ngrok.io/my-config-page": {
+         "cache_header": "no-cache, no-store",
+         "referrer_header": "origin",
+         "session_cookies": [],
+         "fake_jwt": false,
+         "res_code": "429"
+      },
+      "https://bbc7069740af.ngrok.io/issue-created": {
+         "cache_header": "no-cache, no-store",
+         "referrer_header": "origin",
+         "session_cookies": [],
+         "fake_jwt": false,
+         "res_code": "429"
+      },
+      "https://bbc7069740af.ngrok.io/render-map?pageTitle=test": {
+         "cache_header": "no-cache, no-store",
+         "referrer_header": "origin",
+         "session_cookies": [],
+         "fake_jwt": false,
+         "res_code": "429"
+      }
+   }
+}

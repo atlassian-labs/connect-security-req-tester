@@ -14,23 +14,25 @@ def validate_and_resolve_descriptor(url):
         url (str): The user-supplied descriptor URL
 
     Returns:
-        tuple(str,str): The determined descriptor url and full descriptor file json parsed
+        dict: The app descriptor at the url converted to a dict
     """
     if not validators.url(url):
         logging.error(
             'Descriptor URL appears invalid, confirm the link to your Connect Descriptor.'
         )
         sys.exit(1)
-    # Attempt to resolve descriptor...
-    res = requests.get(url)
-    res.raise_for_status()
+    # Fetch the descriptor, ensure file is JSON, reachable, and contains required fields
+    res = None
+    required_fields = ['baseUrl', 'key', 'name', 'scopes']
+    try:
+        res = requests.get(url)
+        res.raise_for_status()
+        res = res.json()
+        # Ensure we have the required fields we use later on
+        if not all(fields in res for fields in required_fields):
+            raise Exception('Connect Descriptor is not valid.')
+    except Exception:
+        logging.error(f"We were unable to retrieve the connect descriptor at: {url}")
+        sys.exit(1)
 
-    descriptor = res.json()
-    remote_url = descriptor.get('links', {}).get('self', None)
-
-    if not remote_url:
-        base_url = descriptor['baseUrl'] if descriptor['baseUrl'].endswith('/') else descriptor['baseUrl'] + '/'
-        remote_url = base_url + 'atlassian-connect.json'
-
-    logging.debug(f"Resolved descriptor location: {remote_url}")
-    return remote_url, descriptor
+    return res

@@ -31,5 +31,12 @@ This tool will make network requests on from your computer. Please ensure this i
 
 Additional information about the Atlassian Connect Security Requirements can be found at: [https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/](https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/)
 
-## Issues/Feedback?
-TBD
+## Testing
+To run the entire test suite:
+
+* `pipenv run test`
+
+Tests may take a few minutes to run as we rely on the Qualys API to return results back to us to confirm functionality.
+
+## Issues / Feedback?
+Reach out in the #aut-scan-platform Slack chat.

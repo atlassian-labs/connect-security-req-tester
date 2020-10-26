@@ -18,7 +18,7 @@ def main(descriptor_url, force_scan=False, skip_branding=False, debug=False, out
     # Setup our logging
     setup_logging(debug)
     # Validate and fetch the provided connect descriptor to confirm it works
-    descriptor_url, descriptor = utils.validate_and_resolve_descriptor(descriptor_url)
+    descriptor = utils.validate_and_resolve_descriptor(descriptor_url)
 
     # Run all of the gather scans (TLS & Descriptor Scan)
     tls_scan = TlsScan(descriptor_url)

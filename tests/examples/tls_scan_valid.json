@@ -1,0 +1,53 @@
+{
+  "ips_scanned": 3,
+  "protocols": ["TLS 1.2", "TLS 1.3"],
+  "hsts_present": true,
+  "trusted": true,
+  "scan_results": {
+    "18.234.32.198": {
+      "protocols": ["TLS 1.2", "TLS 1.3"],
+      "hsts": {
+        "LONG_MAX_AGE": 15552000,
+        "header": "max-age=63072000; preload",
+        "status": "present",
+        "maxAge": 63072000,
+        "preload": true,
+        "directives": {
+          "max-age": "63072000",
+          "preload": ""
+        }
+      },
+      "cert_grade": "A+"
+    },
+    "18.234.32.199": {
+      "protocols": ["TLS 1.2", "TLS 1.3"],
+      "hsts": {
+        "LONG_MAX_AGE": 15552000,
+        "header": "max-age=63072000; preload",
+        "status": "present",
+        "maxAge": 63072000,
+        "preload": true,
+        "directives": {
+          "max-age": "63072000",
+          "preload": ""
+        }
+      },
+      "cert_grade": "A+"
+    },
+    "18.234.32.197": {
+      "protocols": ["TLS 1.2", "TLS 1.3"],
+      "hsts": {
+        "LONG_MAX_AGE": 15552000,
+        "header": "max-age=63072000; preload",
+        "status": "present",
+        "maxAge": 63072000,
+        "preload": true,
+        "directives": {
+          "max-age": "63072000",
+          "preload": ""
+        }
+      },
+      "cert_grade": "A+"
+    }
+  }
+}

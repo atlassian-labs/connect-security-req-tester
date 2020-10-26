@@ -28,7 +28,7 @@ class DescriptorScan(object):
         lifecycle_events = self.descriptor.get('lifecycle', [])
         modules = self.descriptor.get('modules', [])
         # Grab all lifecycle events
-        urls = [evt for evt in lifecycle_events]
+        urls = [lifecycle_events[evt] for evt in lifecycle_events]
         # Grab all URLs from modules, this magic flattens a list of lists to a single list structure
         urls += [item for sublist in [self._find_urls_in_module(modules[x]) for x in modules] for item in sublist]
 
@@ -70,7 +70,7 @@ class DescriptorScan(object):
                 if type(value) is dict:
                     urls.extend(self._find_urls_in_module(value))
                 if key == 'url':
-                    return [value]
+                    urls.extend([value])
         else:
             return urls
         return urls
@@ -120,7 +120,7 @@ class DescriptorScan(object):
         res = []
         for cookie in cookiejar:
             if cookie.name.upper() in COMMON_SESSION_COOKIES:
-                res.append(f"{cookie.name}; Domain={cookie.domain}; Secure={cookie.secure}; HttpOnly={cookie._rest.get('HttpOnly', False)}")
+                res.append(f"{cookie.name}; Domain={cookie.domain}; Secure={cookie.secure}; HttpOnly={'HttpOnly' in cookie._rest}")
 
         return res
 
