@@ -2,6 +2,7 @@ import json
 import logging
 import time
 from collections import defaultdict
+import random
 
 import requests
 from requests.adapters import HTTPAdapter
@@ -11,7 +12,9 @@ from models.tls_result import IpResult, TlsResult
 
 BASE_API = 'https://api.ssllabs.com/api/v3'
 POLL_TIME = 15
-WAIT_TIME_PER_ENDPOINT = 80
+WAIT_TIME_PER_ENDPOINT = 60
+# Changes the amount of time waiting before scan start
+RANDOM_JITTER = 5
 
 
 class TlsScanError(Exception):
@@ -55,15 +58,16 @@ class TlsScan(object):
             'startNew': 'on' if ignore_cache else 'off'
         }
 
-        # Kick off a scan - Wait 5 seconds for the API to perform an initial lookup and setup
+        # Kick off a scan - Include some random jitter wait to ensure the Qualys API does not rate limit us
+        time.sleep(random.randint(1, RANDOM_JITTER))
         res = self._call_api(path, params)
         del params['startNew']
-        time.sleep(POLL_TIME)
+        time.sleep(random.randint(RANDOM_JITTER, POLL_TIME))
 
         # Attempt to intelligently guess the length of the scan based on the number of IPs Qualys needs to scan
         # If we underguess, fall-back to a POLL_TIME many seconds poll
         long_initial_poll = True
-        while (res.get('status', None)) != 'READY':
+        while (res.get('status', None)) not in ['READY', 'ERROR']:
             res = self._call_api(path, params)
             num_ips = len(res.get('endpoints', []))
             poll_amount = POLL_TIME if not long_initial_poll else num_ips * WAIT_TIME_PER_ENDPOINT
