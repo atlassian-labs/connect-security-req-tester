@@ -19,9 +19,10 @@ def setup_module(module):
 def test_descriptor_url_valid():
     url = f"https://connect-inspector.services.atlassian.com/resources/{ADDON_KEY}/atlassian-connect.json"
     actual_descriptor = requests.get(url).json()
-    descriptor = validate_and_resolve_descriptor(url)
+    base_url, descriptor = validate_and_resolve_descriptor(url)
 
     assert actual_descriptor == descriptor
+    assert base_url == actual_descriptor['baseUrl']
 
 
 def test_descriptor_invalid():
@@ -49,3 +50,12 @@ def test_url_json_invalid():
 
     assert wrapped_e.type == SystemExit
     assert wrapped_e.value.code == 1
+
+
+def test_marketplace_url_valid():
+    url = 'https://marketplace.atlassian.com/download/apps/1218875/version/1000134/descriptor'
+    actual_descriptor = requests.get(url).json()
+    base_url, descriptor = validate_and_resolve_descriptor(url)
+
+    assert actual_descriptor == descriptor
+    assert base_url == actual_descriptor['baseUrl']

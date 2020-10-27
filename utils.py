@@ -6,15 +6,14 @@ import validators
 
 
 def validate_and_resolve_descriptor(url):
-    """Validate that the connect descriptor URL provided is valid, and then request
-    the descriptor from the remote URL. Return the descriptor URL from the descriptor
-    file instead of trusting user-input.
+    """Validate and resolve the provided URL to a connect app descriptor. Ensure the URL is well-formed,
+    is externally reachable via a web request, and that it contains the required fields.
 
     Args:
-        url (str): The user-supplied descriptor URL
+        url (str): The URL to the connect app descriptor
 
     Returns:
-        dict: The app descriptor at the url converted to a dict
+        tuple(str, dict): The app's base URL and the connect app descriptor
     """
     if not validators.url(url):
         logging.error(
@@ -23,7 +22,7 @@ def validate_and_resolve_descriptor(url):
         sys.exit(1)
     # Fetch the descriptor, ensure file is JSON, reachable, and contains required fields
     res = None
-    required_fields = ['baseUrl', 'key', 'name', 'scopes']
+    required_fields = ['baseUrl', 'key', 'name', 'scopes', 'links']
     try:
         res = requests.get(url)
         res.raise_for_status()
@@ -31,8 +30,8 @@ def validate_and_resolve_descriptor(url):
         # Ensure we have the required fields we use later on
         if not all(fields in res for fields in required_fields):
             raise Exception('Connect Descriptor is not valid.')
-    except Exception:
-        logging.error(f"We were unable to retrieve the connect descriptor at: {url}")
+    except Exception as e:
+        logging.error(f"We were unable to retrieve the connect descriptor at: {url}\nException: {str(e)}")
         sys.exit(1)
 
-    return res
+    return res['baseUrl'], res
