@@ -10,7 +10,8 @@ from requests.packages.urllib3.util.retry import Retry
 from models.tls_result import IpResult, TlsResult
 
 BASE_API = 'https://api.ssllabs.com/api/v3'
-POLL_TIME = 10
+POLL_TIME = 15
+WAIT_TIME_PER_ENDPOINT = 80
 
 
 class TlsScanError(Exception):
@@ -57,7 +58,7 @@ class TlsScan(object):
         # Kick off a scan - Wait 5 seconds for the API to perform an initial lookup and setup
         res = self._call_api(path, params)
         del params['startNew']
-        time.sleep(5)
+        time.sleep(POLL_TIME)
 
         # Attempt to intelligently guess the length of the scan based on the number of IPs Qualys needs to scan
         # If we underguess, fall-back to a POLL_TIME many seconds poll
@@ -65,7 +66,7 @@ class TlsScan(object):
         while (res.get('status', None)) != 'READY':
             res = self._call_api(path, params)
             num_ips = len(res.get('endpoints', []))
-            poll_amount = POLL_TIME if not long_initial_poll else num_ips * 60
+            poll_amount = POLL_TIME if not long_initial_poll else num_ips * WAIT_TIME_PER_ENDPOINT
 
             if long_initial_poll:
                 logging.info(f"Qualys found {num_ips} endpoint(s). Waiting {poll_amount} seconds for scan completion.")

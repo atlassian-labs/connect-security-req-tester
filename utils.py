@@ -22,7 +22,7 @@ def validate_and_resolve_descriptor(url):
         sys.exit(1)
     # Fetch the descriptor, ensure file is JSON, reachable, and contains required fields
     res = None
-    required_fields = ['baseUrl', 'key', 'name', 'scopes', 'links']
+    required_fields = ['baseUrl', 'key', 'name', 'scopes']
     try:
         res = requests.get(url)
         res.raise_for_status()
