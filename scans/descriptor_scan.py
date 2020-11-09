@@ -22,6 +22,14 @@ class DescriptorScan(object):
         self.descriptor = descriptor
         self.base_url = descriptor['baseUrl'] if not descriptor['baseUrl'].endswith('/') else descriptor['baseUrl'][:-1]
         self.links = self._get_links()
+        self.session = self._setup_session()
+
+    def _setup_session(self):
+        session = requests.Session()
+        session.headers.update(
+            {'User-Agent': 'Atlassian CSRT (https://github.com/atlassian-labs/connect-security-req-tester)'}
+        )
+        return session
 
     def _get_links(self):
         res = []
@@ -109,7 +117,7 @@ class DescriptorScan(object):
 
         res = None
         for task in tasks:
-            res = requests.request(task['method'], link, headers=task['headers'])
+            res = self.session.request(task['method'], link, headers=task['headers'])
             if res.status_code < 400:
                 # Return True if we got a <400 response with a fake JWT, else False
                 return res, True if task['headers'] else False
@@ -120,7 +128,9 @@ class DescriptorScan(object):
         res = []
         for cookie in cookiejar:
             if cookie.name.upper() in COMMON_SESSION_COOKIES:
-                res.append(f"{cookie.name}; Domain={cookie.domain}; Secure={cookie.secure}; HttpOnly={'HttpOnly' in cookie._rest}")
+                res.append(
+                    f"{cookie.name}; Domain={cookie.domain}; Secure={cookie.secure}; HttpOnly={'HttpOnly' in cookie._rest}"
+                )
 
         return res
 

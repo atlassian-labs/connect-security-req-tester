@@ -30,7 +30,7 @@ class TlsScan(object):
     def _setup_session(self):
         retry_strategy = Retry(
             total=3,
-            status_forcelist=[429, 500, 503, 529],
+            status_forcelist=[403, 429, 500, 503, 529],
             method_whitelist=['GET']
         )
         adapter = HTTPAdapter(max_retries=retry_strategy)

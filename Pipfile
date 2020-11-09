@@ -8,6 +8,7 @@ flake8 = "*"
 pytest = "*"
 requests-mock = "*"
 pytest-cov = "*"
+yapf = "*"
 
 [packages]
 requests = "*"
@@ -24,3 +25,4 @@ python_version = "3.8"
 
 [scripts]
 test = "pipenv run pytest -s --cov --cov-config=.coveragerc"
+lint = "pipenv run flake8 . --config=.flake8"

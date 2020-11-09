@@ -3,11 +3,16 @@ import tldextract
 from models.requirements import RequirementsResult
 from reports.constants import BRANDING_ISSUE, NO_ISSUES
 
-PRODUCT_NAMES = ['atlassian', 'jira', 'confluence', 'jira service desk', 'bitbucket', 'atlassian access', 'trello', 'statuspage', 'opsgenie', 'jira align']
+PRODUCT_NAMES = [
+    'atlassian', 'jira', 'confluence', 'jira service desk', 'bitbucket',
+    'atlassian access', 'trello', 'statuspage', 'opsgenie', 'jira align'
+]
 APP_NAME_START_DENYLIST = PRODUCT_NAMES
 APP_NAME_DENYLIST = ['premium']
 # Creates a dynamic list containing all product names with spaces replaced with underscores and dashes
-DOMAIN_DENYLIST = list(set([x.replace(' ', '-') for x in PRODUCT_NAMES] + [x.replace(' ', '_') for x in PRODUCT_NAMES]))
+DOMAIN_DENYLIST = list(
+    set([x.replace(' ', '-') for x in PRODUCT_NAMES] +
+        [x.replace(' ', '_') for x in PRODUCT_NAMES]))
 
 
 class BrandingAnalyzer(object):
@@ -41,7 +46,9 @@ class BrandingAnalyzer(object):
             domain_test = self._check_against_denylist(domain, DOMAIN_DENYLIST)
 
             if sub_test or domain_test:
-                proof.append(f"{link} - Contains a denied word in the subdomain or primary domain")
+                proof.append(
+                    f"{link} - Contains a denied word in the subdomain or primary domain"
+                )
                 passed = False
 
         return passed, proof
@@ -49,11 +56,15 @@ class BrandingAnalyzer(object):
     def _check_app_name(self):
         passed = True
         proof = []
-        starts_with = self._check_starts_with_denylist(self.app_name, APP_NAME_START_DENYLIST)
-        contains = self._check_against_denylist(self.app_name, APP_NAME_DENYLIST)
+        starts_with = self._check_starts_with_denylist(
+            self.app_name, APP_NAME_START_DENYLIST)
+        contains = self._check_against_denylist(self.app_name,
+                                                APP_NAME_DENYLIST)
 
         if starts_with or contains:
-            proof.append(f"App Name ({self.app_name}) starts with or contains a denied word")
+            proof.append(
+                f"App Name ({self.app_name}) starts with or contains a denied word"
+            )
             passed = False
 
         return passed, proof
@@ -68,8 +79,7 @@ class BrandingAnalyzer(object):
         req16 = RequirementsResult(
             passed=branding_passed,
             description=[NO_ISSUES] if branding_passed else [BRANDING_ISSUE],
-            proof=branding_proof
-        )
+            proof=branding_proof)
         self.reqs.req16 = req16
 
         return self.reqs

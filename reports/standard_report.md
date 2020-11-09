@@ -9,7 +9,7 @@ Report generated for:
 
 **{{ results.name }}** was evaluated against the [Security Requirements for Cloud Applications](https://developer.atlassian.com/platform/marketplace/security-requirements/). For additional information on requirements, visit the [addditional information guide on security requirements](https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/).
 
-*Please note, this automated scan does a best-effort attempt at evaluating your cloud app. If you believe there is an error in a finding, reach out to us at: [https://go.atlassian.com/connect-sec-test](https://go.atlassian.com/connect-sec-test)*
+*Please note, this automated scan does a best-effort attempt at evaluating your cloud app. If you believe there is an error in a finding, file an issue at: [https://github.com/atlassian-labs/connect-security-req-tester/issues](https://github.com/atlassian-labs/connect-security-req-tester/issues)*
 
 *Raw scan output is located in the Appendix at the end of the report.*
 

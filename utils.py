@@ -24,14 +24,18 @@ def validate_and_resolve_descriptor(url):
     res = None
     required_fields = ['baseUrl', 'key', 'name', 'scopes']
     try:
-        res = requests.get(url)
+        session = requests.Session()
+        session.headers.update(
+            {'User-Agent': 'Atlassian CSRT (https://github.com/atlassian-labs/connect-security-req-tester)'}
+        )
+        res = session.get(url)
         res.raise_for_status()
         res = res.json()
         # Ensure we have the required fields we use later on
         if not all(fields in res for fields in required_fields):
             raise Exception('Connect Descriptor is not valid.')
         # Ensure the base URL is reachable and exists - This ensures a simple DNS lookup succeeds
-        requests.get(res['baseUrl'])
+        session.get(res['baseUrl'])
     except Exception as e:
         logging.error(f"We were unable to retrieve the connect descriptor at: {url}\nException: {str(e)}")
         sys.exit(1)
