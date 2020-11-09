@@ -22,7 +22,8 @@ jobs:
         python-version: 3.8
     - name: Install dependencies
       run: |
-        pip install --user pipenv
+        pip install --user pipx
+        pipx install pipenv
         pipenv install --dev
     - name: Lint with flake8
       run: |
