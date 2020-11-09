@@ -22,8 +22,8 @@ jobs:
         python-version: 3.8
     - name: Install dependencies
       run: |
-        pip install --user pipx
-        pipx install pipenv
+        pip install --user pipenv
+        echo "$(python -m site --user-base)/bin" >> $GITHUB_PATH
         pipenv install --dev
     - name: Lint with flake8
       run: |
