@@ -22,7 +22,7 @@ jobs:
         python-version: 3.8
     - name: Install dependencies
       run: |
-        sudo apt install pipenv
+        pip install --user pipenv
         pipenv install --dev
     - name: Lint with flake8
       run: |
