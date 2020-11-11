@@ -1,121 +1,116 @@
 import json
 import logging
-import time
-from collections import defaultdict
-import random
+from dataclasses import asdict
 
-import requests
-from requests.adapters import HTTPAdapter
-from requests.packages.urllib3.util.retry import Retry
-
-from models.tls_result import IpResult, TlsResult
-
-BASE_API = 'https://api.ssllabs.com/api/v3'
-POLL_TIME = 15
-WAIT_TIME_PER_ENDPOINT = 60
-# Changes the amount of time waiting before scan start
-RANDOM_JITTER = 5
-
-
-class TlsScanError(Exception):
-    def __init__(self, error_list):
-        self.message = f"The TLS Scan API threw an error: {json.dumps(error_list, indent=3)}"
+import tldextract
+from models.tls_result import TlsResult
+from sslyze import (JsonEncoder, ScanCommand, Scanner,
+                    ServerConnectivityTester,
+                    ServerNetworkLocationViaDirectConnection,
+                    ServerScanRequest)
+from sslyze.errors import ConnectionToServerFailed
 
 
 class TlsScan(object):
     def __init__(self, base_url):
-        self.session = self._setup_session()
-        self.base_url = base_url
+        self.domain = self._get_domain_from_base(base_url)
 
-    def _setup_session(self):
-        retry_strategy = Retry(
-            total=3,
-            status_forcelist=[403, 429, 500, 503, 529],
-            method_whitelist=['GET']
+    def _get_domain_from_base(self, base_url):
+        ext = tldextract.extract(base_url)
+
+        # Convenient way to turn a URL into a domain via re-joining it after extracting it
+        # https://github.com/john-kurkowski/tldextract#user-content-python-module--
+        return '.'.join(part for part in ext if part)
+
+    def _check_connectivity(self):
+        location = ServerNetworkLocationViaDirectConnection.with_ip_address_lookup(self.domain, 443)
+
+        try:
+            server_info = ServerConnectivityTester().perform(location)
+        except ConnectionToServerFailed as e:
+            logging.error(f"SSL/TLS Scan could not connect to: {self.domain}\n{e.error_message}")
+            return
+
+        return server_info
+
+    def _run_scan(self, server_info):
+        scanner = Scanner()
+        scan_request = ServerScanRequest(
+            server_info=server_info,
+            scan_commands={
+                ScanCommand.CERTIFICATE_INFO,
+                ScanCommand.SSL_2_0_CIPHER_SUITES,
+                ScanCommand.SSL_3_0_CIPHER_SUITES,
+                ScanCommand.TLS_1_0_CIPHER_SUITES,
+                ScanCommand.TLS_1_1_CIPHER_SUITES,
+                ScanCommand.TLS_1_2_CIPHER_SUITES,
+                ScanCommand.TLS_1_3_CIPHER_SUITES,
+                ScanCommand.HTTP_HEADERS
+            }
         )
-        adapter = HTTPAdapter(max_retries=retry_strategy)
-        session = requests.Session()
-        session.mount('https://', adapter)
-        session.mount('http://', adapter)
-        return session
+        scanner.queue_scan(scan_request)
+        res = scanner.get_results()
+        # Unpack the generator that is returned as we need to navigate this
+        # data structure multiple times
+        list_res = []
+        for server_res in res:
+            list_res.append(server_res)
 
-    def _call_api(self, path, params):
-        url = f'{BASE_API}/{path}'
+        return list_res
 
-        res = self.session.get(url, params=params).json()
-        if res.get('errors', None):
-            raise TlsScanError(res['errors'])
+    def _check_cert_valid(self, scan_res):
+        for res in scan_res:
+            cert_info = res.scan_commands_results[ScanCommand.CERTIFICATE_INFO]
+            for dep in cert_info.certificate_deployments:
+                if not dep.leaf_certificate_subject_matches_hostname:
+                    return False
+                for validation in dep.path_validation_results:
+                    if not validation.verified_certificate_chain:
+                        return False
 
-        return res
+        return True
 
-    def _run_ssl_scan(self, ignore_cache=False):
-        path = 'analyze'
-        params = {
-            'host': self.base_url,
-            'all': 'done',
-            'fromCache': 'off' if ignore_cache else 'on',
-            'maxAge': '1',
-            'startNew': 'on' if ignore_cache else 'off'
-        }
+    def _get_supported_protocols(self, scan_res):
+        protocols = set()
+        for res in scan_res:
+            ssl2 = res.scan_commands_results[ScanCommand.SSL_2_0_CIPHER_SUITES]
+            ssl3 = res.scan_commands_results[ScanCommand.SSL_3_0_CIPHER_SUITES]
+            tls1 = res.scan_commands_results[ScanCommand.TLS_1_0_CIPHER_SUITES]
+            tls11 = res.scan_commands_results[ScanCommand.TLS_1_1_CIPHER_SUITES]
+            tls12 = res.scan_commands_results[ScanCommand.TLS_1_2_CIPHER_SUITES]
+            tls13 = res.scan_commands_results[ScanCommand.TLS_1_3_CIPHER_SUITES]
+            protocol_results = [ssl2, ssl3, tls1, tls11, tls12, tls13]
+            for proto in protocol_results:
+                if proto.accepted_cipher_suites:
+                    protocols.add(proto.tls_version_used.name)
 
-        # Kick off a scan - Include some random jitter wait to ensure the Qualys API does not rate limit us
-        time.sleep(random.randint(1, RANDOM_JITTER))
-        res = self._call_api(path, params)
-        del params['startNew']
-        time.sleep(random.randint(RANDOM_JITTER, POLL_TIME))
+        return list(protocols)
 
-        # Attempt to intelligently guess the length of the scan based on the number of IPs Qualys needs to scan
-        # If we underguess, fall-back to a POLL_TIME many seconds poll
-        long_initial_poll = True
-        while (res.get('status', None)) not in ['READY', 'ERROR']:
-            res = self._call_api(path, params)
-            num_ips = len(res.get('endpoints', []))
-            poll_amount = POLL_TIME if not long_initial_poll else num_ips * WAIT_TIME_PER_ENDPOINT
+    def _get_hsts_info(self, scan_res):
+        hsts_present = True
+        for res in scan_res:
+            headers = res.scan_commands_results[ScanCommand.HTTP_HEADERS]
+            if not headers.strict_transport_security_header:
+                hsts_present = False
 
-            if long_initial_poll:
-                logging.info(f"Qualys found {num_ips} endpoint(s). Waiting {poll_amount} seconds for scan completion.")
-                long_initial_poll = False
-            else:
-                logging.debug(f"Scan for {self.base_url} still not ready. Waiting {poll_amount} more seconds.")
+        return hsts_present
 
-            time.sleep(poll_amount)
+    def scan(self):
+        logging.info(f"Starting SSL/TLS Scan for {self.domain}...")
+        server_info = self._check_connectivity()
+        scan_res = self._run_scan(server_info)
 
-        return res
+        # Data shuffling to get this into a pretty state for reporting purposes
+        raw_output = [json.loads(json.dumps(asdict(x), cls=JsonEncoder)) for x in scan_res]
 
-    def scan(self, ignore_cache=False):
-        logging.info(f"Starting SSL/TLS scan for: {self.base_url}. This may take some time, please be patient.")
-        scan_data = self._run_ssl_scan(ignore_cache)
-        res = TlsResult(
-            ips_scanned=len(scan_data.get('endpoints', [])),
-            protocols=[],
-            hsts_present=True,
-            trusted=True,
-            scan_results={}
+        tls_res = TlsResult(
+            domain=self.domain,
+            ips_scanned=len(scan_res),
+            protocols=self._get_supported_protocols(scan_res),
+            hsts_present=self._get_hsts_info(scan_res),
+            trusted=self._check_cert_valid(scan_res),
+            scan_results=raw_output
         )
 
-        scan_res = defaultdict()
-        scan_protos = set()
-
-        for endpoint in scan_data.get('endpoints', []):
-            if endpoint.get('statusMessage', None) == 'Ready':
-                protocols = [
-                    f"{x['name']} {x['version']}"
-                    for x in endpoint['details']['protocols']
-                ]
-                scan_protos.update(protocols)
-                hsts_present = endpoint['details']['hstsPolicy']['status'] == 'present'
-                res.hsts_present = res.hsts_present and hsts_present
-                res.trusted = res.trusted and endpoint['grade'] not in ['T', 'M']
-
-                scan_res[endpoint['ipAddress']] = IpResult(
-                    protocols=protocols,
-                    hsts=endpoint['details']['hstsPolicy'],
-                    cert_grade=endpoint['grade']
-                )
-
-        res.protocols = list(scan_protos)
-        res.scan_results = scan_res
-
-        logging.info(f"SSL/TLS scan complete, found and tested {len(scan_res)} IPs")
-
-        return res
+        logging.info('SSL/TLS Scan completed.')
+        return tls_res

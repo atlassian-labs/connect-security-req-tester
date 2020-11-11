@@ -1,46 +1,41 @@
-import json
-
 from models.requirements import RequirementsResult
 from reports.constants import (CERT_NOT_VALID, HSTS_MISSING, NO_ISSUES,
                                TLS_PROTOCOLS)
 
-PROTO_DENYLIST = ['TLS 1.0', 'TLS 1.1', 'SSL 3.0']
+PROTO_DENYLIST = ['TLS_1_0', 'TLS_1_1', 'SSL_3_0', 'SSL_2_0']
 
 
 class TlsAnalyzer(object):
     def __init__(self, tls_scan, requirements):
         self.scan = tls_scan
         self.reqs = requirements
-        self.proof = json.dumps(self.scan.to_json(), indent=3)
 
     def _check_tls_versions(self):
         passed = True
         proof = []
-        for ip in self.scan.scan_results:
-            bad_protos = any(item in self.scan.scan_results[ip]['protocols'] for item in PROTO_DENYLIST)
-            if bad_protos:
-                proof.append(f"{ip} - {self.scan.scan_results[ip]['protocols']}")
-            passed = passed and not bad_protos
+
+        uses_bad_protos = any(item in self.scan.protocols for item in PROTO_DENYLIST)
+        if uses_bad_protos:
+            proof += [f"Protocols Found: {self.scan.protocols}"]
+            passed = False
 
         return passed, proof
 
     def _check_hsts(self):
-        passed = True
+        passed = self.scan.hsts_present
         proof = []
-        for ip in self.scan.scan_results:
-            if self.scan.scan_results[ip].hsts['status'] != 'present':
-                passed = False
-                proof.append(f"{ip} - {self.scan.scan_results[ip].hsts}")
+
+        if not passed:
+            proof += ['We did not detect an HSTS header when scanning your app.']
 
         return passed, proof
 
     def _check_cert_valid(self):
-        passed = True
+        passed = self.scan.trusted
         proof = []
-        for ip in self.scan.scan_results:
-            if self.scan.scan_results[ip].cert_grade in ['T', 'M']:
-                passed = False
-                proof.append(f"{ip} - Failing Grade of {self.scan.scan_results[ip].cert_grade}")
+
+        if not passed:
+            proof += ['Your app presented an HTTPS certificate that was not valid.']
 
         return passed, proof
 

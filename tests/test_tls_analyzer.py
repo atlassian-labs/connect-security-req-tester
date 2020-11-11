@@ -33,7 +33,7 @@ def test_hsts_valid():
 
     assert res.req1.passed is False
     assert res.req1.description == [TLS_PROTOCOLS]
-    assert res.req1.proof == ['104.154.89.105 - [\'TLS 1.0\', \'TLS 1.1\', \'TLS 1.2\']']
+    assert res.req1.proof == ['Protocols Found: [\'TLS_1_2\', \'TLS_1_1\', \'TLS_1_0\']']
     assert res.req3.passed is True
     assert res.req3.description == [NO_ISSUES]
     assert res.req3.proof == []
@@ -50,9 +50,9 @@ def test_expired_cert():
     assert res.req1.passed is False
     assert res.req1.description == [TLS_PROTOCOLS, HSTS_MISSING]
     assert res.req1.proof == [
-        '104.154.89.105 - [\'TLS 1.0\', \'TLS 1.1\', \'TLS 1.2\']',
-        '104.154.89.105 - {\'LONG_MAX_AGE\': 15552000, \'status\': \'absent\', \'directives\': {}}'
+        'Protocols Found: [\'TLS_1_2\', \'TLS_1_1\', \'TLS_1_0\']',
+        'We did not detect an HSTS header when scanning your app.'
     ]
     assert res.req3.passed is False
     assert res.req3.description == [CERT_NOT_VALID]
-    assert res.req3.proof == ['104.154.89.105 - Failing Grade of T']
+    assert res.req3.proof == ['Your app presented an HTTPS certificate that was not valid.']

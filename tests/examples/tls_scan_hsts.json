@@ -1,31 +1,12 @@
 {
    "ips_scanned": 1,
    "protocols": [
-      "TLS 1.2",
-      "TLS 1.1",
-      "TLS 1.0"
+      "TLS_1_2",
+      "TLS_1_1",
+      "TLS_1_0"
    ],
    "hsts_present": true,
    "trusted": true,
    "scan_results": {
-      "104.154.89.105": {
-         "protocols": [
-            "TLS 1.0",
-            "TLS 1.1",
-            "TLS 1.2"
-         ],
-         "hsts": {
-            "LONG_MAX_AGE": 15552000,
-            "header": "max-age=15768000; includeSubDomains",
-            "status": "present",
-            "maxAge": 15768000,
-            "includeSubDomains": true,
-            "directives": {
-               "includesubdomains": "",
-               "max-age": "15768000"
-            }
-         },
-         "cert_grade": "B"
-      }
    }
 }
