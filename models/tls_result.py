@@ -1,12 +1,5 @@
-from jsonobject import (BooleanProperty, DefaultProperty, DictProperty,
-                        IntegerProperty, JsonObject, ListProperty,
-                        StringProperty)
-
-
-class IpResult(JsonObject):
-    protocols = ListProperty(StringProperty())
-    hsts = DefaultProperty()
-    cert_grade = StringProperty()
+from jsonobject import (BooleanProperty, DefaultProperty, IntegerProperty,
+                        JsonObject, ListProperty, StringProperty)
 
 
 class TlsResult(JsonObject):
@@ -14,4 +7,5 @@ class TlsResult(JsonObject):
     protocols = ListProperty(StringProperty())
     hsts_present = BooleanProperty()
     trusted = BooleanProperty()
-    scan_results = DictProperty(IpResult)
+    scan_results = DefaultProperty()
+    domain = StringProperty()

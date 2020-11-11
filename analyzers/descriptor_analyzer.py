@@ -1,4 +1,3 @@
-import json
 import re
 from distutils import util
 
@@ -16,7 +15,6 @@ class DescriptorAnalyzer(object):
     def __init__(self, desc_scan, requirements):
         self.scan = desc_scan
         self.reqs = requirements
-        self.proof = json.dumps(self.scan.to_json(), indent=3)
 
     def _check_cache_headers(self):
         passed = True

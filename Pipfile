@@ -19,10 +19,11 @@ markdown2 = "*"
 validators = "*"
 pyjwt = "*"
 tldextract = "*"
+sslyze = "*"
 
 [requires]
 python_version = "3.8"
 
 [scripts]
-test = "pipenv run pytest -s --cov --cov-config=.coveragerc"
+test = "pipenv run pytest -s --cov --cov-config=.coveragerc --disable-warnings"
 lint = "pipenv run flake8 . --config=.flake8"

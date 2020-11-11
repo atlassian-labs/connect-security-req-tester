@@ -14,7 +14,7 @@ from scans.descriptor_scan import DescriptorScan
 from scans.tls_scan import TlsScan
 
 
-def main(descriptor_url, force_scan=False, skip_branding=False, debug=False, out_dir='out'):
+def main(descriptor_url, skip_branding=False, debug=False, out_dir='out'):
     # Setup our logging
     setup_logging(debug)
     # Validate and fetch the provided connect descriptor to confirm it works
@@ -24,7 +24,7 @@ def main(descriptor_url, force_scan=False, skip_branding=False, debug=False, out
     tls_scan = TlsScan(base_url)
     descriptor_scan = DescriptorScan(descriptor_url, descriptor)
 
-    tls_res = tls_scan.scan(force_scan)
+    tls_res = tls_scan.scan()
     descriptor_res = descriptor_scan.scan()
 
     # Analyze the results from the scans
@@ -65,6 +65,8 @@ def setup_logging(debug):
         format=logging_format,
         level=logging.DEBUG if debug else logging.INFO
     )
+    # filelock was getting greedy with logging, turning it off to reduce noise
+    logging.getLogger('filelock').propagate = True if debug else False
 
 
 if __name__ == '__main__':
