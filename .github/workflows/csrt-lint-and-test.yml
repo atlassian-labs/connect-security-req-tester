@@ -33,3 +33,5 @@ jobs:
     - name: Test with pytest
       run: |
         pipenv run test
+    - name: Build docker image
+      uses: docker/build-push-action@v2
