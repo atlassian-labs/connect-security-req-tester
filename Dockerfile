@@ -1,9 +1,9 @@
-FROM python:3.8-alpine
+FROM python:3.8-slim
 
 RUN pip install pipenv
-RUN apk add build-base
+RUN apt update && apt install build-essential -y
 
-RUN adduser -D app
+RUN useradd -m app
 USER app
 
 WORKDIR /app
