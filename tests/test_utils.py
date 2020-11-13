@@ -25,35 +25,33 @@ def test_descriptor_url_valid():
     assert base_url == actual_descriptor['baseUrl']
 
 
-def test_descriptor_invalid():
-    url = 'https://atlassian.com/doesnotexist/connect.json'
-    with pytest.raises(SystemExit) as wrapped_e:
-        validate_and_resolve_descriptor(url)
+def test_invalid_descriptor_or_url():
+    urls = [
+        'https://atlassian.com/doesnotexist/connect.json',  # Returns 404
+        'atlassian.com',  # Not a URL
+        'https://marketplace.atlassian.com/rest/2/addons/com.atlassian.confluence.emcee/versions/latest',  # Random JSON response
+        'https://expired.badssl.com'  # Expired HTTPS cert
+    ]
 
-    assert wrapped_e.type == SystemExit
-    assert wrapped_e.value.code == 1
+    for url in urls:
+        with pytest.raises(SystemExit) as wrapped_e:
+            validate_and_resolve_descriptor(url)
 
-
-def test_url_invalid():
-    url = 'atlassian.com'
-    with pytest.raises(SystemExit) as wrapped_e:
-        validate_and_resolve_descriptor(url)
-
-    assert wrapped_e.type == SystemExit
-    assert wrapped_e.value.code == 1
-
-
-def test_url_json_invalid():
-    url = 'https://marketplace.atlassian.com/rest/2/addons/com.atlassian.confluence.emcee/versions/latest'
-    with pytest.raises(SystemExit) as wrapped_e:
-        validate_and_resolve_descriptor(url)
-
-    assert wrapped_e.type == SystemExit
-    assert wrapped_e.value.code == 1
+        assert wrapped_e.type == SystemExit
+        assert wrapped_e.value.code == 1
 
 
 def test_marketplace_url_valid():
     url = 'https://marketplace.atlassian.com/download/apps/1218875/version/1000134/descriptor'
+    actual_descriptor = requests.get(url).json()
+    base_url, descriptor = validate_and_resolve_descriptor(url)
+
+    assert actual_descriptor == descriptor
+    assert base_url == actual_descriptor['baseUrl']
+
+
+def test_marketplace_url_missing_scopes():
+    url = 'https://marketplace.atlassian.com/download/apps/1211655/version/1000017/descriptor'
     actual_descriptor = requests.get(url).json()
     base_url, descriptor = validate_and_resolve_descriptor(url)
 
