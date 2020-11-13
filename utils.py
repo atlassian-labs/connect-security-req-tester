@@ -22,12 +22,13 @@ def validate_and_resolve_descriptor(url):
         sys.exit(1)
     # Fetch the descriptor, ensure file is JSON, reachable, and contains required fields
     res = None
-    required_fields = ['baseUrl', 'key', 'name', 'scopes']
+    required_fields = ['baseUrl', 'key', 'name']
     try:
         session = requests.Session()
         session.headers.update(
             {'User-Agent': 'Atlassian CSRT (https://github.com/atlassian-labs/connect-security-req-tester)'}
         )
+        session.verify = False
         res = session.get(url)
         res.raise_for_status()
         res = res.json()

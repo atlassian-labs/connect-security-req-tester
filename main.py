@@ -65,8 +65,10 @@ def setup_logging(debug):
         format=logging_format,
         level=logging.DEBUG if debug else logging.INFO
     )
-    # filelock was getting greedy with logging, turning it off to reduce noise
+    # Turn off extra logging from filelock and HTTPS warnings when not in debug mode
+    logging.captureWarnings(True)
     logging.getLogger('filelock').propagate = True if debug else False
+    logging.getLogger('py.warnings').propagate = True if debug else False
 
 
 if __name__ == '__main__':

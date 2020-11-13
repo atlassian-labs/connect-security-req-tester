@@ -29,6 +29,7 @@ class DescriptorScan(object):
         session.headers.update(
             {'User-Agent': 'Atlassian CSRT (https://github.com/atlassian-labs/connect-security-req-tester)'}
         )
+        session.verify = False
         return session
 
     def _get_links(self):
@@ -142,7 +143,7 @@ class DescriptorScan(object):
             base_url=self.base_url,
             app_descriptor_url=self.descriptor_url,
             app_descriptor=self.descriptor,
-            scopes=self.descriptor['scopes'],
+            scopes=self.descriptor.get('scopes', []),
             links=self.links,
             scan_results={}
         )
