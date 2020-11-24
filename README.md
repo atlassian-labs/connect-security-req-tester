@@ -14,7 +14,8 @@ Example: `pipenv run python3 main.py https://example.com/atlassian-connect.json`
 
 ### Docker Usage
 `docker build -t atlas-connect-sec-test .`
-`docker run -v $(pwd)/out:/app/out atlas-connect-sec-test`
+
+`docker run -v $(pwd)/out:/app/out atlas-connect-sec-test <url of descriptor>`
 
 ### Arguments
 | Argument | Argument Description |
