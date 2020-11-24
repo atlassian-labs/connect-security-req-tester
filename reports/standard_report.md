@@ -16,18 +16,18 @@ Report generated for:
 ## Scan Results
 
 {% for req in results.requirements %}
-### Requirement {{ req }} - {{ titles[req] }}
+### Requirement {{ req }} - {{ results.requirements[req].title }}
 
-Passed: {% if constants.NO_SCAN_INFO[req] %} **No Scan Performed** {% else %} **{{ results.requirements[req]['passed'] }}** {% endif %}
+Passed: {% if not results.requirements[req].was_scanned() %} **No Scan Performed** {% else %} **{{ results.requirements[req].passed }}** {% endif %}
 
 Description:
 
-* {% if constants.NO_SCAN_INFO[req] %} {{ constants.NO_SCAN_INFO[req] }} {% else %} {{ results.requirements[req]['description'] | join('\n\n* ') }} {% endif %}
+* {% if not results.requirements[req].was_scanned() %} {{ constants.REQ_RECOMMENDATION[req] }} {% else %} {{ results.requirements[req].description | join('\n\n* ') }} {% endif %}
 
 Proof:
-{% if results.requirements[req]['proof'] %}
-* {{ results.requirements[req]['proof'] | join('\n\n* ') }}
-{% elif constants.NO_SCAN_INFO[req] %}
+{% if results.requirements[req].proof %}
+* {{ results.requirements[req].proof | join('\n\n* ') }}
+{% elif not results.requirements[req].was_scanned() %}
 * {{ constants.NO_SCAN_PROOF }}
 {% else %}
 * {{ constants.NO_PROOF }}

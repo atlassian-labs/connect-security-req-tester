@@ -1,3 +1,5 @@
+import csv
+import io
 import json
 import logging
 import re
@@ -6,6 +8,7 @@ from pathlib import Path
 
 import markdown2
 from jinja2 import Template
+from models.vulnerability import Vulnerability
 
 import reports.constants
 
@@ -43,6 +46,41 @@ class ReportGenerator(object):
         with open(self._get_report_path(fname), 'w') as file:
             file.write(contents)
 
+        logging.info(f"Wrote report to: {self._get_report_path(fname)}")
+
+    def _create_json_report(self):
+        vuln_report = []
+
+        for req in self.results.requirements:
+            req_res = self.results.requirements[req]
+            if req_res.was_scanned() and not req_res.passed:
+                vuln = Vulnerability(
+                    vuln_id=f"{self.results.key}-requirement{req}",
+                    title=reports.constants.REQ_TITLES[req],
+                    description=','.join(req_res.description),
+                    proof=','.join(req_res.proof),
+                    recommendation=reports.constants.REQ_RECOMMENDATION[req],
+                    severity='Low',
+                    app_key=self.results.key,
+                    app_name=self.results.name
+                )
+                vuln_report.append(vuln.to_json())
+
+        return vuln_report
+
+    def _create_csv_report(self, vuln_report):
+        # Don't try to create a CSV for no vulns
+        if not vuln_report:
+            return None
+
+        # Create a fake IO stream to write the CSV content to, then return this
+        out = io.StringIO()
+        writer = csv.DictWriter(out, fieldnames=list(vuln_report[0]))
+        writer.writeheader()
+        writer.writerows(vuln_report)
+
+        return out.getvalue()
+
     def save_report(self):
         markdown_report = self._jinja_render(
             template=MARKDOWN_TEMPLATE,
@@ -60,11 +98,15 @@ class ReportGenerator(object):
             template=HTML_TEMPLATE,
             report_body=markdown_to_html
         )
+        json_report = self._create_json_report()
+        csv_report = self._create_csv_report(json_report)
 
         html_name = f"{self.file_name}.html"
         json_name = f"{self.file_name}.json"
+        csv_name = f"{self.file_name}.csv"
 
         self._write_output(final_report, html_name)
-        self._write_output(json.dumps(self.results.to_json(), indent=3), json_name)
-
-        logging.info(f"Wrote reports to:\n\t{self._get_report_path(html_name)}\n\t{self._get_report_path(json_name)}")
+        if json_report:
+            self._write_output(json.dumps(json_report, indent=3), json_name)
+        if csv_report:
+            self._write_output(csv_report, csv_name)

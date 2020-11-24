@@ -1,4 +1,5 @@
 from scans.tls_scan import TlsScan
+import time
 
 
 def test_init_domain_valid():
@@ -50,3 +51,6 @@ def test_untrusted_certs():
         assert res.hsts_present is False
         assert res.ips_scanned == 1
         assert res.scan_results is not None
+        # Github actions seem to fail with this test, adding a sleep between scans to
+        # hopefully make whatever is upset less mad.
+        time.sleep(2)

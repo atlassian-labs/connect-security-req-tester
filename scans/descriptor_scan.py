@@ -7,11 +7,10 @@ from urllib.parse import urlparse
 
 import jwt
 import requests
-
 from models.descriptor_result import DescriptorLink, DescriptorResult
 
 COMMON_SESSION_COOKIES = ['PHPSESSID', 'JSESSIONID', 'CFID', 'CFTOKEN', 'ASP.NET_SESSIONID']
-KEY_IGNORELIST = ['icon', 'icons', 'documentation']
+KEY_IGNORELIST = ['icon', 'icons', 'documentation', 'imagePlaceholder']
 CONDITION_MATCHER = r'{condition\..*}'
 BRACES_MATCHER = r'\$?{.*}'
 

@@ -3,10 +3,13 @@ from jsonobject import (BooleanProperty, JsonObject, ListProperty,
 
 
 class RequirementsResult(JsonObject):
-    passed = BooleanProperty()
+    passed = BooleanProperty(default=False)
     description = ListProperty(StringProperty())
     title = StringProperty()
     proof = ListProperty(StringProperty())
+
+    def was_scanned(self):
+        return self.passed or (self.description and self.title and self.proof)
 
 
 class Requirements(JsonObject):
