@@ -1,28 +1,30 @@
 import json
 import logging
 from dataclasses import asdict
+import typing
 
 import tldextract
 from models.tls_result import TlsResult
 from sslyze import (JsonEncoder, ScanCommand, Scanner,
                     ServerConnectivityTester,
                     ServerNetworkLocationViaDirectConnection,
-                    ServerScanRequest)
+                    ServerScanRequest, ServerConnectivityInfo,
+                    ServerScanResult)
 from sslyze.errors import ConnectionToServerFailed
 
 
 class TlsScan(object):
-    def __init__(self, base_url):
+    def __init__(self, base_url: str):
         self.domain = self._get_domain_from_base(base_url)
 
-    def _get_domain_from_base(self, base_url):
+    def _get_domain_from_base(self, base_url: str) -> str:
         ext = tldextract.extract(base_url)
 
         # Convenient way to turn a URL into a domain via re-joining it after extracting it
         # https://github.com/john-kurkowski/tldextract#user-content-python-module--
         return '.'.join(part for part in ext if part)
 
-    def _check_connectivity(self):
+    def _check_connectivity(self) -> typing.Optional[ServerConnectivityInfo]:
         location = ServerNetworkLocationViaDirectConnection.with_ip_address_lookup(self.domain, 443)
 
         try:
@@ -33,7 +35,7 @@ class TlsScan(object):
 
         return server_info
 
-    def _run_scan(self, server_info):
+    def _run_scan(self, server_info: ServerConnectivityInfo) -> typing.List[ServerScanResult]:
         scanner = Scanner()
         scan_request = ServerScanRequest(
             server_info=server_info,
@@ -52,13 +54,13 @@ class TlsScan(object):
         res = scanner.get_results()
         # Unpack the generator that is returned as we need to navigate this
         # data structure multiple times
-        list_res = []
+        list_res: typing.List[ServerScanResult] = []
         for server_res in res:
             list_res.append(server_res)
 
         return list_res
 
-    def _check_cert_valid(self, scan_res):
+    def _check_cert_valid(self, scan_res: typing.List[ServerScanResult]) -> bool:
         for res in scan_res:
             cert_info = res.scan_commands_results[ScanCommand.CERTIFICATE_INFO]
             for dep in cert_info.certificate_deployments:
@@ -70,7 +72,7 @@ class TlsScan(object):
 
         return True
 
-    def _get_supported_protocols(self, scan_res):
+    def _get_supported_protocols(self, scan_res: typing.List[ServerScanResult]) -> typing.List[str]:
         protocols = set()
         for res in scan_res:
             ssl2 = res.scan_commands_results[ScanCommand.SSL_2_0_CIPHER_SUITES]
@@ -86,7 +88,7 @@ class TlsScan(object):
 
         return list(protocols)
 
-    def _get_hsts_info(self, scan_res):
+    def _get_hsts_info(self, scan_res: typing.List[ServerScanResult]) -> bool:
         hsts_present = True
         for res in scan_res:
             headers = res.scan_commands_results[ScanCommand.HTTP_HEADERS]
@@ -95,7 +97,7 @@ class TlsScan(object):
 
         return hsts_present
 
-    def scan(self):
+    def scan(self) -> TlsResult:
         logging.info(f"Starting SSL/TLS Scan for {self.domain}...")
         server_info = self._check_connectivity()
         scan_res = self._run_scan(server_info)
