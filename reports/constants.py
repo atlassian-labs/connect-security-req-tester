@@ -29,13 +29,19 @@ MISSING_ATTRS_SESSION_COOKIE = 'We did not detect the "Secure" or "HttpOnly" att
 MISSING_AUTHN_AUTHZ = 'One or more endpoints returned a <400 status code without authentication information. This may indicate that your app is not performing authentication and authorization checks.'
 BRANDING_ISSUE = 'Your app name or domain contained words that are not allowed. Please refer to our branding guidelines at: https://developer.atlassian.com/platform/marketplace/atlassian-brand-guidelines-for-marketplace-vendors/#app-names for more information.'
 
-NO_SCAN_INFO = {
+REQ_RECOMMENDATION = {
+    '1': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#transport-layer-security:~:text=requirement.-,Transport%20layer%20security for more information.',
+    '2': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#cache-control for more information.',
+    '3': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#validity-of-domain-registration---tls-certificates for more information.',
     '4': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#domain-and-subdomain-takeover for more information.',
+    '5': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#authentication-and-authorization-of-application-resources for more information.',
     '6': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#authentication-and-authorization-of-stored-data for more information.',
     '7': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#secure-handling-of-the-sharedsecret for more information.',
     '8': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#secret-handling for more information.',
     '9': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#jwt-validation for more information.',
     '10': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#collection-of-atlassian-credentials for more information.',
+    '11': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#session-cookie-configuration for more information.',
+    '12': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#referrer-policy for more information.',
     '13': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#url-tampering for more information.',
     '14': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#use-of-external-components for more information.',
     '15': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#security-slas for more information.',

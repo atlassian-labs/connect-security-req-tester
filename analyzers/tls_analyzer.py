@@ -1,6 +1,6 @@
 from models.requirements import RequirementsResult
 from reports.constants import (CERT_NOT_VALID, HSTS_MISSING, NO_ISSUES,
-                               TLS_PROTOCOLS)
+                               REQ_TITLES, TLS_PROTOCOLS)
 
 PROTO_DENYLIST = ['TLS_1_0', 'TLS_1_1', 'SSL_3_0', 'SSL_2_0']
 
@@ -59,7 +59,8 @@ class TlsAnalyzer(object):
         req1 = RequirementsResult(
             passed=passed,
             description=self._determine_description(passed, tls_passed, hsts_passed),
-            proof=proof
+            proof=proof,
+            title=REQ_TITLES['1']
         )
         self.reqs.req1 = req1
 
@@ -68,7 +69,8 @@ class TlsAnalyzer(object):
         req3 = RequirementsResult(
             passed=cert_passed,
             description=[NO_ISSUES] if cert_passed else [CERT_NOT_VALID],
-            proof=cert_proof
+            proof=cert_proof,
+            title=REQ_TITLES['3']
         )
         self.reqs.req3 = req3
 

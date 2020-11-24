@@ -1,7 +1,6 @@
 import tldextract
-
 from models.requirements import RequirementsResult
-from reports.constants import BRANDING_ISSUE, NO_ISSUES
+from reports.constants import BRANDING_ISSUE, NO_ISSUES, REQ_TITLES
 
 PRODUCT_NAMES = [
     'atlassian', 'jira', 'confluence', 'jira service desk', 'bitbucket',
@@ -79,7 +78,9 @@ class BrandingAnalyzer(object):
         req16 = RequirementsResult(
             passed=branding_passed,
             description=[NO_ISSUES] if branding_passed else [BRANDING_ISSUE],
-            proof=branding_proof)
+            proof=branding_proof,
+            title=REQ_TITLES['16']
+        )
         self.reqs.req16 = req16
 
         return self.reqs

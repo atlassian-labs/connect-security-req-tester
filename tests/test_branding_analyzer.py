@@ -1,6 +1,6 @@
 from analyzers.branding_analyzer import BrandingAnalyzer
 from models.requirements import Requirements
-from reports.constants import BRANDING_ISSUE, NO_ISSUES
+from reports.constants import BRANDING_ISSUE, NO_ISSUES, REQ_TITLES
 
 
 def test_init_valid():
@@ -24,7 +24,7 @@ def test_bad_domain():
 
     assert res.req16.passed is False
     assert res.req16.description == [BRANDING_ISSUE]
-    assert res.req16.title is None
+    assert res.req16.title == REQ_TITLES['16']
     assert res.req16.proof == [f"{links[0]} - Contains a denied word in the subdomain or primary domain"]
 
 
@@ -38,7 +38,7 @@ def test_bad_name():
 
     assert res.req16.passed is False
     assert res.req16.description == [BRANDING_ISSUE]
-    assert res.req16.title is None
+    assert res.req16.title == REQ_TITLES['16']
     assert res.req16.proof == [f"App Name ({name}) starts with or contains a denied word"]
 
 
@@ -52,7 +52,7 @@ def test_bad_name_and_links():
 
     assert res.req16.passed is False
     assert res.req16.description == [BRANDING_ISSUE]
-    assert res.req16.title is None
+    assert res.req16.title == REQ_TITLES['16']
     assert res.req16.proof == [
         f"{links[0]} - Contains a denied word in the subdomain or primary domain",
         f"App Name ({name}) starts with or contains a denied word"
@@ -69,5 +69,5 @@ def test_good_app():
 
     assert res.req16.passed is True
     assert res.req16.description == [NO_ISSUES]
-    assert res.req16.title is None
+    assert res.req16.title == REQ_TITLES['16']
     assert res.req16.proof == []

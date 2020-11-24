@@ -4,7 +4,7 @@ from distutils import util
 from models.requirements import RequirementsResult
 from reports.constants import (MISSING_ATTRS_SESSION_COOKIE,
                                MISSING_AUTHN_AUTHZ, MISSING_CACHE_HEADERS,
-                               MISSING_REF_HEADERS, NO_ISSUES)
+                               MISSING_REF_HEADERS, NO_ISSUES, REQ_TITLES)
 
 REQ_CACHE_HEADERS = ['no-cache', 'no-store']
 REF_DENYLIST = ['no-referrer-when-downgrade', 'unsafe-url']
@@ -85,25 +85,29 @@ class DescriptorAnalyzer(object):
         req2 = RequirementsResult(
             passed=cache_passed,
             description=[NO_ISSUES] if cache_passed else [MISSING_CACHE_HEADERS],
-            proof=cache_proof
+            proof=cache_proof,
+            title=REQ_TITLES['2']
         )
 
         req5 = RequirementsResult(
             passed=auth_passed,
             description=[NO_ISSUES] if auth_passed else [MISSING_AUTHN_AUTHZ],
-            proof=auth_proof
+            proof=auth_proof,
+            title=REQ_TITLES['5']
         )
 
         req11 = RequirementsResult(
             passed=cookies_passed,
             description=[NO_ISSUES] if cookies_passed else [MISSING_ATTRS_SESSION_COOKIE],
-            proof=cookies_proof
+            proof=cookies_proof,
+            title=REQ_TITLES['11']
         )
 
         req12 = RequirementsResult(
             passed=ref_passed,
             description=[NO_ISSUES] if ref_passed else [MISSING_REF_HEADERS],
-            proof=ref_proof
+            proof=ref_proof,
+            title=REQ_TITLES['12']
         )
 
         self.reqs.req2 = req2
