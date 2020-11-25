@@ -5,13 +5,14 @@ import logging
 import re
 from datetime import date, datetime
 from pathlib import Path
+import typing
 
 import markdown2
 from jinja2 import Template
 from models.vulnerability import Vulnerability
 
 import reports.constants
-import models.requirements
+from models.requirements import Results
 
 MARKDOWN_TEMPLATE = 'reports/standard_report.md'
 HTML_TEMPLATE = 'reports/report_template.html'

@@ -84,7 +84,7 @@ class DescriptorScan(object):
             return urls
         return urls
 
-    def _generate_fake_jwts(self, link: str, method: str='GET') -> tping.Tuple[str, str]:
+    def _generate_fake_jwts(self, link: str, method: str = 'GET') -> typing.Tuple[str, str]:
         # Create a "realistic" Connect JWT using a bogus key and a JWT using the none algorithm
         # Refer to: https://developer.atlassian.com/cloud/confluence/understanding-jwt/ for more info
         # on why we build the JWT token this way
@@ -116,7 +116,7 @@ class DescriptorScan(object):
             {'method': 'POST', 'headers': {'Authorization': f"JWT {post_none}"}}
         ]
 
-        res: typing.Optional[Requests] = None
+        res: typing.Optional[requests.Requests] = None
         for task in tasks:
             res = self.session.request(task['method'], link, headers=task['headers'])
             if res.status_code < 400:
@@ -135,7 +135,7 @@ class DescriptorScan(object):
 
         return res
 
-    def scan(self) -> DescriptorResult:
+    def scan(self):
         logging.info(f"Scanning app descriptor at: {self.descriptor_url}")
         res = DescriptorResult(
             key=self.descriptor['key'],
