@@ -4,6 +4,7 @@ import re
 from collections import defaultdict
 from datetime import datetime, timedelta
 from urllib.parse import urlparse
+import typing
 
 import jwt
 import requests
@@ -16,10 +17,10 @@ BRACES_MATCHER = r'\$?{.*}'
 
 
 class DescriptorScan(object):
-    def __init__(self, descriptor_url, descriptor):
-        self.descriptor_url = descriptor_url
-        self.descriptor = descriptor
-        self.base_url = descriptor['baseUrl'] if not descriptor['baseUrl'].endswith('/') else descriptor['baseUrl'][:-1]
+    def __init__(self, descriptor_url: str, descriptor: dict):
+        self.descriptor_url: str = descriptor_url
+        self.descriptor: dict = descriptor
+        self.base_url: str = descriptor['baseUrl'] if not descriptor['baseUrl'].endswith('/') else descriptor['baseUrl'][:-1]
         self.links = self._get_links()
         self.session = self._setup_session()
 
@@ -31,8 +32,8 @@ class DescriptorScan(object):
         session.verify = False
         return session
 
-    def _get_links(self):
-        res = []
+    def _get_links(self) -> typing.List[str]:
+        res: typing.List[str] = []
         lifecycle_events = self.descriptor.get('lifecycle', [])
         modules = self.descriptor.get('modules', [])
         # Grab all lifecycle events
@@ -51,23 +52,23 @@ class DescriptorScan(object):
 
         return res
 
-    def _convert_to_full_link(self, link):
+    def _convert_to_full_link(self, link: str) -> str:
         if not link.startswith('http://') and not link.startswith('https://'):
             link = link if not link.startswith('/') else link[1:]
             link = f"{self.base_url}/{link}"
 
         return link
 
-    def _fill_context_vars(self, url):
+    def _fill_context_vars(self, url: str) -> str:
         url = re.sub(CONDITION_MATCHER, 'true', url, flags=re.IGNORECASE)
         url = re.sub(BRACES_MATCHER, 'test', url)
 
         return url
 
-    def _find_urls_in_module(self, module):
+    def _find_urls_in_module(self, module: dict) -> typing.List[str]:
         # Takes a connect module and traverses the JSON to find URLs - Handles both lists and dicts
         # Returns a list of lists
-        urls = []
+        urls: typing.List[str] = []
         if type(module) is list:
             for item in module:
                 urls.extend(self._find_urls_in_module(item))
@@ -83,7 +84,7 @@ class DescriptorScan(object):
             return urls
         return urls
 
-    def _generate_fake_jwts(self, link, method='GET'):
+    def _generate_fake_jwts(self, link: str, method: str='GET') -> tping.Tuple[str, str]:
         # Create a "realistic" Connect JWT using a bogus key and a JWT using the none algorithm
         # Refer to: https://developer.atlassian.com/cloud/confluence/understanding-jwt/ for more info
         # on why we build the JWT token this way
@@ -102,7 +103,7 @@ class DescriptorScan(object):
 
         return hs256_jwt, none_jwt
 
-    def _visit_link(self, link):
+    def _visit_link(self, link: str) -> typing.Tuple[typing.Optional[requests.Response], bool]:
         get_hs256, get_none = self._generate_fake_jwts(link, 'GET')
         post_hs256, post_none = self._generate_fake_jwts(link, 'POST')
         # Test for both incorrectly signed JWT and JWT using the None/Null algorithm
@@ -115,7 +116,7 @@ class DescriptorScan(object):
             {'method': 'POST', 'headers': {'Authorization': f"JWT {post_none}"}}
         ]
 
-        res = None
+        res: typing.Optional[Requests] = None
         for task in tasks:
             res = self.session.request(task['method'], link, headers=task['headers'])
             if res.status_code < 400:
@@ -124,8 +125,8 @@ class DescriptorScan(object):
 
         return res, False
 
-    def _get_session_cookies(self, cookiejar):
-        res = []
+    def _get_session_cookies(self, cookiejar: requests.cookies.RequestsCookieJar) -> typing.List[str]:
+        res: typing.List[str] = []
         for cookie in cookiejar:
             if cookie.name.upper() in COMMON_SESSION_COOKIES:
                 res.append(
@@ -134,7 +135,7 @@ class DescriptorScan(object):
 
         return res
 
-    def scan(self):
+    def scan(self) -> DescriptorResult:
         logging.info(f"Scanning app descriptor at: {self.descriptor_url}")
         res = DescriptorResult(
             key=self.descriptor['key'],
