@@ -11,6 +11,7 @@ from jinja2 import Template
 from models.vulnerability import Vulnerability
 
 import reports.constants
+import models.requirements
 
 MARKDOWN_TEMPLATE = 'reports/standard_report.md'
 HTML_TEMPLATE = 'reports/report_template.html'
@@ -28,28 +29,28 @@ LINK_PATTERNS = [(re.compile(LINK_REGEX), r'\1')]
 
 
 class ReportGenerator(object):
-    def __init__(self, results, out_dir):
+    def __init__(self, results: Results, out_dir: str):
         self.results = results
         self.out_dir = out_dir
         self.file_name = f"{results.key}-{date.today()}"
 
-    def _jinja_render(self, template, **kwargs):
+    def _jinja_render(self, template: str, **kwargs) -> str:
         logging.debug(f"Rendering {template} with {kwargs.keys()}")
         jinja_template = Template(open(template, 'r').read())
         return jinja_template.render(kwargs)
 
-    def _get_report_path(self, fname):
+    def _get_report_path(self, fname: str) -> str:
         return str(Path(self.out_dir + '/' + fname).resolve())
 
-    def _write_output(self, contents, fname):
+    def _write_output(self, contents: str, fname: str):
         Path(self.out_dir).mkdir(exist_ok=True, parents=True)
         with open(self._get_report_path(fname), 'w') as file:
             file.write(contents)
 
         logging.info(f"Wrote report to: {self._get_report_path(fname)}")
 
-    def _create_json_report(self):
-        vuln_report = []
+    def _create_json_report(self) -> typing.List[dict]:
+        vuln_report: typing.List[dict] = []
 
         for req in self.results.requirements:
             req_res = self.results.requirements[req]
@@ -68,7 +69,7 @@ class ReportGenerator(object):
 
         return vuln_report
 
-    def _create_csv_report(self, vuln_report):
+    def _create_csv_report(self, vuln_report: typing.List[dict]) -> typing.Optional[str]:
         # Don't try to create a CSV for no vulns
         if not vuln_report:
             return None
