@@ -1,3 +1,5 @@
+import typing
+
 from jsonobject import (BooleanProperty, JsonObject, ListProperty,
                         ObjectProperty, StringProperty)
 
@@ -8,7 +10,7 @@ class RequirementsResult(JsonObject):
     title = StringProperty()
     proof = ListProperty(StringProperty())
 
-    def was_scanned(self):
+    def was_scanned(self) -> typing.Union[bool, str]:
         return self.passed or (self.description and self.title and self.proof)
 
 
