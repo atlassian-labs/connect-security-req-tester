@@ -8,6 +8,9 @@ The purpose of this tool is help you scan your Atlassian Connect app for complia
 This utility can be run as a python script or can be built as a Docker container. Choose the path that makes the most sense for your setup.
 
 ### Python Usage
+
+Using CSRT with Python requires [pipenv](https://pipenv.pypa.io) to be installed.
+
 `pipenv run python main.py url-to-atlassian-connect-json --debug=True/False --out_dir=./out --skip_branding=True/False`
 
 Example: `pipenv run python3 main.py https://example.com/atlassian-connect.json`
