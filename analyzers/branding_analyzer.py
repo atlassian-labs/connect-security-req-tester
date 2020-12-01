@@ -1,7 +1,7 @@
-import typing
+from typing import List, Tuple
 
 import tldextract
-from models.requirements import RequirementsResult, Requirements
+from models.requirements import Requirements, RequirementsResult
 from reports.constants import BRANDING_ISSUE, NO_ISSUES, REQ_TITLES
 
 PRODUCT_NAMES = [
@@ -17,12 +17,12 @@ DOMAIN_DENYLIST = list(
 
 
 class BrandingAnalyzer(object):
-    def __init__(self, links: typing.List[str], name: str, requirements: Requirements):
-        self.links: typing.List[str] = links
+    def __init__(self, links: List[str], name: str, requirements: Requirements):
+        self.links: List[str] = links
         self.app_name: str = name
         self.reqs = requirements
 
-    def _check_against_denylist(self, search: str, denylist: typing.List[str]) -> bool:
+    def _check_against_denylist(self, search: str, denylist: List[str]) -> bool:
         search = search.lower()
         for item in denylist:
             if item in search:
@@ -30,7 +30,7 @@ class BrandingAnalyzer(object):
 
         return False
 
-    def _check_starts_with_denylist(self, search: str, denylist: typing.List[str]) -> bool:
+    def _check_starts_with_denylist(self, search: str, denylist: List[str]) -> bool:
         search = search.lower()
         for item in denylist:
             if search.startswith(item):
@@ -38,9 +38,9 @@ class BrandingAnalyzer(object):
 
         return False
 
-    def _check_links(self) -> typing.Tuple[bool, typing.List[str]]:
+    def _check_links(self) -> Tuple[bool, List[str]]:
         passed = True
-        proof: typing.List[str] = []
+        proof: List[str] = []
         for link in self.links:
             sub, domain, suffix = tldextract.extract(link)
             sub_test = self._check_against_denylist(sub, DOMAIN_DENYLIST)
@@ -54,9 +54,9 @@ class BrandingAnalyzer(object):
 
         return passed, proof
 
-    def _check_app_name(self) -> typing.Tuple[bool, typing.List[str]]:
+    def _check_app_name(self) -> Tuple[bool, List[str]]:
         passed = True
-        proof: typing.List[str] = []
+        proof: List[str] = []
         starts_with = self._check_starts_with_denylist(
             self.app_name, APP_NAME_START_DENYLIST)
         contains = self._check_against_denylist(self.app_name,

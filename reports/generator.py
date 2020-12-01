@@ -5,14 +5,14 @@ import logging
 import re
 from datetime import date, datetime
 from pathlib import Path
-import typing
+from typing import List, Optional
 
 import markdown2
 from jinja2 import Template
+from models.requirements import Results
 from models.vulnerability import Vulnerability
 
 import reports.constants
-from models.requirements import Results
 
 MARKDOWN_TEMPLATE = 'reports/standard_report.md'
 HTML_TEMPLATE = 'reports/report_template.html'
@@ -50,8 +50,8 @@ class ReportGenerator(object):
 
         logging.info(f"Wrote report to: {self._get_report_path(fname)}")
 
-    def _create_json_report(self) -> typing.List[dict]:
-        vuln_report: typing.List[dict] = []
+    def _create_json_report(self) -> List[dict]:
+        vuln_report: List[dict] = []
 
         for req in self.results.requirements:
             req_res = self.results.requirements[req]
@@ -70,7 +70,7 @@ class ReportGenerator(object):
 
         return vuln_report
 
-    def _create_csv_report(self, vuln_report: typing.List[dict]) -> typing.Optional[str]:
+    def _create_csv_report(self, vuln_report: List[dict]) -> Optional[str]:
         # Don't try to create a CSV for no vulns
         if not vuln_report:
             return None

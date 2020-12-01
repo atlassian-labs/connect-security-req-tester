@@ -1,9 +1,9 @@
 import re
 from distutils import util
-import typing
+from typing import List, Tuple
 
-from models.requirements import RequirementsResult, Requirements
 from models.descriptor_result import DescriptorResult
+from models.requirements import Requirements, RequirementsResult
 from reports.constants import (MISSING_ATTRS_SESSION_COOKIE,
                                MISSING_AUTHN_AUTHZ, MISSING_CACHE_HEADERS,
                                MISSING_REF_HEADERS, NO_ISSUES, REQ_TITLES)
@@ -18,9 +18,9 @@ class DescriptorAnalyzer(object):
         self.scan = desc_scan
         self.reqs = requirements
 
-    def _check_cache_headers(self) -> typing.Tuple[bool, typing.List[str]]:
+    def _check_cache_headers(self) -> Tuple[bool, List[str]]:
         passed = True
-        proof: typing.List[str] = []
+        proof: List[str] = []
         scan_res = self.scan.scan_results
         for link in scan_res:
             cache_headers = scan_res[link].cache_header.split(',')
@@ -32,9 +32,9 @@ class DescriptorAnalyzer(object):
 
         return passed, proof
 
-    def _check_referrer_headers(self) -> typing.Tuple[bool, typing.List[str]]:
+    def _check_referrer_headers(self) -> Tuple[bool, List[str]]:
         passed = True
-        proof: typing.List[str] = []
+        proof: List[str] = []
         scan_res = self.scan.scan_results
         for link in scan_res:
             ref_headers = scan_res[link].referrer_header.split(',')
@@ -46,9 +46,9 @@ class DescriptorAnalyzer(object):
 
         return passed, proof
 
-    def _check_cookie_headers(self) -> typing.Tuple[bool, typing.List[str]]:
+    def _check_cookie_headers(self) -> Tuple[bool, List[str]]:
         passed = True
-        proof: typing.List[str] = []
+        proof: List[str] = []
         scan_res = self.scan.scan_results
         scan_res = self.scan.scan_results
         for link in scan_res:
@@ -66,9 +66,9 @@ class DescriptorAnalyzer(object):
 
         return passed, proof
 
-    def _check_authn_authz(self) -> typing.Tuple[bool, typing.List[str]]:
+    def _check_authn_authz(self) -> Tuple[bool, List[str]]:
         passed = True
-        proof: typing.List[str] = []
+        proof: List[str] = []
         scan_res = self.scan.scan_results
         for link in scan_res:
             res_code = int(scan_res[link].res_code)

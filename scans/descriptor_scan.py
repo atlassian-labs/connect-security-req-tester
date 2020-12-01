@@ -3,8 +3,8 @@ import logging
 import re
 from collections import defaultdict
 from datetime import datetime, timedelta
+from typing import List, Optional, Tuple, Union
 from urllib.parse import urlparse
-import typing
 
 import jwt
 import requests
@@ -32,8 +32,8 @@ class DescriptorScan(object):
         session.verify = False
         return session
 
-    def _get_links(self) -> typing.List[str]:
-        res: typing.List[str] = []
+    def _get_links(self) -> List[str]:
+        res: List[str] = []
         lifecycle_events = self.descriptor.get('lifecycle', [])
         modules = self.descriptor.get('modules', [])
         # Grab all lifecycle events
@@ -65,10 +65,10 @@ class DescriptorScan(object):
 
         return url
 
-    def _find_urls_in_module(self, module: dict) -> typing.List[str]:
+    def _find_urls_in_module(self, module: Union[dict, list]) -> List[str]:
         # Takes a connect module and traverses the JSON to find URLs - Handles both lists and dicts
         # Returns a list of lists
-        urls: typing.List[str] = []
+        urls: List[str] = []
         if type(module) is list:
             for item in module:
                 urls.extend(self._find_urls_in_module(item))
@@ -84,7 +84,7 @@ class DescriptorScan(object):
             return urls
         return urls
 
-    def _generate_fake_jwts(self, link: str, method: str = 'GET') -> typing.Tuple[str, str]:
+    def _generate_fake_jwts(self, link: str, method: str = 'GET') -> Tuple[str, str]:
         # Create a "realistic" Connect JWT using a bogus key and a JWT using the none algorithm
         # Refer to: https://developer.atlassian.com/cloud/confluence/understanding-jwt/ for more info
         # on why we build the JWT token this way
@@ -103,7 +103,7 @@ class DescriptorScan(object):
 
         return hs256_jwt, none_jwt
 
-    def _visit_link(self, link: str) -> typing.Tuple[typing.Optional[requests.Response], bool]:
+    def _visit_link(self, link: str) -> Tuple[Optional[requests.Response], bool]:
         get_hs256, get_none = self._generate_fake_jwts(link, 'GET')
         post_hs256, post_none = self._generate_fake_jwts(link, 'POST')
         # Test for both incorrectly signed JWT and JWT using the None/Null algorithm
@@ -116,7 +116,7 @@ class DescriptorScan(object):
             {'method': 'POST', 'headers': {'Authorization': f"JWT {post_none}"}}
         ]
 
-        res: typing.Optional[requests.Requests] = None
+        res: Optional[requests.Response] = None
         for task in tasks:
             res = self.session.request(task['method'], link, headers=task['headers'])
             if res.status_code < 400:
@@ -125,8 +125,8 @@ class DescriptorScan(object):
 
         return res, False
 
-    def _get_session_cookies(self, cookiejar: requests.cookies.RequestsCookieJar) -> typing.List[str]:
-        res: typing.List[str] = []
+    def _get_session_cookies(self, cookiejar: requests.cookies.RequestsCookieJar) -> List[str]:
+        res: List[str] = []
         for cookie in cookiejar:
             if cookie.name.upper() in COMMON_SESSION_COOKIES:
                 res.append(

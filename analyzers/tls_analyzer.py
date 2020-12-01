@@ -1,6 +1,6 @@
-import typing
+from typing import List, Tuple
 
-from models.requirements import RequirementsResult, Requirements
+from models.requirements import Requirements, RequirementsResult
 from models.tls_result import TlsResult
 from reports.constants import (CERT_NOT_VALID, HSTS_MISSING, NO_ISSUES,
                                REQ_TITLES, TLS_PROTOCOLS)
@@ -13,9 +13,9 @@ class TlsAnalyzer(object):
         self.scan: TlsResult = tls_scan
         self.reqs: Requirements = requirements
 
-    def _check_tls_versions(self) -> typing.Tuple[bool, typing.List[str]]:
+    def _check_tls_versions(self) -> Tuple[bool, List[str]]:
         passed = True
-        proof: typing.List[str] = []
+        proof: List[str] = []
 
         uses_bad_protos = any(item in self.scan.protocols for item in PROTO_DENYLIST)
         if uses_bad_protos:
@@ -24,26 +24,26 @@ class TlsAnalyzer(object):
 
         return passed, proof
 
-    def _check_hsts(self) -> typing.Tuple[bool, typing.List[str]]:
+    def _check_hsts(self) -> Tuple[bool, List[str]]:
         passed = self.scan.hsts_present
-        proof: typing.List[str] = []
+        proof: List[str] = []
 
         if not passed:
             proof += ['We did not detect an HSTS header when scanning your app.']
 
         return passed, proof
 
-    def _check_cert_valid(self) -> typing.Tuple[bool, typing.List[str]]:
+    def _check_cert_valid(self) -> Tuple[bool, List[str]]:
         passed = self.scan.trusted
-        proof: typing.List[str] = []
+        proof: List[str] = []
 
         if not passed:
             proof += ['Your app presented an HTTPS certificate that was not valid.']
 
         return passed, proof
 
-    def _determine_description(self, passed, tls, hsts) -> typing.List[str]:
-        res: typing.List[str] = []
+    def _determine_description(self, passed, tls, hsts) -> List[str]:
+        res: List[str] = []
         if passed:
             return [NO_ISSUES]
         if not tls:

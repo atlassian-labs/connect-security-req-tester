@@ -1,12 +1,12 @@
 import logging
 import sys
-import typing
+from typing import Tuple
 
 import requests
 import validators
 
 
-def validate_and_resolve_descriptor(url: str) -> typing.Tuple[str, dict]:
+def validate_and_resolve_descriptor(url: str) -> Tuple[str, dict]:
     """Validate and resolve the provided URL to a connect app descriptor. Ensure the URL is well-formed,
     is externally reachable via a web request, and that it contains the required fields.
 
