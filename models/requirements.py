@@ -9,7 +9,7 @@ class RequirementsResult(JsonObject):
     proof = ListProperty(StringProperty())
 
     def was_scanned(self) -> bool:
-        return self.passed or (self.description and self.title and self.proof)
+        return self.passed or bool(self.description and self.title and self.proof)
 
 
 class Requirements(JsonObject):
