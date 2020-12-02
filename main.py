@@ -1,5 +1,6 @@
 import json
 import logging
+import sys
 
 import fire
 
@@ -34,7 +35,8 @@ def main(descriptor_url, skip_branding=False, debug=False, out_dir='out'):
         app_descriptor_url=descriptor_res.app_descriptor_url,
         requirements=Requirements(),
         tls_scan_raw=json.dumps(tls_res.to_json(), indent=3),
-        descriptor_scan_raw=json.dumps(descriptor_res.to_json(), indent=3)
+        descriptor_scan_raw=json.dumps(descriptor_res.to_json(), indent=3),
+        errors=descriptor_res.link_errors
     )
 
     logging.info('Starting analysis of results...')
@@ -54,6 +56,11 @@ def main(descriptor_url, skip_branding=False, debug=False, out_dir='out'):
     # Generate a report based on the analyzed results against Security Requirements
     generator = ReportGenerator(results, out_dir)
     generator.save_report()
+
+    if results.errors:
+        errors: str = '\n'.join(descriptor_res.link_errors)
+        logging.error(f"The following links caused errors:\n{errors}")
+        sys.exit(1)
 
 
 def setup_logging(debug):

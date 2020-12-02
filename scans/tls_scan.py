@@ -30,7 +30,7 @@ class TlsScan(object):
             server_info = ServerConnectivityTester().perform(location)
         except ConnectionToServerFailed as e:
             logging.error(f"SSL/TLS Scan could not connect to: {self.domain}\n{e.error_message}")
-            return
+            return None
 
         return server_info
 

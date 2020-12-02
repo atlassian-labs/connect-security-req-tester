@@ -1,12 +1,13 @@
-from jsonobject import (BooleanProperty, DefaultProperty, DictProperty,
-                        JsonObject, ListProperty, StringProperty)
+from jsonobject import (DefaultProperty, DictProperty, JsonObject,
+                        ListProperty, StringProperty)
 
 
 class DescriptorLink(JsonObject):
     cache_header = StringProperty()
     referrer_header = StringProperty()
     session_cookies = ListProperty(StringProperty())
-    fake_jwt = BooleanProperty()
+    auth_header = StringProperty()
+    req_method = StringProperty()
     res_code = StringProperty()
 
 
@@ -18,4 +19,5 @@ class DescriptorResult(JsonObject):
     app_descriptor = DefaultProperty()
     scopes = ListProperty(StringProperty())
     links = ListProperty(StringProperty())
+    link_errors = ListProperty(StringProperty())
     scan_results = DictProperty(DescriptorLink)

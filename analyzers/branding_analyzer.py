@@ -48,7 +48,7 @@ class BrandingAnalyzer(object):
 
             if sub_test or domain_test:
                 proof.append(
-                    f"{link} - Contains a denied word in the subdomain or primary domain"
+                    f"{link} | Contains a denied word in the subdomain or primary domain"
                 )
                 passed = False
 

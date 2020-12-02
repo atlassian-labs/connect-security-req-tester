@@ -25,7 +25,7 @@ def test_bad_domain():
     assert res.req16.passed is False
     assert res.req16.description == [BRANDING_ISSUE]
     assert res.req16.title == REQ_TITLES['16']
-    assert res.req16.proof == [f"{links[0]} - Contains a denied word in the subdomain or primary domain"]
+    assert res.req16.proof == [f"{links[0]} | Contains a denied word in the subdomain or primary domain"]
 
 
 def test_bad_name():
@@ -54,7 +54,7 @@ def test_bad_name_and_links():
     assert res.req16.description == [BRANDING_ISSUE]
     assert res.req16.title == REQ_TITLES['16']
     assert res.req16.proof == [
-        f"{links[0]} - Contains a denied word in the subdomain or primary domain",
+        f"{links[0]} | Contains a denied word in the subdomain or primary domain",
         f"App Name ({name}) starts with or contains a denied word"
     ]
 
