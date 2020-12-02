@@ -83,7 +83,7 @@ class ReportGenerator(object):
 
         return out.getvalue()
 
-    def save_report(self):
+    def _create_html_report(self) -> str:
         markdown_report = self._jinja_render(
             template=MARKDOWN_TEMPLATE,
             today=datetime.now(),
@@ -93,21 +93,25 @@ class ReportGenerator(object):
         )
         markdown_to_html = markdown2.markdown(
             markdown_report,
-            extras=['fenced-code-blocks', 'target-blank-links', 'link-patterns'],
+            extras=['fenced-code-blocks', 'target-blank-links', 'link-patterns', 'code-friendly'],
             link_patterns=LINK_PATTERNS
         )
         final_report = self._jinja_render(
             template=HTML_TEMPLATE,
             report_body=markdown_to_html
         )
+        return final_report
+
+    def save_report(self):
         json_report = self._create_json_report()
         csv_report = self._create_csv_report(json_report)
+        html_report = self._create_html_report()
 
         html_name = f"{self.file_name}.html"
         json_name = f"{self.file_name}.json"
         csv_name = f"{self.file_name}.csv"
 
-        self._write_output(final_report, html_name)
+        self._write_output(html_report, html_name)
         if json_report:
             self._write_output(json.dumps(json_report, indent=3), json_name)
         if csv_report:

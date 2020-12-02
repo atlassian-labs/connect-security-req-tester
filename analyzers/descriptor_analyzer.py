@@ -27,7 +27,7 @@ class DescriptorAnalyzer(object):
             cache_headers = [x.strip().lower() for x in cache_headers]
             directives = all(item in cache_headers for item in REQ_CACHE_HEADERS)
             if not directives:
-                proof.append(f"{link} - {scan_res[link].cache_header}")
+                proof.append(f"{link} | Cache header: {scan_res[link].cache_header}")
             passed = passed and directives
 
         return passed, proof
@@ -41,7 +41,7 @@ class DescriptorAnalyzer(object):
             ref_headers = [x.strip().lower() for x in ref_headers]
             policy = ref_headers[0] not in REF_DENYLIST if ref_headers[0] != 'header missing' else False
             if not policy:
-                proof.append(f"{link} - {scan_res[link].referrer_header}")
+                proof.append(f"{link} | Referrer header: {scan_res[link].referrer_header}")
             passed = passed and policy
 
         return passed, proof
@@ -61,7 +61,7 @@ class DescriptorAnalyzer(object):
                 httponly = bool(util.strtobool(parsed.group(4)))
 
                 if not secure or not httponly:
-                    proof.append(f"{link} - {cookie}")
+                    proof.append(f"{link} | Cookie: {cookie}")
                 passed = passed and secure and httponly
 
         return passed, proof
@@ -72,9 +72,11 @@ class DescriptorAnalyzer(object):
         scan_res = self.scan.scan_results
         for link in scan_res:
             res_code = int(scan_res[link].res_code)
+            auth_header = scan_res[link].auth_header
+            req_method = scan_res[link].req_method
             if res_code >= 200 and res_code < 400:
                 passed = False
-                proof_text = f"{link} - Using an invalid JWT token" if scan_res[link].fake_jwt else link
+                proof_text = f"{link} | Res Code: {res_code} Req Method: {req_method} Auth Header: {auth_header}"
                 proof.append(proof_text)
 
         return passed, proof

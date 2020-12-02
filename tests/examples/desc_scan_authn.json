@@ -491,99 +491,113 @@
          "cache_header": "no-cache, no-store",
          "referrer_header": "origin",
          "session_cookies": [],
-         "fake_jwt": false,
-         "res_code": "200"
+         "auth_header": "",
+         "res_code": "200",
+         "req_method": "GET"
       },
       "https://bbc7069740af.ngrok.io/my-admin-page": {
          "cache_header": "no-cache, no-store",
          "referrer_header": "origin",
          "session_cookies": [],
-         "fake_jwt": false,
-         "res_code": "404"
+         "auth_header": "JWT sometexthere",
+         "res_code": "200",
+         "req_method": "GET"
       },
       "https://bbc7069740af.ngrok.io/space-tools-tab?space_key=test": {
          "cache_header": "no-cache, no-store",
          "referrer_header": "origin",
          "session_cookies": [],
-         "fake_jwt": false,
-         "res_code": "404"
+         "auth_header": "",
+         "res_code": "404",
+         "req_method": "GET"
       },
       "https://bbc7069740af.ngrok.io/my-byline-item": {
          "cache_header": "no-cache, no-store",
          "referrer_header": "origin",
          "session_cookies": [],
-         "fake_jwt": false,
-         "res_code": "404"
+         "auth_header": "",
+         "res_code": "404",
+         "req_method": "GET"
       },
       "https://bbc7069740af.ngrok.io/my-spaceview/test": {
          "cache_header": "no-cache, no-store",
          "referrer_header": "origin",
          "session_cookies": [],
-         "fake_jwt": false,
-         "res_code": "404"
+         "auth_header": "",
+         "res_code": "404",
+         "req_method": "GET"
       },
       "https://bbc7069740af.ngrok.io/my-post-install-page": {
          "cache_header": "no-cache, no-store",
          "referrer_header": "origin",
          "session_cookies": [],
-         "fake_jwt": false,
-         "res_code": "429"
+         "auth_header": "",
+         "res_code": "429",
+         "req_method": "GET"
       },
       "https://bbc7069740af.ngrok.io/javascript:alert(2);": {
          "cache_header": "no-cache, no-store",
          "referrer_header": "origin",
          "session_cookies": [],
-         "fake_jwt": false,
-         "res_code": "429"
+         "auth_header": "",
+         "res_code": "429",
+         "req_method": "GET"
       },
       "https://bbc7069740af.ngrok.io/macro": {
          "cache_header": "no-cache, no-store",
          "referrer_header": "origin",
          "session_cookies": [],
-         "fake_jwt": false,
-         "res_code": "429"
+         "auth_header": "",
+         "res_code": "429",
+         "req_method": "GET"
       },
       "https://bbc7069740af.ngrok.io/my-dialog-content": {
          "cache_header": "no-cache, no-store",
          "referrer_header": "origin",
          "session_cookies": [],
-         "fake_jwt": false,
-         "res_code": "429"
+         "auth_header": "",
+         "res_code": "429",
+         "req_method": "GET"
       },
       "https://bbc7069740af.ngrok.io/blueprints/blueprint.xml": {
          "cache_header": "no-cache, no-store",
          "referrer_header": "origin",
          "session_cookies": [],
-         "fake_jwt": false,
-         "res_code": "429"
+         "auth_header": "",
+         "res_code": "429",
+         "req_method": "GET"
       },
       "https://bbc7069740af.ngrok.io/web-panel": {
          "cache_header": "no-cache, no-store",
          "referrer_header": "origin",
          "session_cookies": [],
-         "fake_jwt": false,
-         "res_code": "429"
+         "auth_header": "",
+         "res_code": "429",
+         "req_method": "GET"
       },
       "https://bbc7069740af.ngrok.io/my-config-page": {
          "cache_header": "no-cache, no-store",
          "referrer_header": "origin",
          "session_cookies": [],
-         "fake_jwt": false,
-         "res_code": "429"
+         "auth_header": "",
+         "res_code": "429",
+         "req_method": "GET"
       },
       "https://bbc7069740af.ngrok.io/issue-created": {
          "cache_header": "no-cache, no-store",
          "referrer_header": "origin",
          "session_cookies": [],
-         "fake_jwt": false,
-         "res_code": "429"
+         "auth_header": "",
+         "res_code": "429",
+         "req_method": "GET"
       },
       "https://bbc7069740af.ngrok.io/render-map?pageTitle=test": {
          "cache_header": "no-cache, no-store",
          "referrer_header": "origin",
          "session_cookies": [],
-         "fake_jwt": false,
-         "res_code": "429"
+         "auth_header": "",
+         "res_code": "429",
+         "req_method": "GET"
       }
    }
 }

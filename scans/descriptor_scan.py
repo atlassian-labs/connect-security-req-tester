@@ -23,6 +23,7 @@ class DescriptorScan(object):
         self.base_url: str = descriptor['baseUrl'] if not descriptor['baseUrl'].endswith('/') else descriptor['baseUrl'][:-1]
         self.links = self._get_links()
         self.session = self._setup_session()
+        self.link_errors: list = []
 
     def _setup_session(self):
         session = requests.Session()
@@ -98,12 +99,12 @@ class DescriptorScan(object):
             'iat': round(datetime.now().timestamp())
         }
 
-        hs256_jwt = jwt.encode(token_body, 'fake-jwt-secret', algorithm='HS256')
-        none_jwt = jwt.encode(token_body, None, algorithm='none')
+        hs256_jwt = jwt.encode(token_body, 'fake-jwt-secret', algorithm='HS256').decode('utf-8')
+        none_jwt = jwt.encode(token_body, '', algorithm='none').decode('utf-8')
 
         return hs256_jwt, none_jwt
 
-    def _visit_link(self, link: str) -> Tuple[Optional[requests.Response], bool]:
+    def _visit_link(self, link: str) -> Optional[requests.Response]:
         get_hs256, get_none = self._generate_fake_jwts(link, 'GET')
         post_hs256, post_none = self._generate_fake_jwts(link, 'POST')
         # Test for both incorrectly signed JWT and JWT using the None/Null algorithm
@@ -118,12 +119,19 @@ class DescriptorScan(object):
 
         res: Optional[requests.Response] = None
         for task in tasks:
-            res = self.session.request(task['method'], link, headers=task['headers'])
-            if res.status_code < 400:
-                # Return True if we got a <400 response with a fake JWT, else False
-                return res, True if task['headers'] else False
+            # Gracefully handle links that result in an exception, and report them later
+            try:
+                logging.debug(f"Requesting {link} with auth: {task['headers']=}")
+                res = self.session.request(task['method'], link, headers=task['headers'])
+                if res.status_code < 400:
+                    break
+            except Exception:
+                logging.warning(f"{link} could not be retrieved")
+                self.link_errors += [f"{link}"]
+                self.links.remove(link)
+                return None
 
-        return res, False
+        return res
 
     def _get_session_cookies(self, cookiejar: requests.cookies.RequestsCookieJar) -> List[str]:
         res: List[str] = []
@@ -149,16 +157,19 @@ class DescriptorScan(object):
         )
         scan_res = defaultdict()
         for link in self.links:
-            r, fake_jwt = self._visit_link(link)
-            scan_res[link] = DescriptorLink(
-                cache_header=r.headers.get('Cache-Control', 'Header missing'),
-                referrer_header=r.headers.get('Referrer-Policy', 'Header missing'),
-                session_cookies=self._get_session_cookies(r.cookies),
-                fake_jwt=fake_jwt,
-                res_code=str(r.status_code)
-            )
+            r = self._visit_link(link)
+            if r:
+                scan_res[link] = DescriptorLink(
+                    cache_header=r.headers.get('Cache-Control', 'Header missing'),
+                    referrer_header=r.headers.get('Referrer-Policy', 'Header missing'),
+                    session_cookies=self._get_session_cookies(r.cookies),
+                    auth_header=r.request.headers.get('Authorization', None),
+                    req_method=r.request.method,
+                    res_code=str(r.status_code)
+                )
 
         res.scan_results = scan_res
+        res.link_errors = self.link_errors
 
         logging.info(f"Descriptor scan complete, found and visited {len(self.links)} links")
         return res

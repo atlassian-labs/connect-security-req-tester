@@ -26,7 +26,7 @@ Description:
 
 Proof:
 {% if results.requirements[req].proof %}
-* {{ results.requirements[req].proof | join('\n\n* ') }}
+* {{ results.requirements[req].proof | join('\n\n* ') | replace('|', '\n\n\t* ') }}
 {% elif not results.requirements[req].was_scanned() %}
 * {{ constants.NO_SCAN_PROOF }}
 {% else %}
@@ -37,6 +37,11 @@ Proof:
 {% endfor %}
 
 ## Appendix
+### Scan Errors
+The following links could not be scanned due to an error:
+
+* {{ results.errors | join('\n\n* ') }}
+
 ### SSL/TLS Scan Raw Output
 Obtained via the [Qualys SSL Labs API](https://www.ssllabs.com/ssltest/)
 

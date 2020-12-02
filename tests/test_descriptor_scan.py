@@ -33,7 +33,8 @@ def create_scan_results(links):
             'cache_header': 'Header missing',
             'referrer_header': 'Header missing',
             'session_cookies': [],
-            'fake_jwt': False,
+            'auth_header': None,
+            'req_method': 'GET',
             'res_code': '200' if '?' in link else '204'
         }
     return res
@@ -72,7 +73,8 @@ def test_scan_valid_app():
         'app_descriptor': descriptor,
         'scopes': descriptor['scopes'],
         'links': links,
-        'scan_results': scan_res
+        'scan_results': scan_res,
+        'link_errors': []
     }, sort_keys=True)
 
     assert res == expected_res
