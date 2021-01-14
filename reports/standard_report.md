@@ -16,6 +16,7 @@ Report generated for:
 ## Scan Results
 
 {% for req in results.requirements %}
+{% if not skip_branding or req != '16' %}
 ### Requirement {{ req }} - {{ results.requirements[req].title }}
 
 Passed: {% if not results.requirements[req].was_scanned() %} **No Scan Performed** {% else %} **{{ results.requirements[req].passed }}** {% endif %}
@@ -34,16 +35,19 @@ Proof:
 {% endif %}
 
 ---
+{% endif %}
 {% endfor %}
 
 ## Appendix
+{% if results.errors %}
 ### Scan Errors
 The following links could not be scanned due to an error:
 
 * {{ results.errors | join('\n\n* ') }}
+{% endif %}
 
 ### SSL/TLS Scan Raw Output
-Obtained via the [Qualys SSL Labs API](https://www.ssllabs.com/ssltest/)
+Obtained via: [sslyze](https://github.com/nabla-c0d3/sslyze)
 
 ```
 {{ results['tls_scan_raw'] }}

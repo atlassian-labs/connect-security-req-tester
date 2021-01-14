@@ -30,10 +30,17 @@ LINK_PATTERNS = [(re.compile(LINK_REGEX), r'\1')]
 
 
 class ReportGenerator(object):
-    def __init__(self, results: Results, out_dir: str):
-        self.results = results
+    def __init__(self, results: Results, out_dir: str, skip_branding: bool):
+        self.results = self._normalize_results(results)
+        self.skip_branding = skip_branding
         self.out_dir = out_dir
         self.file_name = f"{results.key}-{date.today()}"
+
+    def _normalize_results(self, results: Results) -> Results:
+        for req in results.requirements:
+            results.requirements[req].title = reports.constants.REQ_TITLES[req]
+
+        return results
 
     def _jinja_render(self, template: str, **kwargs) -> str:
         logging.debug(f"Rendering {template} with {kwargs.keys()}")
@@ -62,7 +69,7 @@ class ReportGenerator(object):
                     description=','.join(req_res.description),
                     proof=','.join(req_res.proof),
                     recommendation=reports.constants.REQ_RECOMMENDATION[req],
-                    severity='Low',
+                    severity='Medium',
                     app_key=self.results.key,
                     app_name=self.results.name
                 )
@@ -73,7 +80,7 @@ class ReportGenerator(object):
     def _create_csv_report(self, vuln_report: List[dict]) -> Optional[str]:
         # Don't try to create a CSV for no vulns
         if not vuln_report:
-            return None
+            return ''
 
         # Create a fake IO stream to write the CSV content to, then return this
         out = io.StringIO()
@@ -87,9 +94,9 @@ class ReportGenerator(object):
         markdown_report = self._jinja_render(
             template=MARKDOWN_TEMPLATE,
             today=datetime.now(),
-            titles=reports.constants.REQ_TITLES,
             constants=reports.constants,
-            results=self.results
+            results=self.results,
+            skip_branding=self.skip_branding
         )
         markdown_to_html = markdown2.markdown(
             markdown_report,
@@ -112,7 +119,5 @@ class ReportGenerator(object):
         csv_name = f"{self.file_name}.csv"
 
         self._write_output(html_report, html_name)
-        if json_report:
-            self._write_output(json.dumps(json_report, indent=3), json_name)
-        if csv_report:
-            self._write_output(csv_report, csv_name)
+        self._write_output(json.dumps(json_report, indent=3), json_name)
+        self._write_output(csv_report, csv_name)
