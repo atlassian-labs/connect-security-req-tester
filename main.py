@@ -4,7 +4,6 @@ import sys
 
 import fire
 
-import utils
 from analyzers.branding_analyzer import BrandingAnalyzer
 from analyzers.descriptor_analyzer import DescriptorAnalyzer
 from analyzers.tls_analyzer import TlsAnalyzer
@@ -12,16 +11,19 @@ from models.requirements import Requirements, Results
 from reports.generator import ReportGenerator
 from scans.descriptor_scan import DescriptorScan
 from scans.tls_scan import TlsScan
+from utils.app_validator import AppValidator
 
 
 def main(descriptor_url, skip_branding=False, debug=False, out_dir='out'):
     # Setup our logging
     setup_logging(debug)
-    # Validate and fetch the provided connect descriptor to confirm it works
-    base_url, descriptor = utils.validate_and_resolve_descriptor(descriptor_url)
+    # Validate that the descriptor URL points to a seemingly valid connect app descriptor
+    validator = AppValidator(descriptor_url)
+    validator.validate()
+    descriptor = validator.get_descriptor()
 
-    # Run all of the gather scans (TLS & Descriptor Scan)
-    tls_scan = TlsScan(base_url)
+    # Run our scans -- SSL/TLS and Descriptor Checks
+    tls_scan = TlsScan(descriptor['baseUrl'])
     descriptor_scan = DescriptorScan(descriptor_url, descriptor)
 
     tls_res = tls_scan.scan()

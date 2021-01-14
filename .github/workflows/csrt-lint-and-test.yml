@@ -32,7 +32,7 @@ jobs:
         pipenv run lint
     - name: Check dependencies for security issues
       run: |
-        pipenv check
+        pipenv check -i 39252
     - name: Test with pytest
       run: |
         pipenv run test

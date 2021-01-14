@@ -9,6 +9,7 @@ from urllib.parse import urlparse
 import jwt
 import requests
 from models.descriptor_result import DescriptorLink, DescriptorResult
+from utils.csrt_session import create_csrt_session
 
 COMMON_SESSION_COOKIES = ['PHPSESSID', 'JSESSIONID', 'CFID', 'CFTOKEN', 'ASP.NET_SESSIONID']
 KEY_IGNORELIST = ['icon', 'icons', 'documentation', 'imagePlaceholder']
@@ -22,16 +23,8 @@ class DescriptorScan(object):
         self.descriptor: dict = descriptor
         self.base_url: str = descriptor['baseUrl'] if not descriptor['baseUrl'].endswith('/') else descriptor['baseUrl'][:-1]
         self.links = self._get_links()
-        self.session = self._setup_session()
+        self.session = create_csrt_session()
         self.link_errors: list = []
-
-    def _setup_session(self):
-        session = requests.Session()
-        session.headers.update(
-            {'User-Agent': 'Atlassian CSRT (https://github.com/atlassian-labs/connect-security-req-tester)'}
-        )
-        session.verify = False
-        return session
 
     def _get_links(self) -> List[str]:
         res: List[str] = []
@@ -99,8 +92,8 @@ class DescriptorScan(object):
             'iat': round(datetime.now().timestamp())
         }
 
-        hs256_jwt = jwt.encode(token_body, 'fake-jwt-secret', algorithm='HS256').decode('utf-8')
-        none_jwt = jwt.encode(token_body, '', algorithm='none').decode('utf-8')
+        hs256_jwt = jwt.encode(token_body, 'fake-jwt-secret', algorithm='HS256')
+        none_jwt = jwt.encode(token_body, '', algorithm='none')
 
         return hs256_jwt, none_jwt
 
@@ -125,8 +118,8 @@ class DescriptorScan(object):
                 res = self.session.request(task['method'], link, headers=task['headers'])
                 if res.status_code < 400:
                     break
-            except Exception:
-                logging.warning(f"{link} could not be retrieved")
+            except Exception as e:
+                logging.warning(f"{link} could not be retrieved, {e}")
                 self.link_errors += [f"{link}"]
                 self.links.remove(link)
                 return None
