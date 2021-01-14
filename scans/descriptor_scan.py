@@ -92,8 +92,8 @@ class DescriptorScan(object):
             'iat': round(datetime.now().timestamp())
         }
 
-        hs256_jwt = jwt.encode(token_body, 'fake-jwt-secret', algorithm='HS256').decode('utf-8')
-        none_jwt = jwt.encode(token_body, '', algorithm='none').decode('utf-8')
+        hs256_jwt = jwt.encode(token_body, 'fake-jwt-secret', algorithm='HS256')
+        none_jwt = jwt.encode(token_body, '', algorithm='none')
 
         return hs256_jwt, none_jwt
 
