@@ -56,7 +56,7 @@ def main(descriptor_url, skip_branding=False, debug=False, out_dir='out'):
     logging.info('Finished analysis')
 
     # Generate a report based on the analyzed results against Security Requirements
-    generator = ReportGenerator(results, out_dir)
+    generator = ReportGenerator(results, out_dir, skip_branding)
     generator.save_report()
 
     if results.errors:
