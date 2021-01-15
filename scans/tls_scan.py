@@ -90,9 +90,11 @@ class TlsScan(object):
     def _get_hsts_info(self, scan_res: List[ServerScanResult]) -> bool:
         hsts_present = True
         for res in scan_res:
-            headers = res.scan_commands_results[ScanCommand.HTTP_HEADERS]
-            if not headers.strict_transport_security_header:
-                hsts_present = False
+            headers = res.scan_commands_results.get(ScanCommand.HTTP_HEADERS, False)
+            # Take advantage of short circuiting here to make this check smaller
+            # Check if we got any HTTP HEADERS first, then see if HSTS was set -- We use an "and" here to fail the check
+            # if any of the returned scans were missing HSTS headers as every IP scanned should have HSTS set per req #1
+            hsts_present = bool(headers and hsts_present and headers.strict_transport_security_header)
 
         return hsts_present
 
