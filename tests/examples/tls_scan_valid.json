@@ -4,5 +4,6 @@
   "hsts_present": true,
   "trusted": true,
   "scan_results": {
-  }
+  },
+  "domain": "example.com"
 }

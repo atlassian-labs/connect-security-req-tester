@@ -6,6 +6,7 @@ from reports.constants import (CERT_NOT_VALID, HSTS_MISSING, NO_ISSUES,
                                REQ_TITLES, TLS_PROTOCOLS)
 
 PROTO_DENYLIST = ['TLS_1_0', 'TLS_1_1', 'SSL_3_0', 'SSL_2_0']
+HEROKU_DOMAIN = 'herokuapp.com'
 
 
 class TlsAnalyzer(object):
@@ -17,10 +18,14 @@ class TlsAnalyzer(object):
         passed = True
         proof: List[str] = []
 
-        uses_bad_protos = any(item in self.scan.protocols for item in PROTO_DENYLIST)
+        uses_bad_protos = HEROKU_DOMAIN not in self.scan.domain and any(item in self.scan.protocols for item in PROTO_DENYLIST)
         if uses_bad_protos:
             proof += [f"Protocols Found: {self.scan.protocols}"]
             passed = False
+
+        # Heroku auto-pass check
+        if HEROKU_DOMAIN in self.scan.domain:
+            proof += [f"{self.scan.domain} is a Heroku domain and is not subject to TLS requirements until July 31, 2021"]
 
         return passed, proof
 
@@ -42,39 +47,32 @@ class TlsAnalyzer(object):
 
         return passed, proof
 
-    def _determine_description(self, passed, tls, hsts) -> List[str]:
-        res: List[str] = []
-        if passed:
-            return [NO_ISSUES]
-        if not tls:
-            res.append(TLS_PROTOCOLS)
-        if not hsts:
-            res.append(HSTS_MISSING)
-
-        return res
-
     def analyze(self) -> Requirements:
         tls_passed, tls_proof = self._check_tls_versions()
         hsts_passed, hsts_proof = self._check_hsts()
-        passed = tls_passed and hsts_passed
-        proof = tls_proof + hsts_proof
-
-        req1 = RequirementsResult(
-            passed=passed,
-            description=self._determine_description(passed, tls_passed, hsts_passed),
-            proof=proof,
-            title=REQ_TITLES['1']
-        )
-        self.reqs.req1 = req1
-
         cert_passed, cert_proof = self._check_cert_valid()
 
+        req1_1 = RequirementsResult(
+            passed=tls_passed,
+            description=[NO_ISSUES] if tls_passed else [TLS_PROTOCOLS],
+            proof=tls_proof,
+            title=REQ_TITLES['1.1']
+        )
+        req1_2 = RequirementsResult(
+            passed=hsts_passed,
+            description=[NO_ISSUES] if hsts_passed else [HSTS_MISSING],
+            proof=hsts_proof,
+            title=REQ_TITLES['1.2']
+        )
         req3 = RequirementsResult(
             passed=cert_passed,
             description=[NO_ISSUES] if cert_passed else [CERT_NOT_VALID],
             proof=cert_proof,
             title=REQ_TITLES['3']
         )
+
+        self.reqs.req1_1 = req1_1
+        self.reqs.req1_2 = req1_2
         self.reqs.req3 = req3
 
         return self.reqs

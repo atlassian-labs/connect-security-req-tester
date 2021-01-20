@@ -1,0 +1,13 @@
+{
+  "ips_scanned": 1,
+  "protocols": [
+     "TLS_1_2",
+     "TLS_1_1",
+     "TLS_1_0"
+  ],
+  "hsts_present": true,
+  "trusted": true,
+  "scan_results": {
+  },
+  "domain": "testapp.herokuapp.com"
+}
