@@ -13,7 +13,8 @@ class RequirementsResult(JsonObject):
 
 
 class Requirements(JsonObject):
-    req1 = ObjectProperty(RequirementsResult, name='1')
+    req1_1 = ObjectProperty(RequirementsResult, name='1.1')
+    req1_2 = ObjectProperty(RequirementsResult, name='1.2')
     req2 = ObjectProperty(RequirementsResult, name='2')
     req3 = ObjectProperty(RequirementsResult, name='3')
     req4 = ObjectProperty(RequirementsResult, name='4')

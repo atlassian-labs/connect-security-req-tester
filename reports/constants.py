@@ -1,5 +1,6 @@
 REQ_TITLES = {
-    '1': 'Transport Layer Security',
+    '1.1': 'Transport Layer Security',
+    '1.2': 'HSTS',
     '2': 'Cache Control',
     '3': 'Validity of Domain Registration and TLS Certificates',
     '4': 'Domain and Subdomain Takeover',
@@ -30,7 +31,8 @@ MISSING_AUTHN_AUTHZ = 'One or more endpoints returned a <400 status code without
 BRANDING_ISSUE = 'Your app name or domain contained words that are not allowed. Please refer to our branding guidelines at: https://developer.atlassian.com/platform/marketplace/atlassian-brand-guidelines-for-marketplace-vendors/#app-names for more information.'
 
 REQ_RECOMMENDATION = {
-    '1': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#transport-layer-security:~:text=requirement.-,Transport%20layer%20security for more information.',
+    '1.1': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#transport-layer-security:~:text=requirement.-,Transport%20layer%20security for more information.',
+    '1.2': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#transport-layer-security:~:text=requirement.-,Transport%20layer%20security for more information.',
     '2': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#cache-control for more information.',
     '3': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#validity-of-domain-registration---tls-certificates for more information.',
     '4': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#domain-and-subdomain-takeover for more information.',
