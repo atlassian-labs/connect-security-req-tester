@@ -114,7 +114,7 @@ class DescriptorScan(object):
         for task in tasks:
             # Gracefully handle links that result in an exception, and report them later
             try:
-                logging.debug(f"Requesting {link} with auth: {task['headers']=}")
+                logging.debug(f"Requesting {link} via {task['method']} with auth: {task['headers']=}")
                 res = self.session.request(task['method'], link, headers=task['headers'])
                 if res.status_code < 400:
                     break
