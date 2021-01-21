@@ -1,6 +1,7 @@
 import json
 import logging
 import sys
+from datetime import datetime
 
 import fire
 
@@ -15,6 +16,7 @@ from utils.app_validator import AppValidator
 
 
 def main(descriptor_url, skip_branding=False, debug=False, out_dir='out'):
+    start = datetime.now()
     # Setup our logging
     setup_logging(debug)
     # Validate that the descriptor URL points to a seemingly valid connect app descriptor
@@ -58,6 +60,8 @@ def main(descriptor_url, skip_branding=False, debug=False, out_dir='out'):
     # Generate a report based on the analyzed results against Security Requirements
     generator = ReportGenerator(results, out_dir, skip_branding)
     generator.save_report()
+
+    logging.info(f"CSRT Scan completed in: {datetime.now() - start}")
 
     if results.errors:
         errors: str = '\n'.join(descriptor_res.link_errors)
