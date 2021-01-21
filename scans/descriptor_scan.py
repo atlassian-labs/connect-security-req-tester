@@ -112,16 +112,23 @@ class DescriptorScan(object):
 
         res: Optional[requests.Response] = None
         for task in tasks:
-            # Gracefully handle links that result in an exception, and report them later
+            # Gracefully handle links that result in an exception, report them via warning, and skip any further tests
             try:
                 logging.debug(f"Requesting {link} via {task['method']} with auth: {task['headers']=}")
                 res = self.session.request(task['method'], link, headers=task['headers'])
                 if res.status_code < 400:
                     break
-            except Exception as e:
-                logging.warning(f"{link} could not be retrieved, {e}")
+            except requests.exceptions.ReadTimeout:
+                logging.warning(f"{link} timed out, skipping endpoint...")
                 self.link_errors += [f"{link}"]
-                self.links.remove(link)
+                return None
+            except requests.exceptions.RequestException:
+                # Only print stacktrace if we are log level DEBUG
+                logging.warning(
+                    f"{link} caused an exception. Run with --debug for more information. Skipping endpoint...",
+                    exc_info=logging.getLogger().getEffectiveLevel() == logging.DEBUG
+                )
+                self.link_errors += [f"{link}"]
                 return None
 
         return res
