@@ -16,9 +16,9 @@ from utils.app_validator import AppValidator
 
 
 def main(descriptor_url, skip_branding=False, debug=False, out_dir='out'):
-    start = datetime.now()
     # Setup our logging
     setup_logging(debug)
+    logging.info(f"CSRT Scan started at: {(start := datetime.now())}")
     # Validate that the descriptor URL points to a seemingly valid connect app descriptor
     validator = AppValidator(descriptor_url)
     validator.validate()

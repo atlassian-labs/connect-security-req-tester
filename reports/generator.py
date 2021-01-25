@@ -71,7 +71,8 @@ class ReportGenerator(object):
                     recommendation=reports.constants.REQ_RECOMMENDATION[req],
                     severity='Medium',
                     app_key=self.results.key,
-                    app_name=self.results.name
+                    app_name=self.results.name,
+                    date=date.today()
                 )
                 vuln_report.append(vuln.to_json())
 
