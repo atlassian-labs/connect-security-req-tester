@@ -43,7 +43,7 @@ def create_scan_results(links):
 def test_init_valid_url():
     valid_url = f"https://connect-inspector.services.atlassian.com/resources/{ADDON_KEY}/atlassian-connect.json"
     descriptor = requests.get(valid_url).json()
-    scanner = DescriptorScan(valid_url, descriptor)
+    scanner = DescriptorScan(valid_url, descriptor, 30)
     links = get_links_from_descriptor(descriptor)
 
     assert scanner.descriptor_url == valid_url
@@ -55,7 +55,7 @@ def test_init_valid_url():
 def test_scan_valid_app():
     valid_url = f"https://connect-inspector.services.atlassian.com/resources/{ADDON_KEY}/atlassian-connect.json"
     descriptor = requests.get(valid_url).json()
-    scanner = DescriptorScan(valid_url, descriptor)
+    scanner = DescriptorScan(valid_url, descriptor, 30)
     res = scanner.scan().to_json()
     res['links'].sort()
     res = json.dumps(res, sort_keys=True)

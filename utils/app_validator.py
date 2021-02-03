@@ -10,8 +10,8 @@ REQUIRED_KEYS = ['baseUrl', 'key', 'name']
 
 
 class AppValidator(object):
-    def __init__(self, descriptor_url: str):
-        self.session = create_csrt_session()
+    def __init__(self, descriptor_url: str, timeout: int):
+        self.session = create_csrt_session(timeout)
         self.descriptor_url = descriptor_url
         self.descriptor = self._get_and_request_descriptor()
 
