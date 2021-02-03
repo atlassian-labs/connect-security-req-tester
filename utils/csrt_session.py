@@ -21,7 +21,7 @@ class TimeoutHTTPAdapter(HTTPAdapter):
         return super().send(request, **kwargs)
 
 
-def create_csrt_session(timeout: int = 60) -> requests.Session:
+def create_csrt_session(timeout: int = 30) -> requests.Session:
     """Return a requests.Session object setup in a standard way to make HTTP requests from
 
     Returns:

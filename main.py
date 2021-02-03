@@ -15,18 +15,18 @@ from scans.tls_scan import TlsScan
 from utils.app_validator import AppValidator
 
 
-def main(descriptor_url, skip_branding=False, debug=False, out_dir='out'):
+def main(descriptor_url, skip_branding=False, debug=False, timeout=30, out_dir='out'):
     # Setup our logging
     setup_logging(debug)
     logging.info(f"CSRT Scan started at: {(start := datetime.now())}")
     # Validate that the descriptor URL points to a seemingly valid connect app descriptor
-    validator = AppValidator(descriptor_url)
+    validator = AppValidator(descriptor_url, timeout)
     validator.validate()
     descriptor = validator.get_descriptor()
 
     # Run our scans -- SSL/TLS and Descriptor Checks
     tls_scan = TlsScan(descriptor['baseUrl'])
-    descriptor_scan = DescriptorScan(descriptor_url, descriptor)
+    descriptor_scan = DescriptorScan(descriptor_url, descriptor, timeout)
 
     tls_res = tls_scan.scan()
     descriptor_res = descriptor_scan.scan()

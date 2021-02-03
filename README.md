@@ -11,7 +11,7 @@ This utility can be run as a python script or can be built as a Docker container
 
 Using CSRT with Python requires [pipenv](https://pipenv.pypa.io) to be installed.
 
-`pipenv run python main.py url-to-atlassian-connect-json --debug=True/False --out_dir=./out --skip_branding=True/False`
+`pipenv run python main.py url-to-atlassian-connect-json --debug=True/False --out_dir=./out --skip_branding=True/False --timeout=30`
 
 Example: `pipenv run python3 main.py https://example.com/atlassian-connect.json`
 
@@ -23,6 +23,7 @@ Example: `pipenv run python3 main.py https://example.com/atlassian-connect.json`
 ### Arguments
 | Argument | Argument Description |
 |----------|----------------------|
+|--timeout          | Defines how long CSRT will wait on web requests before timing out, **default: 30 seconds**        |
 |--skip_branding    | Whether or not to skip branding checks, **default: False**                                        |
 |--out_dir          | The output directory where results are stored, **default: ./out**                                 |
 |--debug            | Sets logging to DEBUG for more verbose logging, **default: False**                                |
@@ -41,8 +42,6 @@ To run the entire test suite:
 
 * `pipenv run lint` -- Runs flake8 with the project settings
 * `pipenv run test` -- Runs pytest with the project settings
-
-Tests may take a few minutes to run as we rely on the Qualys API to return results back to us to confirm functionality.
 
 ## Issues / Feedback?
 Found a bug or have an idea for an improvement? Create an issue via the [issue tracker](https://github.com/atlassian-labs/connect-security-req-tester/issues).

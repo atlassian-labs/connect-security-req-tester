@@ -18,12 +18,12 @@ BRACES_MATCHER = r'\$?{.*}'
 
 
 class DescriptorScan(object):
-    def __init__(self, descriptor_url: str, descriptor: dict):
+    def __init__(self, descriptor_url: str, descriptor: dict, timeout: int):
         self.descriptor_url: str = descriptor_url
         self.descriptor: dict = descriptor
         self.base_url: str = descriptor['baseUrl'] if not descriptor['baseUrl'].endswith('/') else descriptor['baseUrl'][:-1]
         self.links = self._get_links()
-        self.session = create_csrt_session()
+        self.session = create_csrt_session(timeout)
         self.link_errors: list = []
 
     def _get_links(self) -> List[str]:

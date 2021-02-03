@@ -20,7 +20,7 @@ def setup_module(module):
 def test_descriptor_fetch():
     url = f"https://connect-inspector.services.atlassian.com/resources/{ADDON_KEY}/atlassian-connect.json"
     actual_descriptor = requests.get(url).json()
-    validator = AppValidator(url)
+    validator = AppValidator(url, 30)
 
     assert validator.descriptor == actual_descriptor
     assert validator.descriptor_url == url
@@ -29,7 +29,7 @@ def test_descriptor_fetch():
 
 def test_valid_descriptor():
     url = f"https://connect-inspector.services.atlassian.com/resources/{ADDON_KEY}/atlassian-connect.json"
-    validator = AppValidator(url)
+    validator = AppValidator(url, 30)
 
     assert validator.validate() is True
 
@@ -40,6 +40,7 @@ def test_missing_keys():
     validator.session = None
     validator.descriptor_url = 'https://example.com'
     validator.descriptor = json.loads(open(descriptor_file, 'r').read())
+    validator.timeout = 30
 
     assert validator._validate_required_keys() is False
     with pytest.raises(SystemExit) as wrapped_e:
@@ -55,6 +56,7 @@ def test_invalid_base_url():
     validator.session = None
     validator.descriptor_url = 'https://example.com'
     validator.descriptor = json.loads(open(descriptor_file, 'r').read())
+    validator.timeout = 30
 
     assert validator._validate_base_url() is False
     with pytest.raises(SystemExit) as wrapped_e:
@@ -72,7 +74,7 @@ def test_invalid_remote_descriptors():
     ]
 
     for url in urls:
-        validator = AppValidator(url)
+        validator = AppValidator(url, 30)
 
         with pytest.raises(SystemExit) as wrapped_e:
             validator.validate()
