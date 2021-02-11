@@ -1,4 +1,5 @@
 import hashlib
+import itertools
 import logging
 import re
 from collections import defaultdict
@@ -12,7 +13,8 @@ from models.descriptor_result import DescriptorLink, DescriptorResult
 from utils.csrt_session import create_csrt_session
 
 COMMON_SESSION_COOKIES = ['PHPSESSID', 'JSESSIONID', 'CFID', 'CFTOKEN', 'ASP.NET_SESSIONID']
-KEY_IGNORELIST = ['icon', 'icons', 'documentation', 'imagePlaceholder']
+KEY_IGNORELIST = ['icon', 'icons', 'documentation', 'imagePlaceholder', 'template']
+MODULE_IGNORELIST = ['jiraBackgroundScripts']
 CONDITION_MATCHER = r'{condition\..*}'
 BRACES_MATCHER = r'\$?{.*}'
 
@@ -32,8 +34,11 @@ class DescriptorScan(object):
         modules = self.descriptor.get('modules', [])
         # Grab all lifecycle events
         urls = [lifecycle_events[evt] for evt in lifecycle_events]
-        # Grab all URLs from modules, this magic flattens a list of lists to a single list structure
-        urls += [item for sublist in [self._find_urls_in_module(modules[x]) for x in modules] for item in sublist]
+        # Acquire all URLs from a descriptor ignoring modules in MODULE_IGNORELIST or keys in KEY_IGNORELIST
+        # Calling itertools here to flatten a list of lists
+        urls += list(itertools.chain.from_iterable(
+            [self._find_urls_in_module(modules[x]) for x in modules if x not in MODULE_IGNORELIST]
+        ))
 
         # Remove duplicates
         urls = list(set(urls))
@@ -67,13 +72,19 @@ class DescriptorScan(object):
             for item in module:
                 urls.extend(self._find_urls_in_module(item))
         elif type(module) is dict:
-            for key, value in module.items():
-                if key in KEY_IGNORELIST:
-                    continue
-                if type(value) is dict:
-                    urls.extend(self._find_urls_in_module(value))
-                if key == 'url':
-                    urls.extend([value])
+            # Connect modules can be marked as "cacheable" meaning authN/authZ checks happen within the JS context.
+            # We will ignore modules that are marked as cacheable for now
+            # Ref: https://developer.atlassian.com/cloud/confluence/cacheable-app-iframes-for-connect-apps/
+            # TODO: Mark these endpoints as not subjected to Requirement 5 checks, but subject to all other checks
+            cacheable = module.get('cacheable', False)
+            if not cacheable:
+                for key, value in module.items():
+                    if key in KEY_IGNORELIST:
+                        continue
+                    if type(value) is dict:
+                        urls.extend(self._find_urls_in_module(value))
+                    if key == 'url':
+                        urls.extend([value])
         else:
             return urls
         return urls

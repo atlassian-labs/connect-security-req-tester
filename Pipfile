@@ -20,6 +20,7 @@ validators = "*"
 pyjwt = "*"
 tldextract = "*"
 sslyze = "*"
+dnspython = "*"
 
 [requires]
 python_version = "3.8"
