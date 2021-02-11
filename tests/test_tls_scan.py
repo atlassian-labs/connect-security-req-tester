@@ -53,4 +53,4 @@ def test_untrusted_certs():
         assert res.scan_results is not None
         # Github actions seem to fail with this test, adding a sleep between scans to
         # hopefully make whatever is upset less mad.
-        time.sleep(2)
+        time.sleep(1)
