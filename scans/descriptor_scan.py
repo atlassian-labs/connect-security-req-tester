@@ -36,6 +36,7 @@ class DescriptorScan(object):
         urls = [lifecycle_events[evt] for evt in lifecycle_events]
         # Acquire all URLs from a descriptor ignoring modules in MODULE_IGNORELIST or keys in KEY_IGNORELIST
         # Calling itertools here to flatten a list of lists
+        # TODO: Ensure we mark items in the MODULE_IGNORELIST to just ignore Requirement 5, scan for all other issues
         urls += list(itertools.chain.from_iterable(
             [self._find_urls_in_module(modules[x]) for x in modules if x not in MODULE_IGNORELIST]
         ))
