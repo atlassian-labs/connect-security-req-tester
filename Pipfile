@@ -6,9 +6,7 @@ verify_ssl = true
 [dev-packages]
 flake8 = "*"
 pytest = "*"
-requests-mock = "*"
 pytest-cov = "*"
-yapf = "*"
 
 [packages]
 requests = "*"
@@ -23,7 +21,7 @@ sslyze = "*"
 dnspython = "*"
 
 [requires]
-python_version = "3.8"
+python_version = "3.9"
 
 [scripts]
 test = "pipenv run pytest -s --cov --cov-config=.coveragerc --disable-warnings"
