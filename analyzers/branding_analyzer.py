@@ -43,10 +43,9 @@ class BrandingAnalyzer(object):
         proof: List[str] = []
         for link in self.links:
             sub, domain, suffix = tldextract.extract(link)
-            sub_test = self._check_against_denylist(sub, DOMAIN_DENYLIST)
             domain_test = self._check_against_denylist(domain, DOMAIN_DENYLIST)
 
-            if sub_test or domain_test:
+            if domain_test:
                 proof.append(
                     f"{link} | Contains a denied word in the subdomain or primary domain"
                 )

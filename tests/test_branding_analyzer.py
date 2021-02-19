@@ -71,3 +71,17 @@ def test_good_app():
     assert res.req16.description == [NO_ISSUES]
     assert res.req16.title == REQ_TITLES['16']
     assert res.req16.proof == []
+
+
+def test_subdomain_exclusion():
+    links = ['https://atlassian.myapp.com/confluence']
+    name = 'Example App'
+    reqs = Requirements()
+    analyzer = BrandingAnalyzer(links, name, reqs)
+
+    res = analyzer.analyze()
+
+    assert res.req16.passed is True
+    assert res.req16.description == [NO_ISSUES]
+    assert res.req16.title == REQ_TITLES['16']
+    assert res.req16.proof == []
