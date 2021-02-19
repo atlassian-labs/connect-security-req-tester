@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: File a big report for CSRT
+about: File a bug report for CSRT
 title: ''
 labels: bug
 assignees: ''
