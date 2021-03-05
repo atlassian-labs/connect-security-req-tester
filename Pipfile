@@ -19,6 +19,7 @@ pyjwt = "*"
 tldextract = "*"
 sslyze = "*"
 dnspython = "*"
+python-json-logger = "*"
 
 [requires]
 python_version = "3.9"
