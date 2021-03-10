@@ -19,7 +19,7 @@ Common usage:
 
 CSRT with all arguments:
 
-`pipenv run python main.py url-to-atlassian-connect-json --debug=True/False --out_dir=./out --skip_branding=True/False --timeout=30`
+`pipenv run python main.py url-to-atlassian-connect-json --debug=True/False --out_dir=./out --skip_branding=True/False --timeout=30 --json_logging=True/False`
 
 ### Docker Usage
 
@@ -36,6 +36,7 @@ Run the following from the project root:
 |--timeout          | Defines how long CSRT will wait on web requests before timing out, **default: 30 seconds**        |
 |--skip_branding    | Whether or not to skip branding checks, **default: False**                                        |
 |--out_dir          | The output directory where results are stored, **default: ./out**                                 |
+|--json_logging     | Whether or not to log output in a JSON format, **default: False**                                 |
 |--debug            | Sets logging to DEBUG for more verbose logging, **default: False**                                |
 
 ## Useful Information

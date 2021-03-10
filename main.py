@@ -4,6 +4,7 @@ import sys
 from datetime import datetime
 
 import fire
+from pythonjsonlogger import jsonlogger
 
 from analyzers.branding_analyzer import BrandingAnalyzer
 from analyzers.descriptor_analyzer import DescriptorAnalyzer
@@ -15,9 +16,9 @@ from scans.tls_scan import TlsScan
 from utils.app_validator import AppValidator
 
 
-def main(descriptor_url, skip_branding=False, debug=False, timeout=30, out_dir='out'):
+def main(descriptor_url, skip_branding=False, debug=False, timeout=30, out_dir='out', json_logging=False):
     # Setup our logging
-    setup_logging(debug)
+    setup_logging('connect-security-requirements-tester', debug, json_logging)
     logging.info(f"CSRT Scan started at: {(start := datetime.now())}")
     # Validate that the descriptor URL points to a seemingly valid connect app descriptor
     validator = AppValidator(descriptor_url, timeout)
@@ -58,7 +59,7 @@ def main(descriptor_url, skip_branding=False, debug=False, timeout=30, out_dir='
     logging.info('Finished analysis')
 
     # Generate a report based on the analyzed results against Security Requirements
-    generator = ReportGenerator(results, out_dir, skip_branding)
+    generator = ReportGenerator(results, out_dir, skip_branding, start, results.errors)
     generator.save_report()
 
     logging.info(f"CSRT Scan completed in: {datetime.now() - start}")
@@ -69,14 +70,32 @@ def main(descriptor_url, skip_branding=False, debug=False, timeout=30, out_dir='
         sys.exit(1)
 
 
-def setup_logging(debug):
-    logging_format = '%(asctime)s %(levelname)s - %(filename)s:%(lineno)d - %(message)s'
-    logging.basicConfig(
-        format=logging_format,
-        level=logging.DEBUG if debug else logging.INFO
-    )
-    # Turn off extra logging from filelock and HTTPS warnings when not in debug mode
+def setup_logging(scanner_name, debug, json_logging):
+    if json_logging:
+        logger = logging.getLogger()
+        logger.setLevel(logging.DEBUG if debug else logging.INFO)
+        handler = logging.StreamHandler()
+        formatter = jsonlogger.JsonFormatter("%(tool)s %(asctime)s %(levelname)s %(filename)s %(lineno)d %(message)s")
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+        orig_factory = logging.getLogRecordFactory()
+
+        def scanner_inline(*args, **kwargs):
+            record = orig_factory(*args, **kwargs)
+            record.tool = scanner_name
+            return record
+
+        logging.setLogRecordFactory(scanner_inline)
+    else:
+        logging_format = '%(asctime)s %(levelname)s - %(filename)s:%(lineno)d - %(message)s'
+        logging.basicConfig(
+            format=logging_format,
+            level=logging.DEBUG if debug else logging.INFO
+        )
+
+    # Turn off extra logging from other packages that end up getting merged into the root logger unless in Debug
     logging.captureWarnings(True)
+    logging.getLogger('sslyze').propagate = True if debug else False
     logging.getLogger('filelock').propagate = True if debug else False
     logging.getLogger('py.warnings').propagate = True if debug else False
 

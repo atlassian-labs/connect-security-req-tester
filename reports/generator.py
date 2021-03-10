@@ -10,7 +10,7 @@ from typing import List, Optional
 import markdown2
 from jinja2 import Template
 from models.requirements import Results
-from models.vulnerability import Vulnerability
+from models.vulnerability import Vulnerability, VulnReport
 
 import reports.constants
 
@@ -30,11 +30,13 @@ LINK_PATTERNS = [(re.compile(LINK_REGEX), r'\1')]
 
 
 class ReportGenerator(object):
-    def __init__(self, results: Results, out_dir: str, skip_branding: bool):
+    def __init__(self, results: Results, out_dir: str, skip_branding: bool, start: datetime, errors: List[str]):
         self.results = self._normalize_results(results)
         self.skip_branding = skip_branding
         self.out_dir = out_dir
         self.file_name = f"{results.key}-{date.today()}"
+        self.start_time = start
+        self.errors = bool(errors)
 
     def _normalize_results(self, results: Results) -> Results:
         for req in results.requirements:
@@ -57,8 +59,14 @@ class ReportGenerator(object):
 
         logging.info(f"Wrote report to: {self._get_report_path(fname)}")
 
-    def _create_json_report(self) -> List[dict]:
-        vuln_report: List[dict] = []
+    def _create_json_report(self) -> VulnReport:
+        vuln_report = VulnReport(
+            vulns=[],
+            scanner='connect-security-requirements-tester',
+            started_at=self.start_time,
+            ended_at=datetime.now(),
+            errors=self.errors
+        )
 
         for req in self.results.requirements:
             req_res = self.results.requirements[req]
@@ -74,20 +82,22 @@ class ReportGenerator(object):
                     app_name=self.results.name,
                     date=date.today()
                 )
-                vuln_report.append(vuln.to_json())
+                vuln_report.vulns.append(vuln)
 
         return vuln_report
 
-    def _create_csv_report(self, vuln_report: List[dict]) -> Optional[str]:
+    def _create_csv_report(self, vuln_report: VulnReport) -> Optional[str]:
         # Don't try to create a CSV for no vulns
-        if not vuln_report:
+        if not vuln_report.vulns:
             return ''
+
+        report = vuln_report.to_json()
 
         # Create a fake IO stream to write the CSV content to, then return this
         out = io.StringIO()
-        writer = csv.DictWriter(out, fieldnames=list(vuln_report[0]))
+        writer = csv.DictWriter(out, fieldnames=list(report['vulns'][0]))
         writer.writeheader()
-        writer.writerows(vuln_report)
+        writer.writerows(report['vulns'])
 
         return out.getvalue()
 
@@ -120,5 +130,5 @@ class ReportGenerator(object):
         csv_name = f"{self.file_name}.csv"
 
         self._write_output(html_report, html_name)
-        self._write_output(json.dumps(json_report, indent=3), json_name)
+        self._write_output(json.dumps(json_report.to_json(), indent=3), json_name)
         self._write_output(csv_report, csv_name)
