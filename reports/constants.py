@@ -1,6 +1,6 @@
 REQ_TITLES = {
-    '1.1': 'Transport Layer Security',
-    '1.2': 'HSTS',
+    '1.1': 'Transport Layer Security Validation',
+    '1.2': 'HSTS Validation',
     '2': 'Cache Control',
     '3': 'Validity of Domain Registration and TLS Certificates',
     '4': 'Domain and Subdomain Takeover',

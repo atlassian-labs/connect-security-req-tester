@@ -62,7 +62,7 @@ class ReportGenerator(object):
     def _create_json_report(self) -> VulnReport:
         vuln_report = VulnReport(
             vulns=[],
-            scanner='connect-security-requirements-tester',
+            scanner='Connect Security Requirements Tester',
             started_at=self.start_time,
             ended_at=datetime.now(),
             errors=self.errors
@@ -72,8 +72,7 @@ class ReportGenerator(object):
             req_res = self.results.requirements[req]
             if req_res.was_scanned() and not req_res.passed:
                 vuln = Vulnerability(
-                    vuln_id=f"{self.results.key}-requirement{req}",
-                    title=reports.constants.REQ_TITLES[req],
+                    check_name=reports.constants.REQ_TITLES[req],
                     description=','.join(req_res.description),
                     proof=','.join(req_res.proof),
                     recommendation=reports.constants.REQ_RECOMMENDATION[req],
