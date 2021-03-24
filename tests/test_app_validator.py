@@ -66,18 +66,17 @@ def test_invalid_base_url():
     assert wrapped_e.value.code == 1
 
 
-def test_invalid_remote_descriptors():
-    # Test a few known incorrect descriptors
-    urls = [
-        'https://marketplace.atlassian.com/download/apps/1219272/version/1003000/descriptor',
-        'https://marketplace.atlassian.com/download/apps/1217913/version/1000002/descriptor'
-    ]
+def test_invalid_remote_descriptor():
+    # Test for exceptions on non-JSON responses and when a descriptor returns an error HTTP status code
+    remote_url_non_json = 'https://example.com'
+    remote_url_404 = 'https://example.com/doesnotexist'
 
-    for url in urls:
-        validator = AppValidator(url, 30)
+    with pytest.raises(json.decoder.JSONDecodeError) as wrapped_e:
+        AppValidator(remote_url_non_json, 30)
 
-        with pytest.raises(SystemExit) as wrapped_e:
-            validator.validate()
+    assert wrapped_e.type == json.decoder.JSONDecodeError
 
-        assert wrapped_e.type == SystemExit
-        assert wrapped_e.value.code == 1
+    with pytest.raises(requests.exceptions.HTTPError) as wrapped_e:
+        AppValidator(remote_url_404, 30)
+
+    assert wrapped_e.type == requests.exceptions.HTTPError
