@@ -24,20 +24,27 @@ class DescriptorScan(object):
         self.descriptor_url: str = descriptor_url
         self.descriptor: dict = descriptor
         self.base_url: str = descriptor['baseUrl'] if not descriptor['baseUrl'].endswith('/') else descriptor['baseUrl'][:-1]
-        self.links = self._get_links()
+        self.lifecycle_events = self._get_lifecycle_events()
+        self.links = self._get_module_links() + self.lifecycle_events
         self.session = create_csrt_session(timeout)
         self.link_errors: list = []
 
-    def _get_links(self) -> List[str]:
+    def _get_lifecycle_events(self) -> List[str]:
+        events = self.descriptor.get('lifecycle', [])
+        # Pull all lifecycle events from the descriptor
+        links = [self._convert_to_full_link(event) for event in [events[event] for event in events]]
+        # Deduplicate life cycle events
+        res = list(set(links))
+
+        return res
+
+    def _get_module_links(self) -> List[str]:
         res: List[str] = []
-        lifecycle_events = self.descriptor.get('lifecycle', [])
         modules = self.descriptor.get('modules', [])
-        # Grab all lifecycle events
-        urls = [lifecycle_events[evt] for evt in lifecycle_events]
         # Acquire all URLs from a descriptor ignoring modules in MODULE_IGNORELIST or keys in KEY_IGNORELIST
         # Calling itertools here to flatten a list of lists
         # TODO: Ensure we mark items in the MODULE_IGNORELIST to just ignore Requirement 5, scan for all other issues
-        urls += list(itertools.chain.from_iterable(
+        urls = list(itertools.chain.from_iterable(
             [self._find_urls_in_module(modules[x]) for x in modules if x not in MODULE_IGNORELIST]
         ))
 
@@ -90,6 +97,9 @@ class DescriptorScan(object):
             return urls
         return urls
 
+    def _is_lifecycle_link(self, link: str):
+        return link in self.lifecycle_events
+
     def _generate_fake_jwts(self, link: str, method: str = 'GET') -> Tuple[str, str]:
         # Create a "realistic" Connect JWT using a bogus key and a JWT using the none algorithm
         # Refer to: https://developer.atlassian.com/cloud/confluence/understanding-jwt/ for more info
@@ -114,16 +124,20 @@ class DescriptorScan(object):
         post_hs256, post_none = self._generate_fake_jwts(link, 'POST')
         # Test for both incorrectly signed JWT and JWT using the None/Null algorithm
         tasks = [
-            {'method': 'GET', 'headers': None},
+            {'method': 'GET', 'headers': {}},
             {'method': 'GET', 'headers': {'Authorization': f"JWT {get_hs256}"}},
             {'method': 'GET', 'headers': {'Authorization': f"JWT {get_none}"}},
-            {'method': 'POST', 'headers': None},
+            {'method': 'POST', 'headers': {}},
             {'method': 'POST', 'headers': {'Authorization': f"JWT {post_hs256}"}},
             {'method': 'POST', 'headers': {'Authorization': f"JWT {post_none}"}}
         ]
 
         res: Optional[requests.Response] = None
         for task in tasks:
+            # If we are requesting a lifecycle event, ensure we specify the content-type of application/json
+            if self._is_lifecycle_link(link):
+                task['headers']['Content-Type'] = 'application/json'
+
             # Gracefully handle links that result in an exception, report them via warning, and skip any further tests
             try:
                 logging.debug(f"Requesting {link} via {task['method']} with auth: {task['headers']=}")
