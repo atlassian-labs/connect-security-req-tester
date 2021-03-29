@@ -26,6 +26,10 @@ def get_links_from_descriptor(descriptor):
     return list(set(links))
 
 
+def get_lifecycle_events_from_descriptor(descriptor):
+    return [descriptor['baseUrl'] + event for event in [descriptor['lifecycle'][event] for event in descriptor['lifecycle']]]
+
+
 def create_scan_results(links):
     res = defaultdict()
     for link in links:
@@ -45,11 +49,13 @@ def test_init_valid_url():
     descriptor = requests.get(valid_url).json()
     scanner = DescriptorScan(valid_url, descriptor, 30)
     links = get_links_from_descriptor(descriptor)
+    lifecycle_events = get_lifecycle_events_from_descriptor(descriptor)
 
     assert scanner.descriptor_url == valid_url
     assert scanner.descriptor == descriptor
     assert scanner.base_url == descriptor['baseUrl']
     assert set(scanner.links) == set(links)
+    assert set(scanner.lifecycle_events) == set(lifecycle_events)
 
 
 def test_scan_valid_app():
