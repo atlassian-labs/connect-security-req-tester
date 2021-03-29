@@ -19,7 +19,7 @@ from utils.app_validator import AppValidator
 def main(descriptor_url, skip_branding=False, debug=False, timeout=30, out_dir='out', json_logging=False):
     # Setup our logging
     setup_logging('connect-security-requirements-tester', debug, json_logging)
-    logging.info(f"CSRT Scan started at: {(start := datetime.now())}")
+    logging.info(f"CSRT Scan started at: {(start := datetime.utcnow())}")
     # Validate that the descriptor URL points to a seemingly valid connect app descriptor
     validator = AppValidator(descriptor_url, timeout)
     validator.validate()
@@ -62,7 +62,7 @@ def main(descriptor_url, skip_branding=False, debug=False, timeout=30, out_dir='
     generator = ReportGenerator(results, out_dir, skip_branding, start, results.errors)
     generator.save_report()
 
-    logging.info(f"CSRT Scan completed in: {datetime.now() - start}")
+    logging.info(f"CSRT Scan completed in: {datetime.utcnow() - start}")
 
     if results.errors:
         errors: str = '\n'.join(descriptor_res.link_errors)
