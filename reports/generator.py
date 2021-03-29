@@ -64,7 +64,7 @@ class ReportGenerator(object):
             vulns=[],
             scanner='Connect Security Requirements Tester',
             started_at=self.start_time,
-            ended_at=datetime.now(),
+            ended_at=datetime.utcnow(),
             errors=self.errors
         )
 
@@ -103,7 +103,7 @@ class ReportGenerator(object):
     def _create_html_report(self) -> str:
         markdown_report = self._jinja_render(
             template=MARKDOWN_TEMPLATE,
-            today=datetime.now(),
+            today=datetime.utcnow(),
             constants=reports.constants,
             results=self.results,
             skip_branding=self.skip_branding

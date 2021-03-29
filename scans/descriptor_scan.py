@@ -110,8 +110,8 @@ class DescriptorScan(object):
         token_body = {
             'qsh': qsh,
             'iss': 'csrt-fake-token-ignore',
-            'exp': round((datetime.now() + timedelta(hours=3)).timestamp()),
-            'iat': round(datetime.now().timestamp())
+            'exp': round((datetime.utcnow() + timedelta(hours=3)).timestamp()),
+            'iat': round(datetime.utcnow().timestamp())
         }
 
         hs256_jwt = jwt.encode(token_body, 'fake-jwt-secret', algorithm='HS256')
