@@ -1,11 +1,9 @@
-import csv
-import io
 import json
 import logging
 import re
 from datetime import date, datetime
 from pathlib import Path
-from typing import List, Optional
+from typing import List
 
 import markdown2
 from jinja2 import Template
