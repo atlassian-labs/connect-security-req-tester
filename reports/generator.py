@@ -1,11 +1,9 @@
-import csv
-import io
 import json
 import logging
 import re
 from datetime import date, datetime
 from pathlib import Path
-from typing import List, Optional
+from typing import List
 
 import markdown2
 from jinja2 import Template
@@ -65,6 +63,7 @@ class ReportGenerator(object):
             scanner='Connect Security Requirements Tester',
             started_at=self.start_time,
             ended_at=datetime.utcnow(),
+            scanned=[self.results.key],
             errors=self.errors
         )
 
@@ -84,21 +83,6 @@ class ReportGenerator(object):
                 vuln_report.vulns.append(vuln)
 
         return vuln_report
-
-    def _create_csv_report(self, vuln_report: VulnReport) -> Optional[str]:
-        # Don't try to create a CSV for no vulns
-        if not vuln_report.vulns:
-            return ''
-
-        report = vuln_report.to_json()
-
-        # Create a fake IO stream to write the CSV content to, then return this
-        out = io.StringIO()
-        writer = csv.DictWriter(out, fieldnames=list(report['vulns'][0]))
-        writer.writeheader()
-        writer.writerows(report['vulns'])
-
-        return out.getvalue()
 
     def _create_html_report(self) -> str:
         markdown_report = self._jinja_render(
@@ -121,13 +105,10 @@ class ReportGenerator(object):
 
     def save_report(self):
         json_report = self._create_json_report()
-        csv_report = self._create_csv_report(json_report)
         html_report = self._create_html_report()
 
         html_name = f"{self.file_name}.html"
         json_name = f"{self.file_name}.json"
-        csv_name = f"{self.file_name}.csv"
 
         self._write_output(html_report, html_name)
         self._write_output(json.dumps(json_report.to_json(), indent=3), json_name)
-        self._write_output(csv_report, csv_name)
