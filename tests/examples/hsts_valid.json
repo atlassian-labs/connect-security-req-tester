@@ -1,0 +1,4 @@
+{
+    "header": "max-age=63072000; preload",
+    "max_age": 63072000
+}

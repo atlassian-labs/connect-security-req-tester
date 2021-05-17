@@ -9,10 +9,12 @@ from pythonjsonlogger import jsonlogger
 from analyzers.branding_analyzer import BrandingAnalyzer
 from analyzers.descriptor_analyzer import DescriptorAnalyzer
 from analyzers.tls_analyzer import TlsAnalyzer
+from analyzers.hsts_analyzer import HstsAnalyzer
 from models.requirements import Requirements, Results
 from reports.generator import ReportGenerator
 from scans.descriptor_scan import DescriptorScan
 from scans.tls_scan import TlsScan
+from scans.hsts_scan import HstsScan
 from utils.app_validator import AppValidator
 
 
@@ -25,11 +27,13 @@ def main(descriptor_url, skip_branding=False, debug=False, timeout=30, out_dir='
     validator.validate()
     descriptor = validator.get_descriptor()
 
-    # Run our scans -- SSL/TLS and Descriptor Checks
+    # Run our scans -- TLS/HSTS/Descriptor
     tls_scan = TlsScan(descriptor['baseUrl'])
+    hsts_scan = HstsScan(descriptor['baseUrl'], timeout)
     descriptor_scan = DescriptorScan(descriptor_url, descriptor, timeout)
 
     tls_res = tls_scan.scan()
+    hsts_res = hsts_scan.scan()
     descriptor_res = descriptor_scan.scan()
 
     # Analyze the results from the scans
@@ -48,6 +52,9 @@ def main(descriptor_url, skip_branding=False, debug=False, timeout=30, out_dir='
 
     tls_analyzer = TlsAnalyzer(tls_res, results.requirements)
     results.requirements = tls_analyzer.analyze()
+
+    hsts_analyzer = HstsAnalyzer(hsts_res, results.requirements)
+    results.requirements = hsts_analyzer.analyze()
 
     descriptor_analyzer = DescriptorAnalyzer(descriptor_res, results.requirements)
     results.requirements = descriptor_analyzer.analyze()

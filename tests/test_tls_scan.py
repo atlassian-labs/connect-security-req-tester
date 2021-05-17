@@ -18,19 +18,7 @@ def test_tls_valid():
 
     assert res.ips_scanned == 1
     assert all(proto in expected_protos for proto in res.protocols)
-    assert res.hsts_present is True
     assert res.trusted is True
-    assert res.scan_results is not None
-
-
-def test_hsts_valid():
-    url = 'https://hsts.badssl.com'
-    scanner = TlsScan(url)
-    res = scanner.scan()
-
-    assert res.hsts_present is True
-    assert res.trusted is True
-    assert res.ips_scanned == 1
     assert res.scan_results is not None
 
 
@@ -48,7 +36,6 @@ def test_untrusted_certs():
         res = scanner.scan()
 
         assert res.trusted is False
-        assert res.hsts_present is False
         assert res.ips_scanned == 1
         assert res.scan_results is not None
         # Github actions seem to fail with this test, adding a sleep between scans to

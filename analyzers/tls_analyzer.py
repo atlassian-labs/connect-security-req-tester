@@ -3,8 +3,8 @@ from typing import List, Tuple
 import dns.resolver
 from models.requirements import Requirements, RequirementsResult
 from models.tls_result import TlsResult
-from reports.constants import (CERT_NOT_VALID, HSTS_MISSING, NO_ISSUES,
-                               REQ_TITLES, TLS_PROTOCOLS)
+from reports.constants import (CERT_NOT_VALID, NO_ISSUES, REQ_TITLES,
+                               TLS_PROTOCOLS)
 
 PROTO_DENYLIST = ['TLS_1_0', 'TLS_1_1', 'SSL_3_0', 'SSL_2_0']
 HEROKU_DOMAINS = ['herokuapp.com', 'herokudns.com']
@@ -49,15 +49,6 @@ class TlsAnalyzer(object):
 
         return passed, proof
 
-    def _check_hsts(self) -> Tuple[bool, List[str]]:
-        passed = self.scan.hsts_present
-        proof: List[str] = []
-
-        if not passed:
-            proof += ['We did not detect an HSTS header when scanning your app.']
-
-        return passed, proof
-
     def _check_cert_valid(self) -> Tuple[bool, List[str]]:
         passed = self.scan.trusted
         proof: List[str] = []
@@ -69,7 +60,7 @@ class TlsAnalyzer(object):
 
     def analyze(self) -> Requirements:
         tls_passed, tls_proof = self._check_tls_versions()
-        hsts_passed, hsts_proof = self._check_hsts()
+        # hsts_passed, hsts_proof = self._check_hsts()
         cert_passed, cert_proof = self._check_cert_valid()
 
         req1_1 = RequirementsResult(
@@ -77,12 +68,6 @@ class TlsAnalyzer(object):
             description=[NO_ISSUES] if tls_passed else [TLS_PROTOCOLS],
             proof=tls_proof,
             title=REQ_TITLES['1.1']
-        )
-        req1_2 = RequirementsResult(
-            passed=hsts_passed,
-            description=[NO_ISSUES] if hsts_passed else [HSTS_MISSING],
-            proof=hsts_proof,
-            title=REQ_TITLES['1.2']
         )
         req3 = RequirementsResult(
             passed=cert_passed,
@@ -92,7 +77,6 @@ class TlsAnalyzer(object):
         )
 
         self.reqs.req1_1 = req1_1
-        self.reqs.req1_2 = req1_2
         self.reqs.req3 = req3
 
         return self.reqs
