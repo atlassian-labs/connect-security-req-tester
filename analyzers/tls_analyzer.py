@@ -60,7 +60,6 @@ class TlsAnalyzer(object):
 
     def analyze(self) -> Requirements:
         tls_passed, tls_proof = self._check_tls_versions()
-        # hsts_passed, hsts_proof = self._check_hsts()
         cert_passed, cert_proof = self._check_cert_valid()
 
         req1_1 = RequirementsResult(
