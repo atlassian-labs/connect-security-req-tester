@@ -23,7 +23,6 @@ NO_PROOF = 'Check passed, no proof available. Please refer to Appendix for raw s
 NO_SCAN_PROOF = 'We do not have a scan for this issue. Please refer to the description for more information.'
 TLS_PROTOCOLS = 'Your app supports a SSL/TLS protocol(s) that are below TLS 1.2'
 HSTS_MISSING = 'We did not detect an HSTS Header on one or all hosts.'
-HSTS_MAX_AGE_INVALID = 'We did not detect a valid max-age value for your HSTS header.'
 CERT_NOT_VALID = 'Your app has an invalid SSL/TLS certificate.'
 MISSING_CACHE_HEADERS = 'We did not detect the correct Cache-Control header on one or more endpoints.'
 MISSING_REF_HEADERS = 'We did not detect the correct Referrer-Policy header on one or more endpoints.'

@@ -1,6 +1,5 @@
-from jsonobject import IntegerProperty, JsonObject, StringProperty
+from jsonobject import JsonObject, StringProperty
 
 
 class HstsResult(JsonObject):
     header = StringProperty()
-    max_age = IntegerProperty()

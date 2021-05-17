@@ -1,5 +1,6 @@
 import logging
 import sys
+from typing import Optional
 
 import validators
 from models.hsts_result import HstsResult
@@ -11,25 +12,13 @@ class HstsScan(object):
         self.base_url = base_url
         self.session = create_csrt_session(timeout)
 
-    def _process_hsts_header(self, hsts_directive: str) -> tuple[str, int]:
-        header = hsts_directive.split(',')[0] if hsts_directive else None
-        max_age = 0
-
-        for part in header.lower().split(';'):
-            part = part.strip()
-
-            if 'max-age' in part:
-                max_age = int(part.split('max-age=')[1].strip())
-
-        return header, max_age
-
-    def _check_for_hsts(self) -> tuple[str, int]:
+    def _check_for_hsts(self) -> Optional[str]:
         if validators.url(self.base_url):
             res = self.session.get(self.base_url, allow_redirects=False)
             # Docs: https://docs.python-requests.org/en/master/user/quickstart/#response-headers
             # Requests "headers" dictionary are special and case-insensitive
             hsts_header = res.headers.get('strict-transport-security', None)
-            return self._process_hsts_header(hsts_header)
+            return hsts_header
         else:
             # NOTE: This should not be possible to reach. We validate the baseUrl earlier on.
             # This is merely an extra added fail safe.
@@ -38,11 +27,10 @@ class HstsScan(object):
 
     def scan(self) -> HstsResult:
         logging.info(f"Checking {self.base_url} for an HSTS header...")
-        header, max_age = self._check_for_hsts()
+        header = self._check_for_hsts()
 
         hsts_res = HstsResult(
-            header=header,
-            max_age=max_age
+            header=header
         )
 
         logging.info('HSTS check completed.')

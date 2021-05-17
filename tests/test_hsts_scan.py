@@ -14,7 +14,6 @@ def test_hsts_header_valid():
     res = scanner.scan()
 
     assert res.header == 'max-age=15768000; includeSubDomains'
-    assert res.max_age == 15768000
 
 
 def test_hsts_header_preload_valid():
@@ -23,7 +22,6 @@ def test_hsts_header_preload_valid():
     res = scanner.scan()
 
     assert res.header == 'max-age=15768000; includeSubDomains; preload'
-    assert res.max_age == 15768000
 
 
 def test_hsts_header_and_max_age_valid():
@@ -32,4 +30,11 @@ def test_hsts_header_and_max_age_valid():
     res = scanner.scan()
 
     assert res.header == 'max-age=63072000; preload'
-    assert res.max_age == 63072000
+
+
+def test_hsts_invalid():
+    base_url = 'https://example.com'
+    scanner = HstsScan(base_url, 5)
+    res = scanner.scan()
+
+    assert res.header is None
