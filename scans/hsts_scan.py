@@ -1,8 +1,6 @@
 import logging
-import sys
 from typing import Optional
 
-import validators
 from models.hsts_result import HstsResult
 from utils.csrt_session import create_csrt_session
 
@@ -13,17 +11,15 @@ class HstsScan(object):
         self.session = create_csrt_session(timeout)
 
     def _check_for_hsts(self) -> Optional[str]:
-        if validators.url(self.base_url):
-            res = self.session.get(self.base_url, allow_redirects=False)
+        try:
+            res = self.session.get(self.base_url)
             # Docs: https://docs.python-requests.org/en/master/user/quickstart/#response-headers
             # Requests "headers" dictionary are special and case-insensitive
             hsts_header = res.headers.get('strict-transport-security', None)
             return hsts_header
-        else:
-            # NOTE: This should not be possible to reach. We validate the baseUrl earlier on.
-            # This is merely an extra added fail safe.
-            logging.error(f"{self.base_url} is not a valid URL, exiting...")
-            sys.exit(1)
+        except Exception as e:
+            logging.error(f"HSTS Scan failed to scan {self.base_url} due to: {e}")
+            return None
 
     def scan(self) -> HstsResult:
         logging.info(f"Checking {self.base_url} for an HSTS header...")
