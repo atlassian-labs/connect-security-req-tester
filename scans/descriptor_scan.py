@@ -27,7 +27,7 @@ class DescriptorScan(object):
         self.lifecycle_events = self._get_lifecycle_events()
         self.links = self._get_module_links() + self.lifecycle_events
         self.session = create_csrt_session(timeout)
-        self.link_errors: list = []
+        self.link_errors: dict = {}
 
     def _get_lifecycle_events(self) -> List[str]:
         events = self.descriptor.get('lifecycle', [])
@@ -146,7 +146,7 @@ class DescriptorScan(object):
                     break
             except requests.exceptions.ReadTimeout:
                 logging.warning(f"{link} timed out, skipping endpoint...")
-                self.link_errors += [f"{link}"]
+                self.link_errors.setdefault('timeouts', []).append(f"{link}")
                 return None
             except requests.exceptions.RequestException:
                 # Only print stacktrace if we are log level DEBUG
@@ -154,7 +154,7 @@ class DescriptorScan(object):
                     f"{link} caused an exception. Run with --debug for more information. Skipping endpoint...",
                     exc_info=logging.getLogger().getEffectiveLevel() == logging.DEBUG
                 )
-                self.link_errors += [f"{link}"]
+                self.link_errors.setdefault('exceptions', []).append(f"{link}")
                 return None
 
         return res
