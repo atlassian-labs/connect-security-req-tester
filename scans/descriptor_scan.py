@@ -139,7 +139,7 @@ class DescriptorScan(object):
                 task['headers']['Content-Type'] = 'application/json'
 
             # Gracefully handle links that result in an exception, report them via warning, and skip any further tests
-            try: 
+            try:
                 logging.debug(f"Requesting {link} via {task['method']} with auth: {task['headers']=}")
                 res = self.session.request(task['method'], link, headers=task['headers'])
                 if res.status_code == 503:
@@ -150,7 +150,7 @@ class DescriptorScan(object):
                     return None
                 elif res.status_code < 400:
                     break
-            except requests.exceptions.ReadTimeout: 
+            except requests.exceptions.ReadTimeout:
                 logging.warning(f"{link} timed out, skipping endpoint...")
                 self.link_errors['timeouts'] += [f"{link}"]
                 return None
@@ -158,7 +158,7 @@ class DescriptorScan(object):
                 logging.warning(f"{link} is causing infinite redirects, skipping endpoint...")
                 self.link_errors['infinite_redirects'] += [f"{link}"]
                 return None
-            except requests.exceptions.RequestException: 
+            except requests.exceptions.RequestException:
                 # Only print stacktrace if we are log level DEBUG
                 logging.warning(
                     f"{link} caused an exception. Run with --debug for more information. Skipping endpoint...",
