@@ -1,5 +1,5 @@
 from jsonobject import (BooleanProperty, JsonObject, ListProperty,
-                        ObjectProperty, StringProperty)
+                        ObjectProperty, StringProperty, DictProperty)
 
 
 class RequirementsResult(JsonObject):
@@ -40,4 +40,4 @@ class Results(JsonObject):
     requirements = ObjectProperty(Requirements)
     tls_scan_raw = StringProperty()
     descriptor_scan_raw = StringProperty()
-    errors = ListProperty(StringProperty())
+    errors = DictProperty()
