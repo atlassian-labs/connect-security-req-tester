@@ -124,12 +124,12 @@ class DescriptorScan(object):
         post_hs256, post_none = self._generate_fake_jwts(link, 'POST')
         # Test for both incorrectly signed JWT and JWT using the None/Null algorithm
         tasks = [
-            {'method': 'GET', 'headers': {'Connection':'close'}},
-            {'method': 'GET', 'headers': {'Authorization': f"JWT {get_hs256}", 'Connection':'close'}},
-            {'method': 'GET', 'headers': {'Authorization': f"JWT {get_none}", 'Connection':'close'}},
-            {'method': 'POST', 'headers': {'Connection':'close'}},
-            {'method': 'POST', 'headers': {'Authorization': f"JWT {post_hs256}", 'Connection':'close'}},
-            {'method': 'POST', 'headers': {'Authorization': f"JWT {post_none}", 'Connection':'close'}}
+            {'method': 'GET', 'headers': {'Connection': 'close'}},
+            {'method': 'GET', 'headers': {'Authorization': f"JWT {get_hs256}", 'Connection': 'close'}},
+            {'method': 'GET', 'headers': {'Authorization': f"JWT {get_none}", 'Connection': 'close'}},
+            {'method': 'POST', 'headers': {'Connection': 'close'}},
+            {'method': 'POST', 'headers': {'Authorization': f"JWT {post_hs256}", 'Connection': 'close'}},
+            {'method': 'POST', 'headers': {'Authorization': f"JWT {post_none}", 'Connection': 'close'}}
         ]
 
         res: Optional[requests.Response] = None
@@ -139,26 +139,26 @@ class DescriptorScan(object):
                 task['headers']['Content-Type'] = 'application/json'
 
             # Gracefully handle links that result in an exception, report them via warning, and skip any further tests
-            try:
+            try: 
                 logging.debug(f"Requesting {link} via {task['method']} with auth: {task['headers']=}")
                 res = self.session.request(task['method'], link, headers=task['headers'])
                 if res.status_code == 503:
                     logging.warning(
-                    f"{link} caused a 503 status. Run with --debug for more information. Skipping endpoint...",
-                    exc_info=logging.getLogger().getEffectiveLevel() == logging.DEBUG)
-                    self.link_errors['service_unavailable'] += [f"{link}"] 
+                        f"{link} caused a 503 status. Run with --debug for more information. Skipping endpoint...",
+                        exc_info=logging.getLogger().getEffectiveLevel() == logging.DEBUG)
+                    self.link_errors['service_unavailable'] += [f"{link}"]
                     return None
                 elif res.status_code < 400:
                     break
-            except requests.exceptions.ReadTimeout:
+            except requests.exceptions.ReadTimeout: 
                 logging.warning(f"{link} timed out, skipping endpoint...")
                 self.link_errors['timeouts'] += [f"{link}"]
                 return None
             except requests.exceptions.TooManyRedirects:
-               logging.warning(f"{link} is causing infinite redirects, skipping endpoint...")
-               self.link_errors['infinite_redirects'] += [f"{link}"]
-               return None 
-            except requests.exceptions.RequestException:
+                logging.warning(f"{link} is causing infinite redirects, skipping endpoint...")
+                self.link_errors['infinite_redirects'] += [f"{link}"]
+                return None
+            except requests.exceptions.RequestException: 
                 # Only print stacktrace if we are log level DEBUG
                 logging.warning(
                     f"{link} caused an exception. Run with --debug for more information. Skipping endpoint...",

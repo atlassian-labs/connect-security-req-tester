@@ -80,7 +80,7 @@ def main(descriptor_url, skip_branding=False, debug=False, timeout=30, out_dir='
         if "timeouts" or "service_unavailable" or "infinite_redirects" in results.errors:
             timeout_fname = f"timeouts_{timeout}s"
             service_unavailable_fname = f"service_unavailable_{timeout}s"
-            infinite_redirects_fname  = f"infinite_redirects_{timeout}s"
+            infinite_redirects_fname = f"infinite_redirects_{timeout}s"
             if "timeouts" in results.errors:
                 Path(timeout_fname).mkdir(exist_ok=True, parents=True)
                 timed_out = open(f"{timeout_fname}/{results.key}-{date.today()}.csv", 'w')
@@ -97,8 +97,8 @@ def main(descriptor_url, skip_branding=False, debug=False, timeout=30, out_dir='
                 infinite_redirects.write(descriptor_url)
                 infinite_redirects.close()
             logging.warning(f"The following links didn't scan successfully:\n{json.dumps(results.errors, indent=2)}")
-            sys.exit(0) # For both the above cases, we don't want to fail the scan as such so need to exit graciously
-        else: #For every other failures, we would want to fail the scan and alert in Slack
+            sys.exit(0)  # For both the above cases, we don't want to fail the scan as such so need to exit graciously
+        else:  # For every other failures, we would want to fail the scan and alert in Slack
             logging.error(f"The following links caused errors:\n{json.dumps(results.errors, indent=2)}")
             sys.exit(1)
 
