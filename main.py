@@ -13,6 +13,7 @@ from analyzers.tls_analyzer import TlsAnalyzer
 from analyzers.hsts_analyzer import HstsAnalyzer
 from models.requirements import Requirements, Results
 from reports.generator import ReportGenerator
+from reports.failures import FailureGenerator
 from scans.descriptor_scan import DescriptorScan
 from scans.tls_scan import TlsScan
 from scans.hsts_scan import HstsScan
@@ -77,25 +78,9 @@ def main(descriptor_url, skip_branding=False, debug=False, timeout=30, out_dir='
         # and have failed either due to a timeout or 503 service unavailable or infinite redirects
         # For 503 or timeout failures or infinite redirects (on timeout>30s), we can't do much about it except track them
 
-        if "timeouts" or "service_unavailable" or "infinite_redirects" in results.errors:
-            timeout_fname = f"timeouts_{timeout}s"
-            service_unavailable_fname = f"service_unavailable_{timeout}s"
-            infinite_redirects_fname = f"infinite_redirects_{timeout}s"
-            if "timeouts" in results.errors:
-                Path(timeout_fname).mkdir(exist_ok=True, parents=True)
-                timed_out = open(f"{timeout_fname}/{results.key}-{date.today()}.csv", 'w')
-                timed_out.write(descriptor_url)
-                timed_out.close()
-            if "service_unavailable" in results.errors:
-                Path(service_unavailable_fname).mkdir(exist_ok=True, parents=True)
-                service_unavailable = open(f"{service_unavailable_fname}/{results.key}-{date.today()}.csv", 'w')
-                service_unavailable.write(descriptor_url)
-                service_unavailable.close()
-            if "infinite_redirects" in results.errors:
-                Path(infinite_redirects_fname).mkdir(exist_ok=True, parents=True)
-                infinite_redirects = open(f"{infinite_redirects_fname}/{results.key}-{date.today()}.csv", 'w')
-                infinite_redirects.write(descriptor_url)
-                infinite_redirects.close()
+        if ("timeouts" or "service_unavailable" or "infinite_redirects") in results.errors:
+            failures = FailureGenerator(results, out_dir, results.errors, descriptor_url, timeout)
+            failures.save_failures()
             logging.warning(f"The following links didn't scan successfully:\n{json.dumps(results.errors, indent=2)}")
             sys.exit(0)  # For both the above cases, we don't want to fail the scan as such so need to exit graciously
         else:  # For every other failures, we would want to fail the scan and alert in Slack
