@@ -142,14 +142,14 @@ class DescriptorScan(object):
             try:
                 logging.debug(f"Requesting {link} via {task['method']} with auth: {task['headers']=}")
                 res = self.session.request(task['method'], link, headers=task['headers'])
+                if res.status_code < 400:
+                    break
                 if res.status_code == 503:
                     logging.warning(
                         f"{link} caused a 503 status. Run with --debug for more information. Skipping endpoint...",
                         exc_info=logging.getLogger().getEffectiveLevel() == logging.DEBUG)
                     self.link_errors['service_unavailable'] += [f"{link}"]
                     return None
-                elif res.status_code < 400:
-                    break
             except requests.exceptions.ReadTimeout:
                 logging.warning(f"{link} timed out, skipping endpoint...")
                 self.link_errors['timeouts'] += [f"{link}"]
