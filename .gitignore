@@ -4,3 +4,4 @@ out
 .pytest_cache
 .coverage
 pytestdebug.log
+*.csv

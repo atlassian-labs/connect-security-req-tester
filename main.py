@@ -12,6 +12,7 @@ from analyzers.tls_analyzer import TlsAnalyzer
 from analyzers.hsts_analyzer import HstsAnalyzer
 from models.requirements import Requirements, Results
 from reports.generator import ReportGenerator
+from reports.failures import FailureGenerator
 from scans.descriptor_scan import DescriptorScan
 from scans.tls_scan import TlsScan
 from scans.hsts_scan import HstsScan
@@ -72,9 +73,19 @@ def main(descriptor_url, skip_branding=False, debug=False, timeout=30, out_dir='
     logging.info(f"CSRT Scan completed in: {datetime.utcnow() - start}")
 
     if results.errors:
-        errors: str = '\n'.join(descriptor_res.link_errors)
-        logging.error(f"The following links caused errors:\n{errors}")
-        sys.exit(1)
+        # We would want to track apps/links that fail with a timeout of 30 seconds (so that we can retry only these later)
+        # and have failed either due to a timeout or 503 service unavailable or infinite redirects
+        # For 503 or timeout failures or infinite redirects (on timeout>30s), we can't do much about it except track them
+
+        if ("timeouts" in results.errors) or ("service_unavailable" in results.errors) \
+                or ("infinite_redirects" in results.errors):
+            failures = FailureGenerator(results, out_dir, results.errors, descriptor_url, timeout)
+            failures.save_failures()
+            logging.warning(f"The following links didn't scan successfully:\n{json.dumps(results.errors, indent=2)}")
+            sys.exit(0)  # For both the above cases, we don't want to fail the scan as such so need to exit graciously
+        else:  # For every other failures, we would want to fail the scan and alert in Slack
+            logging.error(f"The following links caused errors:\n{json.dumps(results.errors, indent=2)}")
+            sys.exit(1)
 
 
 def setup_logging(scanner_name, debug, json_logging):
