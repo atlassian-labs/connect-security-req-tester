@@ -78,7 +78,7 @@ def main(descriptor_url, skip_branding=False, debug=False, timeout=30, out_dir='
         # For 503 or timeout failures or infinite redirects (on timeout>30s), we can't do much about it except track them
 
         if ("timeouts" in results.errors) or ("service_unavailable" in results.errors) \
-        or ("infinite_redirects" in results.errors):
+                or ("infinite_redirects" in results.errors):
             failures = FailureGenerator(results, out_dir, results.errors, descriptor_url, timeout)
             failures.save_failures()
             logging.warning(f"The following links didn't scan successfully:\n{json.dumps(results.errors, indent=2)}")
