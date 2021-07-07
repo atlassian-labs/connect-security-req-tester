@@ -80,7 +80,7 @@ def test_scan_valid_app():
         'scopes': descriptor['scopes'],
         'links': links,
         'scan_results': scan_res,
-        'link_errors': []
+        'link_errors': {}
     }, sort_keys=True)
 
     assert res == expected_res
