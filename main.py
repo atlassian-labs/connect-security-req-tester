@@ -1,8 +1,7 @@
 import json
 import logging
 import sys
-from datetime import date, datetime
-from pathlib import Path
+from datetime import datetime
 
 import fire
 from pythonjsonlogger import jsonlogger
