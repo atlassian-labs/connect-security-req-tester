@@ -57,4 +57,4 @@ class FailureGenerator(object):
             Path(self.out_dir + '/' + infinite_redirects_fname).mkdir(exist_ok=True, parents=True)
             json_name = f"{infinite_redirects_fname}/{self.results.key}.json"
 
-        self._write_output(json.dumps(json_report.to_json()), json_name)
+        self._write_output(json.dumps([json_report.to_json()]), json_name)
