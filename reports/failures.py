@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import List
 from models.requirements import Results
 from models.vulnerability import AppFailureReport
+from datetime import date
 
 
 class FailureGenerator(object):
@@ -28,7 +29,8 @@ class FailureGenerator(object):
         app_failures_report = AppFailureReport(
             app_key=self.results.key,
             app_name=self.results.name,
-            descriptor_url=self.descriptor_url
+            descriptor_url=self.descriptor_url,
+            date=date.today()
         )
         return app_failures_report
 
