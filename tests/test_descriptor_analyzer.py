@@ -5,7 +5,7 @@ from models.descriptor_result import DescriptorResult
 from models.requirements import Requirements
 from reports.constants import (MISSING_ATTRS_SESSION_COOKIE,
                                MISSING_AUTHN_AUTHZ, MISSING_CACHE_HEADERS,
-                               MISSING_REF_HEADERS, NO_ISSUES)
+                               MISSING_REF_HEADERS, NO_ISSUES, VALID_AUTH_PROOF)
 
 
 def test_good_scan():
@@ -21,7 +21,7 @@ def test_good_scan():
     assert res.req2.proof == []
     assert res.req5.passed is True
     assert res.req5.description == [NO_ISSUES]
-    assert res.req5.proof == []
+    assert res.req5.proof == [VALID_AUTH_PROOF]
     assert res.req11.passed is True
     assert res.req11.description == [NO_ISSUES]
     assert res.req11.proof == []
@@ -43,7 +43,7 @@ def test_bad_cache_header():
     assert res.req2.proof == ['https://bbc7069740af.ngrok.io/installed | Cache header: Header missing']
     assert res.req5.passed is True
     assert res.req5.description == [NO_ISSUES]
-    assert res.req5.proof == []
+    assert res.req5.proof == [VALID_AUTH_PROOF]
     assert res.req11.passed is True
     assert res.req11.description == [NO_ISSUES]
     assert res.req11.proof == []
@@ -65,7 +65,7 @@ def test_bad_referrer_header():
     assert res.req2.proof == []
     assert res.req5.passed is True
     assert res.req5.description == [NO_ISSUES]
-    assert res.req5.proof == []
+    assert res.req5.proof == [VALID_AUTH_PROOF]
     assert res.req11.passed is True
     assert res.req11.description == [NO_ISSUES]
     assert res.req11.proof == []
@@ -90,7 +90,7 @@ def test_bad_cookies():
     assert res.req2.proof == []
     assert res.req5.passed is True
     assert res.req5.description == [NO_ISSUES]
-    assert res.req5.proof == []
+    assert res.req5.proof == [VALID_AUTH_PROOF]
     assert res.req11.passed is False
     assert res.req11.description == [MISSING_ATTRS_SESSION_COOKIE]
     assert res.req11.proof == ['https://bbc7069740af.ngrok.io/installed | Cookie: JSESSIONID; Domain=9ee0fd043609.ngrok.io; Secure=False; HttpOnly=True']
