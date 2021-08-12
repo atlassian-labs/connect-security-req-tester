@@ -6,7 +6,7 @@ from models.descriptor_result import DescriptorResult
 from models.requirements import Requirements, RequirementsResult
 from reports.constants import (MISSING_ATTRS_SESSION_COOKIE,
                                MISSING_AUTHN_AUTHZ, MISSING_CACHE_HEADERS,
-                               MISSING_REF_HEADERS, NO_ISSUES, REQ_TITLES)
+                               MISSING_REF_HEADERS, NO_ISSUES, NO_AUTH_PROOF, VALID_AUTH_PROOF, REQ_TITLES)
 
 REQ_CACHE_HEADERS = ['no-cache', 'no-store']
 REF_DENYLIST = ['no-referrer-when-downgrade', 'unsafe-url']
@@ -70,14 +70,28 @@ class DescriptorAnalyzer(object):
         passed = True
         proof: List[str] = []
         scan_res = self.scan.scan_results
+
+        # Don't check authentication if the app doesn't have an authentication method.
+        # Default to no authentication check if no authentication field is provided
+        authentication_method = self.scan.app_descriptor.get('authentication')
+        use_authentication = (False if authentication_method is None else authentication_method.get("type") == "jwt")
+        if not use_authentication:
+            proof.append(NO_AUTH_PROOF)
+            return passed, proof
+
         for link in scan_res:
             res_code = int(scan_res[link].res_code)
             auth_header = scan_res[link].auth_header
             req_method = scan_res[link].req_method
+
+            # We shouldn't be able to visit this link if the app uses authentication.
             if res_code >= 200 and res_code < 400:
                 passed = False
                 proof_text = f"{link} | Res Code: {res_code} Req Method: {req_method} Auth Header: {auth_header}"
                 proof.append(proof_text)
+
+        if passed:
+            proof.append(VALID_AUTH_PROOF)
 
         return passed, proof
 
