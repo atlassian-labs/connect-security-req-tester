@@ -31,6 +31,6 @@ def test_invalid_scan_header():
     assert res.req1_2.passed is False
     assert res.req1_2.description == [HSTS_MISSING]
     assert res.req1_2.proof == [
-        'We did not detect an HSTS header when scanning your app\'s baseUrl.'
+        'We did not detect a Strict-Transport-Security (HSTS) header when scanning: https://example.com/atlassian-connect.json'
     ]
     assert res.req1_2.title == REQ_TITLES['1.2']

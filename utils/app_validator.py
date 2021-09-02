@@ -34,14 +34,15 @@ class AppValidator(object):
         return bool(res)
 
     def _validate_dns_and_network_connectivity(self) -> bool:
-        try:
-            # We attempt to request the app's baseUrl to determine if the app is up or not
-            # There is no need to follow redirects, a 302 response still indicates in-some-way that the app is responding.
-            self.session.get(self.descriptor['baseUrl'], allow_redirects=False)
-        except Exception as e:
-            logging.error(f"Failed to request {self.descriptor['baseUrl']} - DNS or Networking error occurred.")
-            logging.debug(f"Exception: {e}")
-            return False
+        if self._is_cached_descriptor():
+            try:
+                # We attempt to request the app's baseUrl to determine if the app is up or not
+                # There is no need to follow redirects, a 302 response still indicates in-some-way that the app is responding.
+                self.session.get(self.descriptor['baseUrl'], allow_redirects=False)
+            except Exception as e:
+                logging.error(f"Failed to request {self.descriptor['baseUrl']} - DNS or Networking error occurred.")
+                logging.debug(f"Exception: {e}")
+                return False
 
         return True
 
@@ -57,5 +58,17 @@ class AppValidator(object):
             sys.exit(1)
         return res
 
+    def _is_cached_descriptor(self) -> bool:
+        return self.descriptor_url.startswith('https://marketplace.atlassian.com/download/apps/')
+
     def get_descriptor(self) -> dict:
         return self.descriptor
+
+    def get_test_url(self) -> str:
+        # If scanning a marketplace cached descriptor, test using the app's baseUrl
+        # Otherwise, use the descriptor URL provided as it should be able to return a 200/OK response
+        # which is a good way for us to test for TLS/HSTS
+        if self._is_cached_descriptor():
+            return self.descriptor['baseUrl']
+        else:
+            return self.descriptor_url

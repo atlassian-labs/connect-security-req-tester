@@ -50,11 +50,12 @@ class FailureGenerator(object):
         if "timeouts" in self.results.errors:
             Path(self.out_dir + '/' + timeout_fname).mkdir(exist_ok=True, parents=True)
             json_name = f"{timeout_fname}/{self.results.key}.json"
+            self._write_output(json.dumps([json_report.to_json()]), json_name)
         if "service_unavailable" in self.results.errors:
             Path(self.out_dir + '/' + service_unavailable_fname).mkdir(exist_ok=True, parents=True)
             json_name = f"{service_unavailable_fname}/{self.results.key}.json"
+            self._write_output(json.dumps([json_report.to_json()]), json_name)
         if "infinite_redirects" in self.results.errors:
             Path(self.out_dir + '/' + infinite_redirects_fname).mkdir(exist_ok=True, parents=True)
             json_name = f"{infinite_redirects_fname}/{self.results.key}.json"
-
-        self._write_output(json.dumps([json_report.to_json()]), json_name)
+            self._write_output(json.dumps([json_report.to_json()]), json_name)
