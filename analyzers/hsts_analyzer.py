@@ -14,7 +14,7 @@ class HstsAnalyzer(object):
 
         if not self.scan.header:
             passed = False
-            proof += ['We did not detect an HSTS header when scanning your app\'s baseUrl.']
+            proof += [f"We did not detect a Strict-Transport-Security (HSTS) header when scanning: {self.scan.scanned}"]
 
         return passed, proof
 

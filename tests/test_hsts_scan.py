@@ -5,7 +5,7 @@ def test_init_domain_valid():
     base_url = 'https://atlassian.com/connect-app'
     scanner = HstsScan(base_url, 5)
 
-    assert scanner.base_url == base_url
+    assert scanner.check_url == base_url
 
 
 def test_hsts_header_valid():

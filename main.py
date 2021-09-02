@@ -1,6 +1,5 @@
 import json
 import logging
-import sys
 from datetime import datetime
 
 import fire
@@ -27,10 +26,11 @@ def main(descriptor_url, skip_branding=False, debug=False, timeout=30, out_dir='
     validator = AppValidator(descriptor_url, timeout)
     validator.validate()
     descriptor = validator.get_descriptor()
+    app_url = validator.get_test_url()
 
     # Run our scans -- TLS/HSTS/Descriptor
-    tls_scan = TlsScan(descriptor['baseUrl'])
-    hsts_scan = HstsScan(descriptor['baseUrl'], timeout)
+    tls_scan = TlsScan(app_url)
+    hsts_scan = HstsScan(app_url, timeout)
     descriptor_scan = DescriptorScan(descriptor_url, descriptor, timeout)
 
     tls_res = tls_scan.scan()
@@ -73,19 +73,9 @@ def main(descriptor_url, skip_branding=False, debug=False, timeout=30, out_dir='
     logging.info(f"CSRT Scan completed in: {datetime.utcnow() - start}")
 
     if results.errors:
-        # We would want to track apps/links that fail with a timeout of 30 seconds (so that we can retry only these later)
-        # and have failed either due to a timeout or 503 service unavailable or infinite redirects
-        # For 503 or timeout failures or infinite redirects (on timeout>30s), we can't do much about it except track them
-
-        if ("timeouts" in results.errors) or ("service_unavailable" in results.errors) \
-                or ("infinite_redirects" in results.errors):
-            failures = FailureGenerator(results, out_dir, results.errors, descriptor_url, timeout)
-            failures.save_failures()
-            logging.warning(f"The following links didn't scan successfully:\n{json.dumps(results.errors, indent=2)}")
-            sys.exit(0)  # For both the above cases, we don't want to fail the scan as such so need to exit graciously
-        else:  # For every other failures, we would want to fail the scan and alert in Slack
-            logging.error(f"The following links caused errors:\n{json.dumps(results.errors, indent=2)}")
-            sys.exit(1)
+        logging.warning(f"The following links failed to scan:\n{json.dumps(results.errors, indent=2)}")
+        failures = FailureGenerator(results, out_dir, results.errors, descriptor_url, timeout)
+        failures.save_failures()
 
 
 def setup_logging(scanner_name, debug, json_logging):
