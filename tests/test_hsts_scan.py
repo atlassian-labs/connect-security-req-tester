@@ -1,4 +1,6 @@
 from scans.hsts_scan import HstsScan
+import pytest
+import requests
 
 
 def test_init_domain_valid():
@@ -38,3 +40,13 @@ def test_hsts_invalid():
     res = scanner.scan()
 
     assert res.header is None
+
+
+def test_hsts_timeout():
+    base_url = 'https://httpstat.us/200?sleep=50000'
+    scanner = HstsScan(base_url, 5)
+
+    with pytest.raises(requests.exceptions.ReadTimeout) as wrapped_e:
+        scanner.scan()
+
+    assert wrapped_e.type == requests.exceptions.ReadTimeout

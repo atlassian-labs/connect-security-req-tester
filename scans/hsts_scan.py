@@ -19,7 +19,7 @@ class HstsScan(object):
             return hsts_header
         except Exception as e:
             logging.error(f"HSTS Scan failed to scan {self.check_url} due to: {e}")
-            return None
+            raise e
 
     def scan(self) -> HstsResult:
         logging.info(f"Checking {self.check_url} for an HSTS header...")
