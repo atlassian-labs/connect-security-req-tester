@@ -13,6 +13,16 @@ from sslyze.errors import ConnectionToServerFailed
 
 
 class TlsScan(object):
+
+    CIPHER_SUITES = {
+        ScanCommand.SSL_2_0_CIPHER_SUITES,
+        ScanCommand.SSL_3_0_CIPHER_SUITES,
+        ScanCommand.TLS_1_0_CIPHER_SUITES,
+        ScanCommand.TLS_1_1_CIPHER_SUITES,
+        ScanCommand.TLS_1_2_CIPHER_SUITES,
+        ScanCommand.TLS_1_3_CIPHER_SUITES
+    }
+
     def __init__(self, base_url: str):
         self.domain = self._get_domain_from_base(base_url)
 
@@ -40,12 +50,7 @@ class TlsScan(object):
             server_info=server_info,
             scan_commands={
                 ScanCommand.CERTIFICATE_INFO,
-                ScanCommand.SSL_2_0_CIPHER_SUITES,
-                ScanCommand.SSL_3_0_CIPHER_SUITES,
-                ScanCommand.TLS_1_0_CIPHER_SUITES,
-                ScanCommand.TLS_1_1_CIPHER_SUITES,
-                ScanCommand.TLS_1_2_CIPHER_SUITES,
-                ScanCommand.TLS_1_3_CIPHER_SUITES
+                *self.CIPHER_SUITES
             }
         )
         scanner.queue_scan(scan_request)
@@ -73,16 +78,17 @@ class TlsScan(object):
     def _get_supported_protocols(self, scan_res: List[ServerScanResult]) -> List[str]:
         protocols = set()
         for res in scan_res:
-            ssl2 = res.scan_commands_results[ScanCommand.SSL_2_0_CIPHER_SUITES]
-            ssl3 = res.scan_commands_results[ScanCommand.SSL_3_0_CIPHER_SUITES]
-            tls1 = res.scan_commands_results[ScanCommand.TLS_1_0_CIPHER_SUITES]
-            tls11 = res.scan_commands_results[ScanCommand.TLS_1_1_CIPHER_SUITES]
-            tls12 = res.scan_commands_results[ScanCommand.TLS_1_2_CIPHER_SUITES]
-            tls13 = res.scan_commands_results[ScanCommand.TLS_1_3_CIPHER_SUITES]
-            protocol_results = [ssl2, ssl3, tls1, tls11, tls12, tls13]
-            for proto in protocol_results:
-                if proto.accepted_cipher_suites:
-                    protocols.add(proto.tls_version_used.name)
+
+            # find accepted cipher suites
+            for cipher in self.CIPHER_SUITES:
+                try:
+                    result = res.scan_commands_results[cipher]
+                    if result.accepted_cipher_suites:
+                        protocols.add(result.tls_version_used.name)
+                except KeyError:
+                    # there was an error trying to get that cipher suite or we did not send the corresponding command
+                    # TODO log the scan command errors
+                    pass
 
         return list(protocols)
 
