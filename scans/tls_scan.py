@@ -53,7 +53,7 @@ class TlsScan(object):
                 *self.CIPHER_SUITES
             }
         )
-        scanner.queue_scan(scan_request)
+        scanner.start_scans([scan_request])
         res = scanner.get_results()
         # Unpack the generator that is returned as we need to navigate this
         # data structure multiple times
@@ -87,9 +87,10 @@ class TlsScan(object):
                         protocols.add(result.tls_version_used.name)
                 except KeyError:
                     # there was an error trying to get that cipher suite or we did not send the corresponding command
-                    # TODO log the scan command errors
                     pass
-
+            # log the scan errors
+            for scan_cmd, err in res.scan_commands_errors.items():
+                logging.error(f"Error when running {scan_cmd}:\n{err.exception_trace}\n")
         return list(protocols)
 
     def scan(self) -> TlsResult:
