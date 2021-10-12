@@ -86,11 +86,12 @@ class TlsScan(object):
                     if result.accepted_cipher_suites:
                         protocols.add(result.tls_version_used.name)
                 except KeyError:
-                    # there was an error trying to get that cipher suite or we did not send the corresponding command
-                    pass
+                    # log the scan command errors and terminate the scan
+                    for scan_cmd, err in res.scan_commands_errors.items():
+                        logging.error(f"Error when running {scan_cmd}:\n{err.exception_trace}\n")
+
+                    raise
             # log the scan errors
-            for scan_cmd, err in res.scan_commands_errors.items():
-                logging.error(f"Error when running {scan_cmd}:\n{err.exception_trace}\n")
         return list(protocols)
 
     def scan(self) -> TlsResult:
