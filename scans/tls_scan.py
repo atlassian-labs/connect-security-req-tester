@@ -67,11 +67,10 @@ class TlsScan(object):
         for res in scan_res:
             cert_info = res.scan_commands_results[ScanCommand.CERTIFICATE_INFO]
             for dep in cert_info.certificate_deployments:
+                if dep.verified_certificate_chain is None:
+                    return False
                 if not dep.leaf_certificate_subject_matches_hostname:
                     return False
-                for validation in dep.path_validation_results:
-                    if not validation.verified_certificate_chain:
-                        return False
 
         return True
 
