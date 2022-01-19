@@ -33,8 +33,8 @@ jobs:
     - name: Check dependencies for security issues
       run: |
         pipenv check
-    - name: Test with pytest
+    - name: Test with pytest (retry up to 3 times)
       run: |
-        pipenv run test
+        pipenv run test || pipenv run test || pipenv run test
     - name: Build docker image
       uses: docker/build-push-action@v2
