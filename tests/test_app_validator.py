@@ -71,10 +71,10 @@ def test_invalid_remote_descriptor():
     remote_url_non_json = 'https://example.com'
     remote_url_404 = 'https://example.com/doesnotexist'
 
-    with pytest.raises(json.decoder.JSONDecodeError) as wrapped_e:
+    with pytest.raises(requests.exceptions.JSONDecodeError) as wrapped_e:
         AppValidator(remote_url_non_json, 30)
 
-    assert wrapped_e.type == json.decoder.JSONDecodeError
+    assert wrapped_e.type == requests.exceptions.JSONDecodeError
 
     with pytest.raises(requests.exceptions.HTTPError) as wrapped_e:
         AppValidator(remote_url_404, 30)
