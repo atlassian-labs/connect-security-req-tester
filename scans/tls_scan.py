@@ -1,15 +1,15 @@
-import json
 import logging
-from dataclasses import asdict
-from typing import List, Optional
+from typing import List
 
 import tldextract
 from models.tls_result import TlsResult
-from sslyze import (JsonEncoder, ScanCommand, Scanner, ServerConnectivityInfo,
-                    ServerConnectivityTester,
-                    ServerNetworkLocationViaDirectConnection,
-                    ServerScanRequest, ServerScanResult)
-from sslyze.errors import ConnectionToServerFailed
+from sslyze.scanner.models import ServerScanRequest, ServerScanResult, ServerScanStatusEnum
+from sslyze.server_setting import ServerNetworkLocation
+from sslyze.errors import ServerHostnameCouldNotBeResolved
+from sslyze.scanner.scanner import Scanner
+from sslyze.plugins.scan_commands import ScanCommand
+from sslyze.json.json_output import SslyzeOutputAsJson, ServerScanResultAsJson
+from datetime import datetime
 
 
 class TlsScan(object):
@@ -25,6 +25,7 @@ class TlsScan(object):
 
     def __init__(self, base_url: str):
         self.domain = self._get_domain_from_base(base_url)
+        self.request = self._resolve_dns(self.domain)
 
     def _get_domain_from_base(self, base_url: str) -> str:
         ext = tldextract.extract(base_url)
@@ -33,73 +34,79 @@ class TlsScan(object):
         # https://github.com/john-kurkowski/tldextract#user-content-python-module--
         return '.'.join(part for part in ext if part)
 
-    def _check_connectivity(self) -> Optional[ServerConnectivityInfo]:
-        location = ServerNetworkLocationViaDirectConnection.with_ip_address_lookup(self.domain, 443)
-
+    def _resolve_dns(self, host: str) -> List[ServerScanRequest]:
         try:
-            server_info = ServerConnectivityTester().perform(location)
-        except ConnectionToServerFailed as e:
-            logging.error(f"SSL/TLS Scan could not connect to: {self.domain}\n{e.error_message}")
-            return None
+            scan_req = [
+                ServerScanRequest(
+                    server_location=ServerNetworkLocation(hostname=host),
+                    scan_commands={
+                        ScanCommand.CERTIFICATE_INFO,
+                        *self.CIPHER_SUITES
+                    }
+                )
+            ]
+        except ServerHostnameCouldNotBeResolved:
+            logging.error(f"SSL/TLS scan failed to resolve DNS for: {self.domain}")
+            raise
 
-        return server_info
+        return scan_req
 
-    def _run_scan(self, server_info: ServerConnectivityInfo) -> List[ServerScanResult]:
+    def _run_scan(self, req: List[ServerScanRequest]) -> List[ServerScanResult]:
         scanner = Scanner()
-        scan_request = ServerScanRequest(
-            server_info=server_info,
-            scan_commands={
-                ScanCommand.CERTIFICATE_INFO,
-                *self.CIPHER_SUITES
-            }
-        )
-        scanner.start_scans([scan_request])
-        res = scanner.get_results()
-        # Unpack the generator that is returned as we need to navigate this
-        # data structure multiple times
-        list_res: List[ServerScanResult] = []
-        for server_res in res:
-            list_res.append(server_res)
+        scanner.queue_scans(req)
+        scanner_res = scanner.get_results()  # Unpack ReportGenerator
 
-        return list_res
+        # Return scan results for all scans that completed
+        return [res for res in scanner_res if res.scan_status == ServerScanStatusEnum.COMPLETED]
 
     def _check_cert_valid(self, scan_res: List[ServerScanResult]) -> bool:
         for res in scan_res:
-            cert_info = res.scan_commands_results[ScanCommand.CERTIFICATE_INFO]
-            for dep in cert_info.certificate_deployments:
-                if dep.verified_certificate_chain is None:
-                    return False
-                if not dep.leaf_certificate_subject_matches_hostname:
-                    return False
+            cert_info = res.scan_result.certificate_info
+
+            if cert_info.status == ServerScanStatusEnum.COMPLETED:
+                for dep in cert_info.result.certificate_deployments:
+                    if dep.verified_certificate_chain is None:
+                        return False
+                    if not dep.leaf_certificate_subject_matches_hostname:
+                        return False
+            else:
+                # If the cert info scan failed, return false
+                logging.error(f"SSL/TLS scan failed to retrieve HTTPS certificate information for: {self.domain}")
+                raise
 
         return True
 
     def _get_supported_protocols(self, scan_res: List[ServerScanResult]) -> List[str]:
         protocols = set()
         for res in scan_res:
-
             # find accepted cipher suites
             for cipher in self.CIPHER_SUITES:
                 try:
-                    result = res.scan_commands_results[cipher]
-                    if result.accepted_cipher_suites:
-                        protocols.add(result.tls_version_used.name)
-                except KeyError:
-                    # log the scan command errors and terminate the scan
-                    for scan_cmd, err in res.scan_commands_errors.items():
-                        logging.error(f"Error when running {scan_cmd}:\n{err.exception_trace}\n")
-
+                    cipher_res = getattr(res.scan_result, cipher)
+                    if cipher_res.status != ServerScanStatusEnum.COMPLETED:
+                        raise
+                    if cipher_res.result.accepted_cipher_suites:
+                        protocols.add(cipher_res.result.tls_version_used.name)
+                except Exception:
+                    logging.error(f"SSL/TLS scan failed for {cipher} on {self.domain}")
                     raise
-            # log the scan errors
+
         return list(protocols)
 
     def scan(self) -> TlsResult:
         logging.info(f"Starting SSL/TLS Scan for {self.domain}...")
-        server_info = self._check_connectivity()
-        scan_res = self._run_scan(server_info)
+        scan_res = self._run_scan(self.request)
 
-        # Data shuffling to get this into a pretty state for reporting purposes
-        raw_output = [json.loads(json.dumps(asdict(x), cls=JsonEncoder)) for x in scan_res]
+        if not scan_res:
+            logging.error(f"SSL/TLS scan failed to complete for: {self.domain}")
+            raise
+
+        # Undocumented, but useful helper function to convert the sslyze output to JSON
+        raw_output = SslyzeOutputAsJson(
+            server_scan_results=[ServerScanResultAsJson.from_orm(result) for result in scan_res],
+            date_scans_started=datetime.utcnow(),  # Required but not used
+            date_scans_completed=datetime.utcnow()  # Required but not used
+        ).json()
 
         tls_res = TlsResult(
             domain=self.domain,
