@@ -1,15 +1,17 @@
 import logging
+import os
+from datetime import datetime
 from typing import List
 
 import tldextract
 from models.tls_result import TlsResult
-from sslyze.scanner.models import ServerScanRequest, ServerScanResult, ServerScanStatusEnum
-from sslyze.server_setting import ServerNetworkLocation
 from sslyze.errors import ServerHostnameCouldNotBeResolved
-from sslyze.scanner.scanner import Scanner
+from sslyze.json.json_output import ServerScanResultAsJson, SslyzeOutputAsJson
 from sslyze.plugins.scan_commands import ScanCommand
-from sslyze.json.json_output import SslyzeOutputAsJson, ServerScanResultAsJson
-from datetime import datetime
+from sslyze.scanner.models import (ServerScanRequest, ServerScanResult,
+                                   ServerScanStatusEnum)
+from sslyze.scanner.scanner import Scanner
+from sslyze.server_setting import HttpProxySettings, ServerNetworkLocation
 
 
 class TlsScan(object):
@@ -36,9 +38,16 @@ class TlsScan(object):
 
     def _resolve_dns(self, host: str) -> List[ServerScanRequest]:
         try:
+            # Determine if we are using a proxy
+            proxy_url = os.getenv('OUTBOUND_PROXY')
+            # Setup the ServerNetworkLocation args dynamically in case a proxy is defined
+            network_location_args = {
+                'hostname': host,
+                'http_proxy_settings': HttpProxySettings.from_url(proxy_url) if proxy_url else None
+            }
             scan_req = [
                 ServerScanRequest(
-                    server_location=ServerNetworkLocation(hostname=host),
+                    server_location=ServerNetworkLocation(**network_location_args),
                     scan_commands={
                         ScanCommand.CERTIFICATE_INFO,
                         *self.CIPHER_SUITES
