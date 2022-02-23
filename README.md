@@ -39,12 +39,19 @@ Run the following from the project root:
 |--json_logging     | Whether or not to log output in a JSON format, **default: False**                                 |
 |--debug            | Sets logging to DEBUG for more verbose logging, **default: False**                                |
 
+### Environment Variables
+| Variable | Description |
+|----------|-------------|
+| OUTBOUND_PROXY | If defined, route all requests through this proxy server (eg. `OUTBOUND_PROXY=http://proxy.example.com:8080`)
+
 ## Useful Information
 This tool assumes your connect app is reachable by the machine running this tool. If your connect app is not reachable, the tool will fail to produce any meaningful results. The following internet addresses are required to be accessible for this tool to work:
 * Your connect app's descriptor URL
 * All URLs referenced inside your connect app descriptor
 
 This tool will make network requests on from your computer. Please ensure this is allowed from your organization if running this from a monitored network.
+
+**Tip**: Use a proxy by setting `OUTBOUND_PROXY` to your organization's proxy server if your app needs to be accessed via a proxy server.
 
 Additional information about the Atlassian Connect Security Requirements can be found at: [https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/](https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/)
 

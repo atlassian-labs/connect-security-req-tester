@@ -1,3 +1,6 @@
+import logging
+import os
+
 import requests
 from requests.adapters import HTTPAdapter
 
@@ -28,13 +31,34 @@ def create_csrt_session(timeout: int = 30) -> requests.Session:
         requests.Session: A session object pre-configured for timeouts, a standardized user-agent, and does not verify SSL/TLS
     """
     global session
+
+    # See if an outbound proxy was defined, if so capture the connection string
+    proxy_config = os.getenv('OUTBOUND_PROXY')
+
     if not session:
         session = requests.Session()
         session.mount('http://', TimeoutHTTPAdapter(timeout=timeout))
         session.mount('https://', TimeoutHTTPAdapter(timeout=timeout))
+        proxies = {
+            'http': proxy_config if proxy_config else None,
+            'https': proxy_config if proxy_config else None
+        }
         session.headers.update(
             {'User-Agent': 'CSRT (github.com/atlassian-labs/connect-security-req-tester)'}
         )
         session.verify = False
+        session.proxies.update(proxies)
+
+        # Log relevant information about proxy usage
+        check_for_proxy(session)
 
     return session
+
+
+def check_for_proxy(session: requests.Session) -> None:
+    if (proxy_config := os.getenv('OUTBOUND_PROXY')):
+        try:
+            res = session.get('https://httpbin.org/ip').json().get('origin', None)
+            logging.info(f"Using proxy: {proxy_config} | Detected IP: {res}")
+        except Exception:
+            logging.warning(f"Using proxy: {proxy_config} | Could not identify external IP.")
