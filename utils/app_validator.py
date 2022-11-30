@@ -23,7 +23,7 @@ class AppValidator(object):
             descriptor = descriptor.json()
         except Exception as e:
             logging.error(f"Could not retrieve connect descriptor at: {self.descriptor_url}\nException: {e}")
-            raise(e)
+            raise e
 
         return descriptor
 
