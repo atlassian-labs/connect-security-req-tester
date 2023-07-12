@@ -32,19 +32,19 @@ BRANDING_ISSUE = 'Your app name or domain contained words that are not allowed. 
 MISSING_SIGNED_INSTALL_AUTHN = "One or more lifecycle endpoints returned a <400 status code with an invalid JWT token. This may indicate that your app is not performing authentication checks on lifecycle endpoints."
 
 REQ_RECOMMENDATION = {
+    '1': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#authentication-and-authorization-of-application-resources for more information.',
+    '1.4': 'https://community.developer.atlassian.com/t/action-required-atlassian-connect-installation-lifecycle-security-improvements/49046',
+    '2': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#authentication-and-authorization-of-stored-data for more information.',
     '3': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#transport-layer-security:~:text=requirement.-,Transport%20layer%20security for more information.',
     '3.0': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#transport-layer-security:~:text=requirement.-,Transport%20layer%20security for more information.',
-    '7.3': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#cache-control for more information.',
+    '5': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#secret-handling for more information.',
     '6.2': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#validity-of-domain-registration---tls-certificates for more information.',
     '6.3': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#domain-and-subdomain-takeover for more information.',
-    '1': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#authentication-and-authorization-of-application-resources for more information.',
-    '2': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#authentication-and-authorization-of-stored-data for more information.',
-    '5': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#secret-handling for more information.',
-    '1.4': 'https://community.developer.atlassian.com/t/action-required-atlassian-connect-installation-lifecycle-security-improvements/49046',
-    '10': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#collection-of-atlassian-credentials for more information.',
-    '7.4': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#session-cookie-configuration for more information.',
     '7.2': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#referrer-policy for more information.',
+    '7.3': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#cache-control for more information.',
+    '7.4': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#session-cookie-configuration for more information.',
     '8.1': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#url-tampering for more information.',
     '9': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#use-of-external-components for more information.',
+    '10': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#collection-of-atlassian-credentials for more information.',
     '11': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#security-slas for more information.'
 }

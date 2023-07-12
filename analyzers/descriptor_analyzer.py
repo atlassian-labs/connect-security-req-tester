@@ -118,11 +118,11 @@ class DescriptorAnalyzer(object):
         cookies_passed, cookies_proof = self._check_cookie_headers()
         auth_passed, auth_proof, signed_install_passed, signed_install_proof = self._check_authn_authz()
 
-        req7_3 = RequirementsResult(
-            passed=cache_passed,
-            description=[NO_ISSUES] if cache_passed else [MISSING_CACHE_HEADERS],
-            proof=cache_proof,
-            title=REQ_TITLES['7.3']
+        req1 = RequirementsResult(
+            passed=auth_passed,
+            description=[NO_ISSUES] if auth_passed else [MISSING_AUTHN_AUTHZ],
+            proof=auth_proof,
+            title=REQ_TITLES['1']
         )
 
         req1_4 = RequirementsResult(
@@ -132,11 +132,18 @@ class DescriptorAnalyzer(object):
             title=REQ_TITLES['1.4']
         )
 
-        req1 = RequirementsResult(
-            passed=auth_passed,
-            description=[NO_ISSUES] if auth_passed else [MISSING_AUTHN_AUTHZ],
-            proof=auth_proof,
-            title=REQ_TITLES['1']
+        req7_2 = RequirementsResult(
+            passed=ref_passed,
+            description=[NO_ISSUES] if ref_passed else [MISSING_REF_HEADERS],
+            proof=ref_proof,
+            title=REQ_TITLES['7.2']
+        )
+
+        req7_3 = RequirementsResult(
+            passed=cache_passed,
+            description=[NO_ISSUES] if cache_passed else [MISSING_CACHE_HEADERS],
+            proof=cache_proof,
+            title=REQ_TITLES['7.3']
         )
 
         req7_4 = RequirementsResult(
@@ -146,17 +153,10 @@ class DescriptorAnalyzer(object):
             title=REQ_TITLES['7.4']
         )
 
-        req7_2 = RequirementsResult(
-            passed=ref_passed,
-            description=[NO_ISSUES] if ref_passed else [MISSING_REF_HEADERS],
-            proof=ref_proof,
-            title=REQ_TITLES['7.2']
-        )
-
-        self.reqs.req7_3 = req7_3
-        self.reqs.req1_4 = req1_4
         self.reqs.req1 = req1
-        self.reqs.req7_4 = req7_4
+        self.reqs.req1_4 = req1_4
         self.reqs.req7_2 = req7_2
+        self.reqs.req7_3 = req7_3
+        self.reqs.req7_4 = req7_4
 
         return self.reqs

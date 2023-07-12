@@ -50,7 +50,7 @@ class TlsAnalyzer(object):
             title=REQ_TITLES['6.2']
         )
 
-        self.reqs.req6_2 = req6_2
         self.reqs.req3 = req3
+        self.reqs.req6_2 = req6_2
 
         return self.reqs
