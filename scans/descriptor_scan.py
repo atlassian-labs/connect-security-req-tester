@@ -4,6 +4,10 @@ import logging
 import re
 from collections import defaultdict
 from datetime import datetime, timedelta
+import random
+import string
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.backends import default_backend
 from typing import List, Optional, Tuple, Union
 from urllib.parse import urlparse
 
@@ -13,8 +17,8 @@ from models.descriptor_result import DescriptorLink, DescriptorResult
 from utils.csrt_session import create_csrt_session
 
 COMMON_SESSION_COOKIES = ['PHPSESSID', 'JSESSIONID', 'CFID', 'CFTOKEN', 'ASP.NET_SESSIONID']
-KEY_IGNORELIST = ['icon', 'icons', 'documentation', 'imagePlaceholder', 'template']
-MODULE_IGNORELIST = ['jiraBackgroundScripts']
+KEY_IGNORELIST = ['icon', 'icons', 'documentation', 'imagePlaceholder', 'template', 'post-install-page']
+MODULE_IGNORELIST = ['jiraBackgroundScripts', 'postInstallPage']
 CONDITION_MATCHER = r'{condition\..*}'
 BRACES_MATCHER = r'\$?{.*}'
 
@@ -119,6 +123,60 @@ class DescriptorScan(object):
 
         return hs256_jwt, none_jwt
 
+    def _generate_fake_signed_install_jwt(self) -> str:
+        # Create a fake signed-install JWT using a private key
+        # Refer to: https://developer.atlassian.com/cloud/confluence/understanding-jwt/ for more info
+        qsh = hashlib.sha256(f"fake-qsh".encode('ascii')).hexdigest()
+        token_body = {
+            "aud": self.descriptor_url,
+            "sub": "csrt-fake-user-ignore",
+            'qsh': qsh,
+            'iss': 'csrt-fake-token-ignore',
+            "context": {},
+            'exp': round((datetime.utcnow() + timedelta(hours=3)).timestamp()),
+            'iat': round(datetime.utcnow().timestamp())
+        }
+
+        # Generate a dummy private key
+        private_key = rsa.generate_private_key(
+            public_exponent=65537,
+            key_size=2048,
+            backend=default_backend()
+        )
+
+        rs256_jwt = jwt.encode(token_body, private_key, algorithm='RS256',
+                               headers={'typ': 'JWT', 'kid': 'fake-kid', 'alg': 'RS256'})
+
+        return rs256_jwt
+
+    def _get_app_info(self, app_key) -> str:
+        url = f"https://marketplace.atlassian.com/rest/2/addons/{app_key}/versions/latest?hosting=cloud"
+        try:
+            app_info = requests.get(url).json()
+            prod = app_info['compatibilities'][0]['application']
+            return prod
+        except Exception as e:
+            logging.error(f"Error while retrieving product type for {app_key}, Error - {e} ")
+            return "unknown"
+
+    def _generate_fake_signed_install_payload(self, event_type) -> dict:
+        domain = f"csrt-scanner-{random.randint(0, 99999)}.atlassian.net"
+        # Fetch the product type this app supports from MPAC endpoint
+        product_type = self._get_app_info(self.descriptor.get('key', None))
+        client_key = str(''.join(random.choices(string.ascii_lowercase + string.digits, k=8))) + '-' + str(
+            ''.join(random.choices(string.ascii_lowercase + string.digits, k=4))) + '-' + str(
+            ''.join(random.choices(string.ascii_lowercase + string.digits, k=4))) + '-' + str(
+            ''.join(random.choices(string.ascii_lowercase + string.digits, k=4))) + '-' + str(
+            ''.join(random.choices(string.ascii_lowercase + string.digits, k=12)))
+        install_payload = {'key': self.descriptor.get('key', None), 'clientKey': client_key, 'cloudId': client_key,
+                           'sharedSecret': 'csrt-fake-secret-ignore', 'baseUrl': f'https://{domain}',
+                           'eventType': event_type, 'productType': f'{product_type}', 'oauthClientId': client_key,
+                           'description': 'CSRT Signed-Install scanner, contact Atlassian EcoAppSec team for more info',
+                           'serverVersion': '6452', 'pluginsVersion': '1.801.0'}
+        logging.debug(f'Generated fake signed-install payload - {install_payload}')
+
+        return install_payload
+
     def _visit_link(self, link: str) -> Optional[requests.Response]:
         get_hs256, get_none = self._generate_fake_jwts(link, 'GET')
         post_hs256, post_none = self._generate_fake_jwts(link, 'POST')
@@ -134,14 +192,23 @@ class DescriptorScan(object):
 
         res: Optional[requests.Response] = None
         for task in tasks:
-            # If we are requesting a lifecycle event, ensure we specify the content-type of application/json
-            if self._is_lifecycle_link(link):
-                task['headers']['Content-Type'] = 'application/json'
 
             # Gracefully handle links that result in an exception, report them via warning, and skip any further tests
             try:
-                logging.debug(f"Requesting {link} via {task['method']} with auth: {task['headers']=}")
-                res = self.session.request(task['method'], link, headers=task['headers'])
+                # If we are requesting a lifecycle event, ensure we perform signed-install authentication check
+                if self._is_lifecycle_link(link) and any(x in link for x in ('installed', 'uninstalled')):
+                    event_type = 'uninstalled' if 'uninstalled' in link else 'installed'
+                    rs256_jwt = self._generate_fake_signed_install_jwt()
+                    task['headers']['Content-Type'] = 'application/json'
+                    task['headers']['Authorization'] = f"JWT {rs256_jwt}"
+                    logging.debug(f"Requesting lifecycle hook {link} via {task['headers']=}")
+                    signed_install_payload = self._generate_fake_signed_install_payload(event_type)
+                    res = self.session.request('POST', link, headers=task['headers'], json=signed_install_payload)
+                    logging.debug(f"Signed install response - Status:{res.status_code} | Res:{res.text}")
+
+                else:
+                    logging.debug(f"Requesting {link} via {task['method']} with auth: {task['headers']=}")
+                    res = self.session.request(task['method'], link, headers=task['headers'])
                 if res.status_code < 400:
                     break
                 if res.status_code == 503:

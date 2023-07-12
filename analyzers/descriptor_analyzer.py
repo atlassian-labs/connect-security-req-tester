@@ -6,7 +6,8 @@ from models.descriptor_result import DescriptorResult
 from models.requirements import Requirements, RequirementsResult
 from reports.constants import (MISSING_ATTRS_SESSION_COOKIE,
                                MISSING_AUTHN_AUTHZ, MISSING_CACHE_HEADERS,
-                               MISSING_REF_HEADERS, NO_ISSUES, NO_AUTH_PROOF, VALID_AUTH_PROOF, REQ_TITLES)
+                               MISSING_REF_HEADERS, NO_ISSUES, NO_AUTH_PROOF, VALID_AUTH_PROOF, REQ_TITLES,
+                               MISSING_SIGNED_INSTALL_AUTHN)
 
 REQ_CACHE_HEADERS = ['no-cache', 'no-store']
 REF_DENYLIST = ['no-referrer-when-downgrade', 'unsafe-url']
@@ -66,9 +67,11 @@ class DescriptorAnalyzer(object):
 
         return passed, proof
 
-    def _check_authn_authz(self) -> Tuple[bool, List[str]]:
+    def _check_authn_authz(self) -> Tuple[bool, List[str], bool, List[str]]:
         passed = True
         proof: List[str] = []
+        signed_install_passed = True
+        signed_install_proof: List[str] = []
         scan_res = self.scan.scan_results
 
         # Don't check authentication if the app doesn't have an authentication method.
@@ -77,7 +80,7 @@ class DescriptorAnalyzer(object):
         use_authentication = (False if authentication_method is None else authentication_method.get("type") == "jwt")
         if not use_authentication:
             proof.append(NO_AUTH_PROOF)
-            return passed, proof
+            return passed, proof, signed_install_passed, signed_install_proof
 
         for link in scan_res:
             res_code = int(scan_res[link].res_code)
@@ -86,52 +89,67 @@ class DescriptorAnalyzer(object):
 
             # We shouldn't be able to visit this link if the app uses authentication.
             if res_code >= 200 and res_code < 400:
-                passed = False
-                proof_text = f"{link} | Res Code: {res_code} Req Method: {req_method} Auth Header: {auth_header}"
-                proof.append(proof_text)
+                if any(x in link for x in ('installed', 'uninstalled')):
+                    signed_install_passed = False
+                    signed_install_proof_text = f"Lifecycle endpoint: {link} | Res Code: {res_code}" \
+                                                f" Auth Header: {auth_header}"
+                    signed_install_proof.append(signed_install_proof_text)
+
+                else:
+                    passed = False
+                    proof_text = f"{link} | Res Code: {res_code} Req Method: {req_method} Auth Header: {auth_header}"
+                    proof.append(proof_text)
 
         if passed:
             proof.append(VALID_AUTH_PROOF)
 
-        return passed, proof
+        return passed, proof, signed_install_passed, signed_install_proof
 
     def analyze(self) -> Requirements:
         cache_passed, cache_proof = self._check_cache_headers()
         ref_passed, ref_proof = self._check_referrer_headers()
         cookies_passed, cookies_proof = self._check_cookie_headers()
-        auth_passed, auth_proof = self._check_authn_authz()
+        auth_passed, auth_proof, signed_install_passed, signed_install_proof = self._check_authn_authz()
 
-        req2 = RequirementsResult(
+        req7_3 = RequirementsResult(
             passed=cache_passed,
             description=[NO_ISSUES] if cache_passed else [MISSING_CACHE_HEADERS],
             proof=cache_proof,
-            title=REQ_TITLES['2']
+            title=REQ_TITLES['7.3']
         )
 
-        req5 = RequirementsResult(
+        req1_4 = RequirementsResult(
+            passed=signed_install_passed,
+            description=[NO_ISSUES] if signed_install_passed else [MISSING_SIGNED_INSTALL_AUTHN],
+            proof=signed_install_proof,
+            title=REQ_TITLES['1.4']
+        )
+
+        req1 = RequirementsResult(
             passed=auth_passed,
             description=[NO_ISSUES] if auth_passed else [MISSING_AUTHN_AUTHZ],
             proof=auth_proof,
-            title=REQ_TITLES['5']
+            title=REQ_TITLES['1']
         )
 
-        req11 = RequirementsResult(
+        req7_4 = RequirementsResult(
             passed=cookies_passed,
             description=[NO_ISSUES] if cookies_passed else [MISSING_ATTRS_SESSION_COOKIE],
             proof=cookies_proof,
-            title=REQ_TITLES['11']
+            title=REQ_TITLES['7.4']
         )
 
-        req12 = RequirementsResult(
+        req7_2 = RequirementsResult(
             passed=ref_passed,
             description=[NO_ISSUES] if ref_passed else [MISSING_REF_HEADERS],
             proof=ref_proof,
-            title=REQ_TITLES['12']
+            title=REQ_TITLES['7.2']
         )
 
-        self.reqs.req2 = req2
-        self.reqs.req5 = req5
-        self.reqs.req11 = req11
-        self.reqs.req12 = req12
+        self.reqs.req7_3 = req7_3
+        self.reqs.req1_4 = req1_4
+        self.reqs.req1 = req1
+        self.reqs.req7_4 = req7_4
+        self.reqs.req7_2 = req7_2
 
         return self.reqs

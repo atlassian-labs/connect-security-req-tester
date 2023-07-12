@@ -18,7 +18,7 @@ from scans.hsts_scan import HstsScan
 from utils.app_validator import AppValidator
 
 
-def main(descriptor_url, skip_branding=False, debug=False, timeout=30, out_dir='out', json_logging=False):
+def main(descriptor_url, skip_branding=True, debug=False, timeout=30, out_dir='out', json_logging=False):
     # Setup our logging
     setup_logging('connect-security-requirements-tester', debug, json_logging)
     logging.info(f"CSRT Scan started at: {(start := datetime.utcnow())}")

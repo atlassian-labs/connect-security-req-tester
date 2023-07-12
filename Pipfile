@@ -20,6 +20,7 @@ tldextract = "*"
 sslyze = "*"
 dnspython = "*"
 python-json-logger = "*"
+cryptography = "*"
 
 [requires]
 python_version = "3.9"

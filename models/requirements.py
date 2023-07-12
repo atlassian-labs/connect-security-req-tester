@@ -13,23 +13,21 @@ class RequirementsResult(JsonObject):
 
 
 class Requirements(JsonObject):
-    req1_1 = ObjectProperty(RequirementsResult, name='1.1')
-    req1_2 = ObjectProperty(RequirementsResult, name='1.2')
+    req1 = ObjectProperty(RequirementsResult, name='1')
+    req1_4 = ObjectProperty(RequirementsResult, name='1.4')
     req2 = ObjectProperty(RequirementsResult, name='2')
     req3 = ObjectProperty(RequirementsResult, name='3')
-    req4 = ObjectProperty(RequirementsResult, name='4')
+    req3_0 = ObjectProperty(RequirementsResult, name='3.0')
     req5 = ObjectProperty(RequirementsResult, name='5')
-    req6 = ObjectProperty(RequirementsResult, name='6')
-    req7 = ObjectProperty(RequirementsResult, name='7')
-    req8 = ObjectProperty(RequirementsResult, name='8')
+    req6_2 = ObjectProperty(RequirementsResult, name='6.2')
+    req6_3 = ObjectProperty(RequirementsResult, name='6.3')
+    req7_2 = ObjectProperty(RequirementsResult, name='7.2')
+    req7_3 = ObjectProperty(RequirementsResult, name='7.3')
+    req7_4 = ObjectProperty(RequirementsResult, name='7.4')
+    req8_1 = ObjectProperty(RequirementsResult, name='8.1')
     req9 = ObjectProperty(RequirementsResult, name='9')
     req10 = ObjectProperty(RequirementsResult, name='10')
     req11 = ObjectProperty(RequirementsResult, name='11')
-    req12 = ObjectProperty(RequirementsResult, name='12')
-    req13 = ObjectProperty(RequirementsResult, name='13')
-    req14 = ObjectProperty(RequirementsResult, name='14')
-    req15 = ObjectProperty(RequirementsResult, name='15')
-    req16 = ObjectProperty(RequirementsResult, name='16')
 
 
 class Results(JsonObject):
