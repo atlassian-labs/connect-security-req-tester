@@ -21,3 +21,4 @@ class DescriptorResult(JsonObject):
     links = ListProperty(StringProperty())
     link_errors = DictProperty()
     scan_results = DictProperty(DescriptorLink)
+    response = StringProperty()

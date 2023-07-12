@@ -86,9 +86,16 @@ class DescriptorAnalyzer(object):
             res_code = int(scan_res[link].res_code)
             auth_header = scan_res[link].auth_header
             req_method = scan_res[link].req_method
+            response = scan_res[link].response
+
+            # Check for invalid responses in the body before failing the authn check
+            invalid_responses = ['Invalid JWT', 'unauthorized', 'forbidden', '401', '403', '500']
+            invalid_response = False
+            if any(x.lower() in response.lower() for x in invalid_responses):
+                invalid_response = True
 
             # We shouldn't be able to visit this link if the app uses authentication.
-            if res_code >= 200 and res_code < 400:
+            if res_code >= 200 and res_code < 400 and not invalid_response:
                 if any(x in link for x in ('installed', 'uninstalled')):
                     signed_install_passed = False
                     signed_install_proof_text = f"Lifecycle endpoint: {link} | Res Code: {res_code}" \

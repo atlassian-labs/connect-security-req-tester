@@ -268,7 +268,8 @@ class DescriptorScan(object):
                     session_cookies=self._get_session_cookies(r.cookies),
                     auth_header=r.request.headers.get('Authorization', None),
                     req_method=r.request.method,
-                    res_code=str(r.status_code)
+                    res_code=str(r.status_code),
+                    response=str(r.text)
                 )
 
         res.scan_results = scan_res
