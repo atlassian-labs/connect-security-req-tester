@@ -89,7 +89,8 @@ class DescriptorAnalyzer(object):
             response = scan_res[link].response
 
             # Check for invalid responses in the body before failing the authn check
-            invalid_responses = ['Invalid JWT', 'unauthorized', 'forbidden', '401', '403', '500']
+            invalid_responses = ['Invalid JWT', 'unauthorized', 'forbidden', 'error', 'unlicensed', 'invalid', '401',
+                                 '403', '404', '500']
             invalid_response = False
             if any(x.lower() in response.lower() for x in invalid_responses):
                 invalid_response = True
