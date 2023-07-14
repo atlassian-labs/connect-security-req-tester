@@ -126,7 +126,7 @@ class DescriptorScan(object):
     def _generate_fake_signed_install_jwt(self) -> str:
         # Create a fake signed-install JWT using a private key
         # Refer to: https://developer.atlassian.com/cloud/confluence/understanding-jwt/ for more info
-        qsh = hashlib.sha256(f"fake-qsh".encode('ascii')).hexdigest()
+        qsh = hashlib.sha256("fake-qsh".encode('ascii')).hexdigest()
         token_body = {
             "aud": self.descriptor_url,
             "sub": "csrt-fake-user-ignore",
