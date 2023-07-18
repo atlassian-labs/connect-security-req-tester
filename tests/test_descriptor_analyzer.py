@@ -113,7 +113,6 @@ def test_bad_authn():
     assert res.req1.passed is False
     assert res.req1.description == [MISSING_AUTHN_AUTHZ]
     assert res.req1.proof == [
-        'https://bbc7069740af.ngrok.io/installed | Res Code: 200 Req Method: GET Auth Header: ',
         'https://bbc7069740af.ngrok.io/my-admin-page | Res Code: 200 Req Method: GET Auth Header: JWT sometexthere'
     ]
     assert res.req7_4.passed is True
