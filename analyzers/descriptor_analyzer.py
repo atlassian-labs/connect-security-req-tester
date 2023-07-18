@@ -92,7 +92,7 @@ class DescriptorAnalyzer(object):
             invalid_responses = ['Invalid JWT', 'unauthorized', 'forbidden', 'error', 'unlicensed', 'invalid', '401',
                                  '403', '404', '500']
             invalid_response = False
-            if any(x.lower() in response.lower() for x in invalid_responses):
+            if any(str(x).lower() in str(response).lower() for x in invalid_responses):
                 invalid_response = True
 
             # We shouldn't be able to visit this link if the app uses authentication.

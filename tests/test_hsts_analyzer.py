@@ -17,7 +17,7 @@ def test_valid_scan():
     assert res.req3_0.passed is True
     assert res.req3_0.description == [NO_ISSUES]
     assert res.req3_0.proof == []
-    assert res.req3_0.title == REQ_TITLES['1.2']
+    assert res.req3_0.title == REQ_TITLES['3.0']
 
 
 def test_invalid_scan_header():
