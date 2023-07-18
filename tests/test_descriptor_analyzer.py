@@ -16,18 +16,18 @@ def test_good_scan():
 
     res = analyzer.analyze()
 
-    assert res.req2.passed is True
-    assert res.req2.description == [NO_ISSUES]
-    assert res.req2.proof == []
-    assert res.req5.passed is True
-    assert res.req5.description == [NO_ISSUES]
-    assert res.req5.proof == [VALID_AUTH_PROOF]
-    assert res.req11.passed is True
-    assert res.req11.description == [NO_ISSUES]
-    assert res.req11.proof == []
-    assert res.req12.passed is True
-    assert res.req12.description == [NO_ISSUES]
-    assert res.req12.proof == []
+    assert res.req7_3.passed is True
+    assert res.req7_3.description == [NO_ISSUES]
+    assert res.req7_3.proof == []
+    assert res.req1.passed is True
+    assert res.req1.description == [NO_ISSUES]
+    assert res.req1.proof == [VALID_AUTH_PROOF]
+    assert res.req7_4.passed is True
+    assert res.req7_4.description == [NO_ISSUES]
+    assert res.req7_4.proof == []
+    assert res.req7_2.passed is True
+    assert res.req7_2.description == [NO_ISSUES]
+    assert res.req7_2.proof == []
 
 
 def test_bad_cache_header():
@@ -38,18 +38,18 @@ def test_bad_cache_header():
 
     res = analyzer.analyze()
 
-    assert res.req2.passed is False
-    assert res.req2.description == [MISSING_CACHE_HEADERS]
-    assert res.req2.proof == ['https://bbc7069740af.ngrok.io/installed | Cache header: Header missing']
-    assert res.req5.passed is True
-    assert res.req5.description == [NO_ISSUES]
-    assert res.req5.proof == [VALID_AUTH_PROOF]
-    assert res.req11.passed is True
-    assert res.req11.description == [NO_ISSUES]
-    assert res.req11.proof == []
-    assert res.req12.passed is True
-    assert res.req12.description == [NO_ISSUES]
-    assert res.req12.proof == []
+    assert res.req7_3.passed is False
+    assert res.req7_3.description == [MISSING_CACHE_HEADERS]
+    assert res.req7_3.proof == ['https://bbc7069740af.ngrok.io/installed | Cache header: Header missing']
+    assert res.req1.passed is True
+    assert res.req1.description == [NO_ISSUES]
+    assert res.req1.proof == [VALID_AUTH_PROOF]
+    assert res.req7_4.passed is True
+    assert res.req7_4.description == [NO_ISSUES]
+    assert res.req7_4.proof == []
+    assert res.req7_2.passed is True
+    assert res.req7_2.description == [NO_ISSUES]
+    assert res.req7_2.proof == []
 
 
 def test_bad_referrer_header():
@@ -60,18 +60,18 @@ def test_bad_referrer_header():
 
     res = analyzer.analyze()
 
-    assert res.req2.passed is True
-    assert res.req2.description == [NO_ISSUES]
-    assert res.req2.proof == []
-    assert res.req5.passed is True
-    assert res.req5.description == [NO_ISSUES]
-    assert res.req5.proof == [VALID_AUTH_PROOF]
-    assert res.req11.passed is True
-    assert res.req11.description == [NO_ISSUES]
-    assert res.req11.proof == []
-    assert res.req12.passed is False
-    assert res.req12.description == [MISSING_REF_HEADERS]
-    assert res.req12.proof == [
+    assert res.req7_3.passed is True
+    assert res.req7_3.description == [NO_ISSUES]
+    assert res.req7_3.proof == []
+    assert res.req1.passed is True
+    assert res.req1.description == [NO_ISSUES]
+    assert res.req1.proof == [VALID_AUTH_PROOF]
+    assert res.req7_4.passed is True
+    assert res.req7_4.description == [NO_ISSUES]
+    assert res.req7_4.proof == []
+    assert res.req7_2.passed is False
+    assert res.req7_2.description == [MISSING_REF_HEADERS]
+    assert res.req7_2.proof == [
         'https://bbc7069740af.ngrok.io/installed | Referrer header: Header missing',
         'https://bbc7069740af.ngrok.io/my-admin-page | Referrer header: unsafe-url'
     ]
@@ -85,18 +85,18 @@ def test_bad_cookies():
 
     res = analyzer.analyze()
 
-    assert res.req2.passed is True
-    assert res.req2.description == [NO_ISSUES]
-    assert res.req2.proof == []
-    assert res.req5.passed is True
-    assert res.req5.description == [NO_ISSUES]
-    assert res.req5.proof == [VALID_AUTH_PROOF]
-    assert res.req11.passed is False
-    assert res.req11.description == [MISSING_ATTRS_SESSION_COOKIE]
-    assert res.req11.proof == ['https://bbc7069740af.ngrok.io/installed | Cookie: JSESSIONID; Domain=9ee0fd043609.ngrok.io; Secure=False; HttpOnly=True']
-    assert res.req12.passed is True
-    assert res.req12.description == [NO_ISSUES]
-    assert res.req12.proof == []
+    assert res.req7_3.passed is True
+    assert res.req7_3.description == [NO_ISSUES]
+    assert res.req7_3.proof == []
+    assert res.req1.passed is True
+    assert res.req1.description == [NO_ISSUES]
+    assert res.req1.proof == [VALID_AUTH_PROOF]
+    assert res.req7_4.passed is False
+    assert res.req7_4.description == [MISSING_ATTRS_SESSION_COOKIE]
+    assert res.req7_4.proof == ['https://bbc7069740af.ngrok.io/installed | Cookie: JSESSIONID; Domain=9ee0fd043609.ngrok.io; Secure=False; HttpOnly=True']
+    assert res.req7_2.passed is True
+    assert res.req7_2.description == [NO_ISSUES]
+    assert res.req7_2.proof == []
 
 
 def test_bad_authn():
@@ -107,18 +107,18 @@ def test_bad_authn():
 
     res = analyzer.analyze()
 
-    assert res.req2.passed is True
-    assert res.req2.description == [NO_ISSUES]
-    assert res.req2.proof == []
-    assert res.req5.passed is False
-    assert res.req5.description == [MISSING_AUTHN_AUTHZ]
-    assert res.req5.proof == [
+    assert res.req7_3.passed is True
+    assert res.req7_3.description == [NO_ISSUES]
+    assert res.req7_3.proof == []
+    assert res.req1.passed is False
+    assert res.req1.description == [MISSING_AUTHN_AUTHZ]
+    assert res.req1.proof == [
         'https://bbc7069740af.ngrok.io/installed | Res Code: 200 Req Method: GET Auth Header: ',
         'https://bbc7069740af.ngrok.io/my-admin-page | Res Code: 200 Req Method: GET Auth Header: JWT sometexthere'
     ]
-    assert res.req11.passed is True
-    assert res.req11.description == [NO_ISSUES]
-    assert res.req11.proof == []
-    assert res.req12.passed is True
-    assert res.req12.description == [NO_ISSUES]
-    assert res.req12.proof == []
+    assert res.req7_4.passed is True
+    assert res.req7_4.description == [NO_ISSUES]
+    assert res.req7_4.proof == []
+    assert res.req7_2.passed is True
+    assert res.req7_2.description == [NO_ISSUES]
+    assert res.req7_2.proof == []

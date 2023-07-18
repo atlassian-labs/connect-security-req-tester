@@ -13,7 +13,8 @@ REQ_TITLES = {
     '8.1': 'URL Tampering',
     '9': 'Use of External Components',
     '10': 'Collection of Atlassian Credentials',
-    '11': 'Security SLAs'
+    '11': 'Security SLAs',
+    '16': 'App Name and Domain Branding Violations'
 }
 
 NO_ISSUES = 'We did not detect any issues for this check.'
@@ -29,7 +30,7 @@ MISSING_REF_HEADERS = 'We did not detect the correct Referrer-Policy header on o
 MISSING_ATTRS_SESSION_COOKIE = 'We did not detect the "Secure" or "HttpOnly" attribute on one or more session cookies set by your app.'
 MISSING_AUTHN_AUTHZ = 'One or more endpoints returned a <400 status code without authentication information. This may indicate that your app is not performing authentication and authorization checks.'
 BRANDING_ISSUE = 'Your app name or domain contained words that are not allowed. Please refer to our branding guidelines at: https://developer.atlassian.com/platform/marketplace/atlassian-brand-guidelines-for-marketplace-vendors/#app-names for more information.'
-MISSING_SIGNED_INSTALL_AUTHN = "One or more lifecycle endpoints returned a <400 status code with an invalid JWT token. This may indicate that your app is not performing authentication checks on lifecycle endpoints."
+MISSING_SIGNED_INSTALL_AUTHN = 'One or more lifecycle endpoints returned a <400 status code with an invalid JWT token. This may indicate that your app is not performing authentication checks on lifecycle endpoints.'
 
 REQ_RECOMMENDATION = {
     '1': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#authentication-and-authorization-of-application-resources for more information.',
@@ -46,5 +47,6 @@ REQ_RECOMMENDATION = {
     '8.1': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#url-tampering for more information.',
     '9': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#use-of-external-components for more information.',
     '10': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#collection-of-atlassian-credentials for more information.',
-    '11': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#security-slas for more information.'
+    '11': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#security-slas for more information.',
+    '16': 'Refer to https://developer.atlassian.com/platform/marketplace/atlassian-brand-guidelines-for-marketplace-vendors/#app-names for more information.'
 }

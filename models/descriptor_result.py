@@ -9,6 +9,7 @@ class DescriptorLink(JsonObject):
     auth_header = StringProperty()
     req_method = StringProperty()
     res_code = StringProperty()
+    response = StringProperty()
 
 
 class DescriptorResult(JsonObject):

@@ -14,10 +14,10 @@ def test_valid_scan():
 
     res = analyzer.analyze()
 
-    assert res.req1_2.passed is True
-    assert res.req1_2.description == [NO_ISSUES]
-    assert res.req1_2.proof == []
-    assert res.req1_2.title == REQ_TITLES['1.2']
+    assert res.req3_0.passed is True
+    assert res.req3_0.description == [NO_ISSUES]
+    assert res.req3_0.proof == []
+    assert res.req3_0.title == REQ_TITLES['1.2']
 
 
 def test_invalid_scan_header():
@@ -28,9 +28,9 @@ def test_invalid_scan_header():
 
     res = analyzer.analyze()
 
-    assert res.req1_2.passed is False
-    assert res.req1_2.description == [HSTS_MISSING]
-    assert res.req1_2.proof == [
+    assert res.req3_0.passed is False
+    assert res.req3_0.description == [HSTS_MISSING]
+    assert res.req3_0.proof == [
         'We did not detect a Strict-Transport-Security (HSTS) header when scanning: https://example.com/atlassian-connect.json'
     ]
-    assert res.req1_2.title == REQ_TITLES['1.2']
+    assert res.req3_0.title == REQ_TITLES['3.0']

@@ -14,12 +14,12 @@ def test_good_scan():
 
     res = analyzer.analyze()
 
-    assert res.req1_1.passed is True
-    assert res.req1_1.description == [NO_ISSUES]
-    assert res.req1_1.proof == []
     assert res.req3.passed is True
     assert res.req3.description == [NO_ISSUES]
     assert res.req3.proof == []
+    assert res.req6_2.passed is True
+    assert res.req6_2.description == [NO_ISSUES]
+    assert res.req6_2.proof == []
 
 
 def test_expired_cert():
@@ -30,9 +30,9 @@ def test_expired_cert():
 
     res = analyzer.analyze()
 
-    assert res.req1_1.passed is False
-    assert res.req1_1.description == [TLS_PROTOCOLS]
-    assert res.req1_1.proof == ['Your domain: example.com - presented the following protocols: [\'TLS_1_2\', \'TLS_1_1\', \'TLS_1_0\']']
     assert res.req3.passed is False
-    assert res.req3.description == [CERT_NOT_VALID]
-    assert res.req3.proof == ['Your domain: example.com - presented an HTTPS certificate that was not valid.']
+    assert res.req3.description == [TLS_PROTOCOLS]
+    assert res.req3.proof == ['Your domain: example.com - presented the following protocols: [\'TLS_1_2\', \'TLS_1_1\', \'TLS_1_0\']']
+    assert res.req6_2.passed is False
+    assert res.req6_2.description == [CERT_NOT_VALID]
+    assert res.req6_2.proof == ['Your domain: example.com - presented an HTTPS certificate that was not valid.']
