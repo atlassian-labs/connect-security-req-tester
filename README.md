@@ -31,13 +31,13 @@ Run the following from the project root:
 2. `docker run -v $(pwd)/out:/app/out connect-security-req-tester <url of descriptor>`
 
 ### Arguments
-| Argument | Argument Description |
-|----------|----------------------|
-|--timeout          | Defines how long CSRT will wait on web requests before timing out, **default: 30 seconds**        |
-|--skip_branding    | Whether or not to skip branding checks, **default: False**                                        |
-|--out_dir          | The output directory where results are stored, **default: ./out**                                 |
-|--json_logging     | Whether or not to log output in a JSON format, **default: False**                                 |
-|--debug            | Sets logging to DEBUG for more verbose logging, **default: False**                                |
+| Argument | Argument Description                                                                       |
+|----------|--------------------------------------------------------------------------------------------|
+|--timeout          | Defines how long CSRT will wait on web requests before timing out, **default: 30 seconds** |
+|--skip_branding    | Whether or not to skip branding checks, **default: True**                                  |
+|--out_dir          | The output directory where results are stored, **default: ./out**                          |
+|--json_logging     | Whether or not to log output in a JSON format, **default: False**                          |
+|--debug            | Sets logging to DEBUG for more verbose logging, **default: False**                         |
 
 ### Environment Variables
 | Variable | Description |
