@@ -41,7 +41,10 @@ def create_scan_results(links):
             'auth_header': None,
             'req_method': 'POST' if any(x in link for x in ['installed', 'uninstalled']) else 'GET',
             'res_code': '200' if '?' in link else '204',
-            'response': str(response.text)
+            'response': str(response.text),
+            'authz_req_method': None,
+            'authz_code': None,
+            'authz_header': None
         }
     return res
 
@@ -65,6 +68,7 @@ def test_scan_valid_app():
     descriptor = requests.get(valid_url).json()
     scanner = DescriptorScan(valid_url, descriptor, 30)
     res = scanner.scan().to_json()
+    print(res)
     res['links'].sort()
     # Replace auth header to None for signed install/uninstall events
     for link in res['scan_results']:

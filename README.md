@@ -19,7 +19,7 @@ Common usage:
 
 CSRT with all arguments:
 
-`pipenv run python main.py url-to-atlassian-connect-json --debug=True/False --out_dir=./out --skip_branding=True/False --timeout=30 --json_logging=True/False`
+`pipenv run python main.py url-to-atlassian-connect-json --debug=True/False --out_dir=./out --skip_branding=True/False --timeout=30 --json_logging=True/False --user_jwt=<jwt_token> --authz_only=True/False`
 
 ### Docker Usage
 
@@ -38,7 +38,8 @@ Run the following from the project root:
 |--out_dir          | The output directory where results are stored, **default: ./out**                          |
 |--json_logging     | Whether or not to log output in a JSON format, **default: False**                          |
 |--debug            | Sets logging to DEBUG for more verbose logging, **default: False**                         |
-
+|--user_jwt         | A **user** JWT token to use for authorization check on admin endpoints, **default: None**  |
+|--authz_only       | Only run and report authorization check, **default: False**                                |
 ### Environment Variables
 | Variable | Description |
 |----------|-------------|
@@ -51,7 +52,12 @@ This tool assumes your connect app is reachable by the machine running this tool
 
 This tool will make network requests on from your computer. Please ensure this is allowed from your organization if running this from a monitored network.
 
-**Tip**: Use a proxy by setting `OUTBOUND_PROXY` to your organization's proxy server if your app needs to be accessed via a proxy server.
+**Authorization Check**:
+* This tool also runs authorization check on admin endpoints to report any authorization bypass issues. If your app uses admin modules, and they need to be authenticated to access admin endpoints, you can pass a user JWT token via the `--user_jwt` argument. This will allow the tool to make requests to admin endpoints using user authentication information and test for authorization bypass issues. If you do not pass a user JWT token, the tool will skip authorization checks on admin endpoints. 
+* Additionally, if you only want to run Authorization check and not the entire suite of checks in this tool, you can pass the `--authz_only` argument.
+
+**Tips**: 
+* Use a proxy by setting `OUTBOUND_PROXY` to your organization's proxy server if your app needs to be accessed via a proxy server.
 
 Additional information about the Atlassian Connect Security Requirements can be found at: [https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/](https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/)
 
