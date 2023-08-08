@@ -105,12 +105,14 @@ class DescriptorScan(object):
 
     def conditions_helper(self, condition, value, admin_urls):
         # Helper function to find admin urls for conditions
-        if condition.get('condition', None) == 'user_is_admin' or condition.get('condition', None) == 'user_is_sysadmin':
+        if (condition.get('condition', None) == 'user_is_admin' or
+                condition.get('condition', None) == 'user_is_sysadmin'):
             condition_url = self._find_urls_in_module(value)
             admin_urls.extend(condition_url)
         if condition.get('or', None):
             for or_condition in condition['or']:
-                if or_condition.get('condition', None) == 'user_is_admin' or condition.get('condition', None) == 'user_is_sysadmin':
+                if (or_condition.get('condition', None) == 'user_is_admin' or
+                        condition.get('condition', None) == 'user_is_sysadmin'):
                     condition_url = self._find_urls_in_module(value)
                     admin_urls.extend(condition_url)
 
@@ -393,7 +395,8 @@ class DescriptorScan(object):
             authz_res = None
             if self.admin_links and link in self.admin_links:
                 authz_res = self._authz_check(link, user_jwt)
-                logging.debug(f"Found and tested admin link for Authorization issue: {link} | Result: {authz_res.status_code if authz_res else None}")
+                logging.debug(f"Found and tested admin link for Authorization issue: {link} |"
+                              f" Result: {authz_res.status_code if authz_res else None}")
 
             if r or authz_res:
                 scan_res[link] = DescriptorLink(

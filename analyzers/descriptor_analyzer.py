@@ -116,7 +116,8 @@ class DescriptorAnalyzer(object):
             # similarly check for authorization status codes for authorization bypass
             if authz_code >= 200 and authz_code < 400:
                 authz_passed = False
-                authz_proof_text = f"{link} | Authz Res Code: {authz_code} Req Method: {authz_req_method} Authz Header: {authz_header}"
+                authz_proof_text = (f"{link} | Authz Res Code: {authz_code} Req Method: {authz_req_method}"
+                                    f" Authz Header: {authz_header}")
                 authz_proof.append(authz_proof_text)
 
         if passed:
@@ -130,7 +131,8 @@ class DescriptorAnalyzer(object):
         cache_passed, cache_proof = self._check_cache_headers()
         ref_passed, ref_proof = self._check_referrer_headers()
         cookies_passed, cookies_proof = self._check_cookie_headers()
-        auth_passed, auth_proof, signed_install_passed, signed_install_proof, authz_passed, authz_proof = self._check_authn_authz()
+        (auth_passed, auth_proof, signed_install_passed, signed_install_proof,
+         authz_passed, authz_proof) = self._check_authn_authz()
 
         req1 = RequirementsResult(
             passed=auth_passed,
