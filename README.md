@@ -53,7 +53,8 @@ This tool assumes your connect app is reachable by the machine running this tool
 This tool will make network requests on from your computer. Please ensure this is allowed from your organization if running this from a monitored network.
 
 **Authorization Check**:
-* This tool also runs authorization check on admin endpoints to report any authorization bypass issues. If your app uses admin modules, and they need to be authenticated to access admin endpoints, you can pass a user JWT token via the `--user_jwt` argument. This will allow the tool to make requests to admin endpoints using user authentication information and test for authorization bypass issues. If you do not pass a user JWT token, the tool will skip authorization checks on admin endpoints. 
+* This tool also runs authorization check on admin endpoints to report any authorization bypass issues. If your app uses admin modules, and they need to be authenticated to access admin endpoints, you can pass a user JWT token via the `--user_jwt` argument. This will allow the tool to make requests to admin endpoints using user authentication information and test for authorization bypass issues. If you do not pass a user JWT token, the tool will skip authorization checks on admin endpoints.
+* You can generate a user JWT token for testing by following the instructions at: [https://developer.atlassian.com/cloud/jira/platform/understanding-jwt/](https://developer.atlassian.com/cloud/jira/platform/understanding-jwt/) and use a shared secret received on your test instance for signing or capture a context token by entering `AP.context.getToken(console.log)` in the browser’s dev console when you load the app in Jira/Confluence.
 * Additionally, if you only want to run Authorization check and not the entire suite of checks in this tool, you can pass the `--authz_only` argument.
 
 **Tips**: 
