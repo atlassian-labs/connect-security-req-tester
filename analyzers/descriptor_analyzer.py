@@ -134,11 +134,11 @@ class DescriptorAnalyzer(object):
         (auth_passed, auth_proof, signed_install_passed, signed_install_proof,
          authz_passed, authz_proof) = self._check_authn_authz()
 
-        req1 = RequirementsResult(
+        req1_1 = RequirementsResult(
             passed=auth_passed,
             description=[NO_ISSUES] if auth_passed else [MISSING_AUTHN],
             proof=auth_proof,
-            title=REQ_TITLES['1']
+            title=REQ_TITLES['1.1']
         )
 
         req1_2 = RequirementsResult(
@@ -178,7 +178,7 @@ class DescriptorAnalyzer(object):
 
         # Skip reporting other checks if we only run authz check
         if not authz_only:
-            self.reqs.req1 = req1
+            self.reqs.req1_1 = req1_1
             self.reqs.req1_4 = req1_4
             self.reqs.req7_2 = req7_2
             self.reqs.req7_3 = req7_3

@@ -68,7 +68,6 @@ def test_scan_valid_app():
     descriptor = requests.get(valid_url).json()
     scanner = DescriptorScan(valid_url, descriptor, 30)
     res = scanner.scan().to_json()
-    print(res)
     res['links'].sort()
     # Replace auth header to None for signed install/uninstall events
     for link in res['scan_results']:

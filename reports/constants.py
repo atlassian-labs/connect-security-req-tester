@@ -1,5 +1,5 @@
 REQ_TITLES = {
-    '1': 'Authentication of Application Resources',
+    '1.1': 'Authentication of Application Resources',
     '1.2': 'Authorization of Application Resources',
     '1.4': 'Signed Install Authentication',
     '2': 'Authentication and Authorization of Stored Data',
@@ -30,13 +30,13 @@ CERT_NOT_VALID = 'Your app has an invalid SSL/TLS certificate.'
 MISSING_CACHE_HEADERS = 'We did not detect the correct Cache-Control header on one or more endpoints.'
 MISSING_REF_HEADERS = 'We did not detect the correct Referrer-Policy header on one or more endpoints.'
 MISSING_ATTRS_SESSION_COOKIE = 'We did not detect the "Secure" or "HttpOnly" attribute on one or more session cookies set by your app.'
-MISSING_AUTHN = 'One or more endpoints returned a <400 status code without authentication information. This may indicate that your app is not performing authentication and authorization checks.'
+MISSING_AUTHN = 'One or more endpoints returned a <400 status code without authentication information. This may indicate that your app is not performing authentication and authorization checks.\n* Note: If you think authentication is absolutely not required on reported endpoints, please raise a review on the vulnerability ticket raised and Atlassian EcoAppSec team will take a look.'
 BRANDING_ISSUE = 'Your app name or domain contained words that are not allowed. Please refer to our branding guidelines at: https://developer.atlassian.com/platform/marketplace/atlassian-brand-guidelines-for-marketplace-vendors/#app-names for more information.'
 MISSING_SIGNED_INSTALL_AUTHN = 'One or more lifecycle endpoints returned a <400 status code with an invalid JWT token. This may indicate that your app is not performing authentication checks on lifecycle endpoints.'
 MISSING_AUTHZ = 'One or more endpoints returned a <400 status code with a user JWT token while accessing admin restricted resources. This may indicate that your app is not performing authorization check on admin endpoints.'
 
 REQ_RECOMMENDATION = {
-    '1': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#authentication-and-authorization-of-application-resources for more information.',
+    '1.1': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#authentication-and-authorization-of-application-resources for more information.',
     '1.2': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#authentication-and-authorization-of-application-resources for more information.',
     '1.4': 'Refer to https://community.developer.atlassian.com/t/action-required-atlassian-connect-installation-lifecycle-security-improvements/49046',
     '2': 'Refer to https://developer.atlassian.com/platform/marketplace/security-requirements-more-info/#authentication-and-authorization-of-stored-data for more information.',

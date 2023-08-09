@@ -19,9 +19,9 @@ def test_good_scan():
     assert res.req7_3.passed is True
     assert res.req7_3.description == [NO_ISSUES]
     assert res.req7_3.proof == []
-    assert res.req1.passed is True
-    assert res.req1.description == [NO_ISSUES]
-    assert res.req1.proof == [VALID_AUTH_PROOF]
+    assert res.req1_1.passed is True
+    assert res.req1_1.description == [NO_ISSUES]
+    assert res.req1_1.proof == [VALID_AUTH_PROOF]
     assert res.req7_4.passed is True
     assert res.req7_4.description == [NO_ISSUES]
     assert res.req7_4.proof == []
@@ -41,9 +41,9 @@ def test_bad_cache_header():
     assert res.req7_3.passed is False
     assert res.req7_3.description == [MISSING_CACHE_HEADERS]
     assert res.req7_3.proof == ['https://bbc7069740af.ngrok.io/installed | Cache header: Header missing']
-    assert res.req1.passed is True
-    assert res.req1.description == [NO_ISSUES]
-    assert res.req1.proof == [VALID_AUTH_PROOF]
+    assert res.req1_1.passed is True
+    assert res.req1_1.description == [NO_ISSUES]
+    assert res.req1_1.proof == [VALID_AUTH_PROOF]
     assert res.req7_4.passed is True
     assert res.req7_4.description == [NO_ISSUES]
     assert res.req7_4.proof == []
@@ -63,9 +63,9 @@ def test_bad_referrer_header():
     assert res.req7_3.passed is True
     assert res.req7_3.description == [NO_ISSUES]
     assert res.req7_3.proof == []
-    assert res.req1.passed is True
-    assert res.req1.description == [NO_ISSUES]
-    assert res.req1.proof == [VALID_AUTH_PROOF]
+    assert res.req1_1.passed is True
+    assert res.req1_1.description == [NO_ISSUES]
+    assert res.req1_1.proof == [VALID_AUTH_PROOF]
     assert res.req7_4.passed is True
     assert res.req7_4.description == [NO_ISSUES]
     assert res.req7_4.proof == []
@@ -88,9 +88,9 @@ def test_bad_cookies():
     assert res.req7_3.passed is True
     assert res.req7_3.description == [NO_ISSUES]
     assert res.req7_3.proof == []
-    assert res.req1.passed is True
-    assert res.req1.description == [NO_ISSUES]
-    assert res.req1.proof == [VALID_AUTH_PROOF]
+    assert res.req1_1.passed is True
+    assert res.req1_1.description == [NO_ISSUES]
+    assert res.req1_1.proof == [VALID_AUTH_PROOF]
     assert res.req7_4.passed is False
     assert res.req7_4.description == [MISSING_ATTRS_SESSION_COOKIE]
     assert res.req7_4.proof == ['https://bbc7069740af.ngrok.io/installed | Cookie: JSESSIONID; Domain=9ee0fd043609.ngrok.io; Secure=False; HttpOnly=True']
@@ -110,9 +110,9 @@ def test_bad_authn():
     assert res.req7_3.passed is True
     assert res.req7_3.description == [NO_ISSUES]
     assert res.req7_3.proof == []
-    assert res.req1.passed is False
-    assert res.req1.description == [MISSING_AUTHN]
-    assert res.req1.proof == [
+    assert res.req1_1.passed is False
+    assert res.req1_1.description == [MISSING_AUTHN]
+    assert res.req1_1.proof == [
         'https://bbc7069740af.ngrok.io/my-admin-page | Res Code: 200 Req Method: GET Auth Header: JWT sometexthere'
     ]
     assert res.req7_4.passed is True
@@ -135,9 +135,9 @@ def test_authz_check():
     assert res.req7_3.passed is True
     assert res.req7_3.description == [NO_ISSUES]
     assert res.req7_3.proof == []
-    assert res.req1.passed is False
-    assert res.req1.description == [MISSING_AUTHN]
-    assert res.req1.proof == [
+    assert res.req1_1.passed is False
+    assert res.req1_1.description == [MISSING_AUTHN]
+    assert res.req1_1.proof == [
         'https://99d2-4-16-192-66.ngrok-free.app/admin | Res Code: 200 Req Method: GET Auth Header: JWT sometexthere'
     ]
     assert res.req1_2.passed is False

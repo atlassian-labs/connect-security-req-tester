@@ -253,12 +253,6 @@ class DescriptorScan(object):
     def _authz_check(self, link: str, user_jwt: str = None):
         # Check for authorization bypass on admin endpoints using user JWT token
         params = {
-            "xdm_e": "https://atlassian.net",
-            "xdm_c": f"channel-{self.descriptor.get('key', None)}",
-            "cp": "",
-            "xdm_deprecated_addon_key_do_not_use": f"{self.descriptor.get('key', None)}",
-            "lic": "active",
-            "cv": "1001.0.0-SNAPSHOT",
             "jwt": f"{user_jwt}"
         }
         tasks = [
