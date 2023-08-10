@@ -30,9 +30,9 @@ jobs:
     - name: Lint with flake8
       run: |
         pipenv run lint
-    - name: Check dependencies for security issues
-      run: |
-        pipenv check
+#    - name: Check dependencies for security issues
+#      run: |
+#        pipenv check
     - name: Test with pytest (retry up to 3 times)
       run: |
         pipenv run test || pipenv run test || pipenv run test

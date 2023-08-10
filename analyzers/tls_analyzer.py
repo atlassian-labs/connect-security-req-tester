@@ -37,20 +37,20 @@ class TlsAnalyzer(object):
         tls_passed, tls_proof = self._check_tls_versions()
         cert_passed, cert_proof = self._check_cert_valid()
 
-        req1_1 = RequirementsResult(
+        req3 = RequirementsResult(
             passed=tls_passed,
             description=[NO_ISSUES] if tls_passed else [TLS_PROTOCOLS],
             proof=tls_proof,
-            title=REQ_TITLES['1.1']
+            title=REQ_TITLES['3']
         )
-        req3 = RequirementsResult(
+        req6_2 = RequirementsResult(
             passed=cert_passed,
             description=[NO_ISSUES] if cert_passed else [CERT_NOT_VALID],
             proof=cert_proof,
-            title=REQ_TITLES['3']
+            title=REQ_TITLES['6.2']
         )
 
-        self.reqs.req1_1 = req1_1
         self.reqs.req3 = req3
+        self.reqs.req6_2 = req6_2
 
         return self.reqs

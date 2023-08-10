@@ -21,13 +21,13 @@ class HstsAnalyzer(object):
     def analyze(self) -> Requirements:
         header_passed, header_proof = self._check_header_present()
 
-        req1_2 = RequirementsResult(
+        req3_0 = RequirementsResult(
             passed=header_passed,
             description=[NO_ISSUES] if header_passed else [HSTS_MISSING],
             proof=header_proof,
-            title=REQ_TITLES['1.2']
+            title=REQ_TITLES['3.0']
         )
 
-        self.reqs.req1_2 = req1_2
+        self.reqs.req3_0 = req3_0
 
         return self.reqs

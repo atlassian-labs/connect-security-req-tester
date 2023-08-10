@@ -18,7 +18,8 @@ from scans.hsts_scan import HstsScan
 from utils.app_validator import AppValidator
 
 
-def main(descriptor_url, skip_branding=False, debug=False, timeout=30, out_dir='out', json_logging=False):
+def main(descriptor_url, skip_branding=True, debug=False, timeout=30, out_dir='out', json_logging=False,
+         user_jwt=None, authz_only=False):
     # Setup our logging
     setup_logging('connect-security-requirements-tester', debug, json_logging)
     logging.info(f"CSRT Scan started at: {(start := datetime.utcnow())}")
@@ -29,13 +30,18 @@ def main(descriptor_url, skip_branding=False, debug=False, timeout=30, out_dir='
     app_url = validator.get_test_url()
 
     # Run our scans -- TLS/HSTS/Descriptor
-    tls_scan = TlsScan(app_url)
-    hsts_scan = HstsScan(app_url, timeout)
-    descriptor_scan = DescriptorScan(descriptor_url, descriptor, timeout)
+    # Skip TLS/HSTS scans if we're only doing authorization checks
+    if not authz_only:
+        tls_scan = TlsScan(app_url)
+        hsts_scan = HstsScan(app_url, timeout)
+        tls_res = tls_scan.scan()
+        hsts_res = hsts_scan.scan()
+    else:
+        tls_res = None
+        hsts_res = None
 
-    tls_res = tls_scan.scan()
-    hsts_res = hsts_scan.scan()
-    descriptor_res = descriptor_scan.scan()
+    descriptor_scan = DescriptorScan(descriptor_url, descriptor, timeout)
+    descriptor_res = descriptor_scan.scan(user_jwt)
 
     # Analyze the results from the scans
     results = Results(
@@ -44,21 +50,23 @@ def main(descriptor_url, skip_branding=False, debug=False, timeout=30, out_dir='
         base_url=descriptor_res.base_url,
         app_descriptor_url=descriptor_res.app_descriptor_url,
         requirements=Requirements(),
-        tls_scan_raw=json.dumps(tls_res.to_json(), indent=3),
+        tls_scan_raw=json.dumps(tls_res.to_json(), indent=3) if tls_res else None,
         descriptor_scan_raw=json.dumps(descriptor_res.to_json(), indent=3),
         errors=descriptor_res.link_errors
     )
 
     logging.info('Starting analysis of results...')
 
-    tls_analyzer = TlsAnalyzer(tls_res, results.requirements)
-    results.requirements = tls_analyzer.analyze()
+    # Skip analyzing TLS/HSTS scans if we're only doing authorization checks
+    if not authz_only:
+        tls_analyzer = TlsAnalyzer(tls_res, results.requirements)
+        results.requirements = tls_analyzer.analyze()
 
-    hsts_analyzer = HstsAnalyzer(hsts_res, results.requirements)
-    results.requirements = hsts_analyzer.analyze()
+        hsts_analyzer = HstsAnalyzer(hsts_res, results.requirements)
+        results.requirements = hsts_analyzer.analyze()
 
     descriptor_analyzer = DescriptorAnalyzer(descriptor_res, results.requirements)
-    results.requirements = descriptor_analyzer.analyze()
+    results.requirements = descriptor_analyzer.analyze(authz_only)
 
     if not skip_branding:
         branding_analyzer = BrandingAnalyzer(descriptor_res.links, descriptor_res.name, results.requirements)

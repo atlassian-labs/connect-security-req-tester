@@ -33,13 +33,18 @@ def get_lifecycle_events_from_descriptor(descriptor):
 def create_scan_results(links):
     res = defaultdict()
     for link in links:
+        response = requests.get(link)
         res[link] = {
             'cache_header': 'Header missing',
             'referrer_header': 'Header missing',
             'session_cookies': [],
             'auth_header': None,
-            'req_method': 'GET',
-            'res_code': '200' if '?' in link else '204'
+            'req_method': 'POST' if any(x in link for x in ['installed', 'uninstalled']) else 'GET',
+            'res_code': '200' if '?' in link else '204',
+            'response': str(response.text),
+            'authz_req_method': None,
+            'authz_code': None,
+            'authz_header': None
         }
     return res
 
@@ -64,6 +69,10 @@ def test_scan_valid_app():
     scanner = DescriptorScan(valid_url, descriptor, 30)
     res = scanner.scan().to_json()
     res['links'].sort()
+    # Replace auth header to None for signed install/uninstall events
+    for link in res['scan_results']:
+        if any(x in link for x in ['installed', 'uninstalled']):
+            res['scan_results'][link]['auth_header'] = None
     res = json.dumps(res, sort_keys=True)
 
     links = get_links_from_descriptor(descriptor)
@@ -80,6 +89,7 @@ def test_scan_valid_app():
         'scopes': descriptor['scopes'],
         'links': links,
         'scan_results': scan_res,
+        'response': scan_res.get('response', None),
         'link_errors': {}
     }, sort_keys=True)
 
