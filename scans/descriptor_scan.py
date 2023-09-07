@@ -319,7 +319,8 @@ class DescriptorScan(object):
             # Gracefully handle links that result in an exception, report them via warning, and skip any further tests
             try:
                 # If we are requesting a lifecycle event, ensure we perform signed-install authentication check
-                if self._is_lifecycle_link(link) and any(x in link for x in ('installed', 'install', 'uninstalled', 'uninstall')):
+                if self._is_lifecycle_link(link) and any(x in link for x in ('installed', 'install', 'uninstalled',
+                                                                             'uninstall')):
                     event_type = 'uninstalled' if any(x in link for x in ('uninstalled', 'uninstall')) else 'installed'
                     rs256_jwt = self._generate_fake_signed_install_jwt(link, 'POST')
                     task['headers']['Content-Type'] = 'application/json'
