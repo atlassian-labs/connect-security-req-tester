@@ -102,7 +102,7 @@ class DescriptorAnalyzer(object):
 
             # We shouldn't be able to visit this link if the app uses authentication.
             if res_code >= 200 and res_code < 400 and not invalid_response:
-                if any(x in link for x in ('installed', 'uninstalled')):
+                if any(x in link for x in ('installed', 'install', 'uninstalled', 'uninstall')):
                     signed_install_passed = False
                     signed_install_proof_text = f"Lifecycle endpoint: {link} | Res Code: {res_code}" \
                                                 f" Auth Header: {auth_header}"
