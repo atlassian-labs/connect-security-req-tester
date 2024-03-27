@@ -8,7 +8,7 @@ import random
 import string
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.backends import default_backend
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Tuple, Union, List
 from urllib.parse import urlparse
 
 import jwt
@@ -314,8 +314,8 @@ class DescriptorScan(object):
         ]
 
         res: Optional[requests.Response] = None
+        all_res: List[Optional[requests.Response]] = []
         for task in tasks:
-
             # Gracefully handle links that result in an exception, report them via warning, and skip any further tests
             try:
                 # If we are requesting a lifecycle event, ensure we perform signed-install authentication check
@@ -334,7 +334,7 @@ class DescriptorScan(object):
                     logging.debug(f"Requesting {link} via {task['method']} with auth: {task['headers']=}")
                     res = self.session.request(task['method'], link, headers=task['headers'])
                 if res.status_code < 400:
-                    break
+                    all_res.append(res)
                 if res.status_code == 503:
                     logging.warning(
                         f"{link} caused a 503 status. Run with --debug for more information. Skipping endpoint...",
@@ -358,7 +358,7 @@ class DescriptorScan(object):
                 self.link_errors['exceptions'] += [f"{link}"]
                 return None
 
-        return res
+        return all_res
 
     def _get_session_cookies(self, cookiejar: requests.cookies.RequestsCookieJar) -> List[str]:
         res: List[str] = []
@@ -383,8 +383,10 @@ class DescriptorScan(object):
             scan_results={}
         )
         scan_res = defaultdict()
+        
         for link in self.links:
-            r = self._visit_link(link)
+            all_analysis = []
+            scan_results = self._visit_link(link)
 
             # If we are testing an admin restricted link, perform Authorization check
             authz_res = None
@@ -393,22 +395,23 @@ class DescriptorScan(object):
                 logging.debug(f"Found and tested admin link for Authorization issue: {link} |"
                               f" Result: {authz_res.status_code if authz_res else None}")
 
-            if r or authz_res:
-                scan_res[link] = DescriptorLink(
-                    cache_header=r.headers.get('Cache-Control', 'Header missing'),
-                    referrer_header=r.headers.get('Referrer-Policy', 'Header missing'),
-                    session_cookies=self._get_session_cookies(r.cookies),
-                    auth_header=r.request.headers.get('Authorization', None),
-                    req_method=r.request.method,
-                    res_code=str(r.status_code),
-                    response=str(r.text),
-                    authz_req_method=authz_res.request.method if authz_res else None,
-                    authz_code=str(authz_res.status_code) if authz_res else None,
-                    authz_header=str(authz_res.request.headers.get('Authorization', None)) if authz_res else None,
-                )
+            for r in scan_results:
+                if r or authz_res:
+                    all_analysis.append(DescriptorLink(
+                        cache_header=r.headers.get('Cache-Control', 'Header missing'),
+                        referrer_header=r.headers.get('Referrer-Policy', 'Header missing'),
+                        session_cookies=self._get_session_cookies(r.cookies),
+                        auth_header=r.request.headers.get('Authorization', None),
+                        req_method=r.request.method,
+                        res_code=str(r.status_code),
+                        response=str(r.text),
+                        authz_req_method=authz_res.request.method if authz_res else None,
+                        authz_code=str(authz_res.status_code) if authz_res else None,
+                        authz_header=str(authz_res.request.headers.get('Authorization', None)) if authz_res else None,
+                    ))
+            scan_res[link] = all_analysis
 
         res.scan_results = scan_res
         res.link_errors = self.link_errors
-
         logging.info(f"Descriptor scan complete, found and visited {len(self.links)} links")
         return res

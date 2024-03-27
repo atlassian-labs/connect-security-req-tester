@@ -33,7 +33,7 @@
       "https://99d2-4-16-192-66.ngrok-free.app/admin"
    ],
    "scan_results": {
-     "https://99d2-4-16-192-66.ngrok-free.app/admin": {
+     "https://99d2-4-16-192-66.ngrok-free.app/admin": [{
        "cache_header": "no-cache, no-store",
        "referrer_header": "origin",
        "session_cookies": [],
@@ -43,6 +43,6 @@
        "authz_header": "JWT sometexthere",
        "authz_req_method": "GET",
        "req_method": "GET"
-     }
+     }]
    }
 }

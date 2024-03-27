@@ -487,117 +487,117 @@
       "https://bbc7069740af.ngrok.io/render-map?pageTitle=test"
    ],
    "scan_results": {
-      "https://bbc7069740af.ngrok.io/installed": {
+      "https://bbc7069740af.ngrok.io/installed": [{
          "cache_header": "no-cache, no-store",
          "referrer_header": "Header missing",
          "session_cookies": [],
          "auth_header": "",
          "res_code": "401",
          "req_method": "GET"
-      },
-      "https://bbc7069740af.ngrok.io/my-admin-page": {
+      }],
+      "https://bbc7069740af.ngrok.io/my-admin-page": [{
          "cache_header": "no-cache, no-store",
          "referrer_header": "unsafe-url",
          "session_cookies": [],
          "auth_header": "",
          "res_code": "404",
          "req_method": "GET"
-      },
-      "https://bbc7069740af.ngrok.io/space-tools-tab?space_key=test": {
+      }],
+      "https://bbc7069740af.ngrok.io/space-tools-tab?space_key=test": [{
          "cache_header": "no-cache, no-store",
          "referrer_header": "origin",
          "session_cookies": [],
          "auth_header": "",
          "res_code": "404",
          "req_method": "GET"
-      },
-      "https://bbc7069740af.ngrok.io/my-byline-item": {
+      }],
+      "https://bbc7069740af.ngrok.io/my-byline-item": [{
          "cache_header": "no-cache, no-store",
          "referrer_header": "origin",
          "session_cookies": [],
          "auth_header": "",
          "res_code": "404",
          "req_method": "GET"
-      },
-      "https://bbc7069740af.ngrok.io/my-spaceview/test": {
+      }],
+      "https://bbc7069740af.ngrok.io/my-spaceview/test": [{
          "cache_header": "no-cache, no-store",
          "referrer_header": "origin",
          "session_cookies": [],
          "auth_header": "",
          "res_code": "404",
          "req_method": "GET"
-      },
-      "https://bbc7069740af.ngrok.io/my-post-install-page": {
+      }],
+      "https://bbc7069740af.ngrok.io/my-post-install-page": [{
          "cache_header": "no-cache, no-store",
          "referrer_header": "origin",
          "session_cookies": [],
          "auth_header": "",
          "res_code": "429",
          "req_method": "GET"
-      },
-      "https://bbc7069740af.ngrok.io/javascript:alert(2);": {
+      }],
+      "https://bbc7069740af.ngrok.io/javascript:alert(2);": [{
          "cache_header": "no-cache, no-store",
          "referrer_header": "origin",
          "session_cookies": [],
          "auth_header": "",
          "res_code": "429",
          "req_method": "GET"
-      },
-      "https://bbc7069740af.ngrok.io/macro": {
+      }],
+      "https://bbc7069740af.ngrok.io/macro": [{
          "cache_header": "no-cache, no-store",
          "referrer_header": "origin",
          "session_cookies": [],
          "auth_header": "",
          "res_code": "429",
          "req_method": "GET"
-      },
-      "https://bbc7069740af.ngrok.io/my-dialog-content": {
+      }],
+      "https://bbc7069740af.ngrok.io/my-dialog-content": [{
          "cache_header": "no-cache, no-store",
          "referrer_header": "origin",
          "session_cookies": [],
          "auth_header": "",
          "res_code": "429",
          "req_method": "GET"
-      },
-      "https://bbc7069740af.ngrok.io/blueprints/blueprint.xml": {
+      }],
+      "https://bbc7069740af.ngrok.io/blueprints/blueprint.xml": [{
          "cache_header": "no-cache, no-store",
          "referrer_header": "origin",
          "session_cookies": [],
          "auth_header": "",
          "res_code": "429",
          "req_method": "GET"
-      },
-      "https://bbc7069740af.ngrok.io/web-panel": {
+      }],
+      "https://bbc7069740af.ngrok.io/web-panel": [{
          "cache_header": "no-cache, no-store",
          "referrer_header": "origin",
          "session_cookies": [],
          "auth_header": "",
          "res_code": "429",
          "req_method": "GET"
-      },
-      "https://bbc7069740af.ngrok.io/my-config-page": {
+      }],
+      "https://bbc7069740af.ngrok.io/my-config-page": [{
          "cache_header": "no-cache, no-store",
          "referrer_header": "origin",
          "session_cookies": [],
          "auth_header": "",
          "res_code": "429",
          "req_method": "GET"
-      },
-      "https://bbc7069740af.ngrok.io/issue-created": {
+      }],
+      "https://bbc7069740af.ngrok.io/issue-created": [{
          "cache_header": "no-cache, no-store",
          "referrer_header": "origin",
          "session_cookies": [],
          "auth_header": "",
          "res_code": "429",
          "req_method": "GET"
-      },
-      "https://bbc7069740af.ngrok.io/render-map?pageTitle=test": {
+      }],
+      "https://bbc7069740af.ngrok.io/render-map?pageTitle=test": [{
          "cache_header": "no-cache, no-store",
          "referrer_header": "origin",
          "session_cookies": [],
          "auth_header": "",
          "res_code": "429",
          "req_method": "GET"
-      }
+      }]
    }
 }

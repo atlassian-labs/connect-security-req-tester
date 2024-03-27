@@ -18,18 +18,22 @@ class DescriptorAnalyzer(object):
     def __init__(self, desc_scan: DescriptorResult, requirements: Requirements):
         self.scan = desc_scan
         self.reqs = requirements
+    
+    def _get_index_len(self, link):
+        return len(self.scan.scan_results[link])
 
     def _check_cache_headers(self) -> Tuple[bool, List[str]]:
         passed = True
         proof: List[str] = []
         scan_res = self.scan.scan_results
         for link in scan_res:
-            cache_headers = scan_res[link].cache_header.split(',')
-            cache_headers = [x.strip().lower() for x in cache_headers]
-            directives = all(item in cache_headers for item in REQ_CACHE_HEADERS)
-            if not directives:
-                proof.append(f"{link} | Cache header: {scan_res[link].cache_header}")
-            passed = passed and directives
+            for i in range(self._get_index_len(link)):
+                cache_headers = scan_res[link][i].cache_header.split(',')
+                cache_headers = [x.strip().lower() for x in cache_headers]
+                directives = all(item in cache_headers for item in REQ_CACHE_HEADERS)
+                if not directives:
+                    proof.append(f"{link} | Cache header: {scan_res[link][i].cache_header}")
+                passed = passed and directives
 
         return passed, proof
 
@@ -37,13 +41,16 @@ class DescriptorAnalyzer(object):
         passed = True
         proof: List[str] = []
         scan_res = self.scan.scan_results
+        
         for link in scan_res:
-            ref_headers = scan_res[link].referrer_header.split(',')
-            ref_headers = [x.strip().lower() for x in ref_headers]
-            policy = ref_headers[0] not in REF_DENYLIST if ref_headers[0] != 'header missing' else False
-            if not policy:
-                proof.append(f"{link} | Referrer header: {scan_res[link].referrer_header}")
-            passed = passed and policy
+            for i in range(self._get_index_len(link)):
+                scan_res = self.scan.scan_results[link][i]
+                ref_headers = scan_res.referrer_header.split(',')
+                ref_headers = [x.strip().lower() for x in ref_headers]
+                policy = ref_headers[0] not in REF_DENYLIST if ref_headers[0] != 'header missing' else False
+                if not policy:
+                    proof.append(f"{link} | Referrer header: {scan_res.referrer_header}")
+                passed = passed and policy
 
         return passed, proof
 
@@ -51,21 +58,32 @@ class DescriptorAnalyzer(object):
         passed = True
         proof: List[str] = []
         scan_res = self.scan.scan_results
-        scan_res = self.scan.scan_results
         for link in scan_res:
-            cookies = scan_res[link].session_cookies
-            for cookie in cookies:
-                # Parsing the cookie string became messy, so we use a regex to match and tear
-                # the string apart into its relevant pieces
-                parsed = re.match(COOKIE_PARSE, cookie)
-                secure = bool(util.strtobool(parsed.group(3)))
-                httponly = bool(util.strtobool(parsed.group(4)))
+            for i in range(self._get_index_len(link)):
+                cookies = scan_res[link][i].session_cookies
+                for cookie in cookies:
+                    # Parsing the cookie string became messy, so we use a regex to match and tear
+                    # the string apart into its relevant pieces
+                    parsed = re.match(COOKIE_PARSE, cookie)
+                    secure = bool(util.strtobool(parsed.group(3)))
+                    httponly = bool(util.strtobool(parsed.group(4)))
 
-                if not secure or not httponly:
-                    proof.append(f"{link} | Cookie: {cookie}")
-                passed = passed and secure and httponly
+                    if not secure or not httponly:
+                        proof.append(f"{link} | Cookie: {cookie}")
+                    passed = passed and secure and httponly
 
         return passed, proof
+
+    def check_same_response(self, index_none, index_fake) -> bool:
+        # check that content and response code are the same
+        if index_none >= len(self.result_list) or index_fake >= len(self.result_list):
+            return False
+        res_none = self.result_list[index_none]
+        res_fake = self.result_list[index_fake]
+        if not res_fake or not res_none:
+            return False
+        return int(res_none.res_code) == 200 and int(res_fake.res_code) == 200 and res_fake.response == res_none.response
+        
 
     def _check_authn_authz(self) -> Tuple[bool, List[str], bool, List[str], bool, List[str]]:
         passed = True
@@ -83,42 +101,53 @@ class DescriptorAnalyzer(object):
         if not use_authentication:
             proof.append(NO_AUTH_PROOF)
             return passed, proof, signed_install_passed, signed_install_proof, authz_passed, authz_proof
-
+        
+        invalid_response = False
+        authz_passed = True
         for link in scan_res:
-            res_code = int(scan_res[link].res_code) if scan_res[link].res_code else 0
-            auth_header = scan_res[link].auth_header
-            req_method = scan_res[link].req_method
-            response = scan_res[link].response
-            authz_req_method = scan_res[link].authz_req_method
-            authz_code = int(scan_res[link].authz_code) if scan_res[link].authz_code else 0
-            authz_header = scan_res[link].authz_header
+            self.result_list = scan_res[link]
+
+            if self.check_same_response(0, 1) or self.check_same_response(2, 1) or self.check_same_response(3, 4) or self.check_same_response(5, 4):
+                continue
+
+            for res_index in range(len(self.result_list)):
+                result = self.result_list[res_index]
+                res_code = int(result.res_code) if result.res_code else 0
+                auth_header = result.auth_header
+                req_method = result.req_method
+                response = result.response
+                authz_req_method = result.authz_req_method
+                authz_code = int(result.authz_code) if result.authz_code else 0
+                authz_header = result.authz_header
 
             # Check for invalid responses in the body before failing the authn check
-            invalid_responses = ['Invalid JWT', 'unauthorized', 'forbidden', 'error', 'unlicensed', 'not licensed',
-                                 'no license', 'invalid', '401', '403', '404', '500']
-            invalid_response = False
-            if any(str(x).lower() in str(response).lower() for x in invalid_responses):
-                invalid_response = True
-
-            # We shouldn't be able to visit this link if the app uses authentication.
-            if res_code >= 200 and res_code < 400 and not invalid_response:
-                if any(x in link for x in ('installed', 'install', 'uninstalled', 'uninstall')):
-                    signed_install_passed = False
-                    signed_install_proof_text = f"Lifecycle endpoint: {link} | Res Code: {res_code}" \
-                                                f" Auth Header: {auth_header}"
-                    signed_install_proof.append(signed_install_proof_text)
-
+                invalid_responses = ['Invalid JWT', 'unauthorized', 'forbidden', 'error', 'unlicensed', 'not licensed',
+                                    'no license', 'invalid', '401', '403', '404', '500']
+                
+                if any(str(x).lower() in str(response).lower() for x in invalid_responses):
+                    invalid_response = True
                 else:
-                    passed = False
-                    proof_text = f"{link} | Res Code: {res_code} Req Method: {req_method} Auth Header: {auth_header}"
-                    proof.append(proof_text)
+                    invalid_response = False
 
-            # similarly check for authorization status codes for authorization bypass
-            if authz_code >= 200 and authz_code < 400:
-                authz_passed = False
-                authz_proof_text = (f"{link} | Authz Res Code: {authz_code} Req Method: {authz_req_method}"
-                                    f" Authz Header: {authz_header}")
-                authz_proof.append(authz_proof_text)
+                # We shouldn't be able to visit this link if the app uses authentication.
+                if res_code >= 200 and res_code < 400 and not invalid_response:
+                    if any(x in link for x in ('installed', 'install', 'uninstalled', 'uninstall')):
+                        signed_install_passed = False
+                        signed_install_proof_text = f"Lifecycle endpoint: {link} | Res Code: {res_code}" \
+                                                    f" Auth Header: {auth_header}"
+                        signed_install_proof.append(signed_install_proof_text)
+
+                    else:
+                        passed = False
+                        proof_text = f"{link} | Res Code: {res_code} Req Method: {req_method} Auth Header: {auth_header}"
+                        proof.append(proof_text)
+
+                # similarly check for authorization status codes for authorization bypass
+                if authz_code >= 200 and authz_code < 400:
+                    authz_passed = False
+                    authz_proof_text = (f"{link} | Authz Res Code: {authz_code} Req Method: {authz_req_method}"
+                                        f" Authz Header: {authz_header}")
+                    authz_proof.append(authz_proof_text)
 
         if passed:
             proof.append(VALID_AUTH_PROOF)
@@ -132,7 +161,7 @@ class DescriptorAnalyzer(object):
         ref_passed, ref_proof = self._check_referrer_headers()
         cookies_passed, cookies_proof = self._check_cookie_headers()
         (auth_passed, auth_proof, signed_install_passed, signed_install_proof,
-         authz_passed, authz_proof) = self._check_authn_authz()
+        authz_passed, authz_proof) = self._check_authn_authz()
 
         req1_1 = RequirementsResult(
             passed=auth_passed,
@@ -174,7 +203,7 @@ class DescriptorAnalyzer(object):
             description=[NO_ISSUES] if cookies_passed else [MISSING_ATTRS_SESSION_COOKIE],
             proof=cookies_proof,
             title=REQ_TITLES['7.4']
-        )
+        ) 
 
         # Skip reporting other checks if we only run authz check
         if not authz_only:
