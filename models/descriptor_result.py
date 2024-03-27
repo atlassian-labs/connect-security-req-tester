@@ -1,7 +1,6 @@
 from jsonobject import (DefaultProperty, DictProperty, JsonObject,
                         ListProperty, StringProperty)
 
-
 class DescriptorLink(JsonObject):
     cache_header = StringProperty()
     referrer_header = StringProperty()
@@ -14,7 +13,6 @@ class DescriptorLink(JsonObject):
     authz_code = StringProperty()
     authz_header = StringProperty()
 
-
 class DescriptorResult(JsonObject):
     key = StringProperty()
     name = StringProperty()
@@ -24,5 +22,5 @@ class DescriptorResult(JsonObject):
     scopes = ListProperty(StringProperty())
     links = ListProperty(StringProperty())
     link_errors = DictProperty()
-    scan_results = DictProperty(DescriptorLink)
+    scan_results = DictProperty(ListProperty(DescriptorLink))
     response = StringProperty()

@@ -53,7 +53,7 @@ def main(descriptor_url, skip_branding=True, debug=False, timeout=30, out_dir='o
         tls_scan_raw=json.dumps(tls_res.to_json(), indent=3) if tls_res else None,
         descriptor_scan_raw=json.dumps(descriptor_res.to_json(), indent=3),
         errors=descriptor_res.link_errors
-    )
+    )    
 
     logging.info('Starting analysis of results...')
 
