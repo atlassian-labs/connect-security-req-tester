@@ -8,7 +8,7 @@ import random
 import string
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.backends import default_backend
-from typing import List, Optional, Tuple, Union, List
+from typing import Optional, Tuple, Union, List
 from urllib.parse import urlparse
 
 import jwt
@@ -383,7 +383,7 @@ class DescriptorScan(object):
             scan_results={}
         )
         scan_res = defaultdict()
-        
+
         for link in self.links:
             all_analysis = []
             scan_results = self._visit_link(link)

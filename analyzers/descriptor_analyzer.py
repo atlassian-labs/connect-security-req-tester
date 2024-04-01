@@ -18,7 +18,7 @@ class DescriptorAnalyzer(object):
     def __init__(self, desc_scan: DescriptorResult, requirements: Requirements):
         self.scan = desc_scan
         self.reqs = requirements
-    
+
     def _get_index_len(self, link):
         return len(self.scan.scan_results[link])
 
@@ -41,7 +41,7 @@ class DescriptorAnalyzer(object):
         passed = True
         proof: List[str] = []
         scan_res = self.scan.scan_results
-        
+
         for link in scan_res:
             for i in range(self._get_index_len(link)):
                 scan_res = self.scan.scan_results[link][i]
@@ -83,7 +83,6 @@ class DescriptorAnalyzer(object):
         if not res_fake or not res_none:
             return False
         return int(res_none.res_code) == 200 and int(res_fake.res_code) == 200 and res_fake.response == res_none.response
-        
 
     def _check_authn_authz(self) -> Tuple[bool, List[str], bool, List[str], bool, List[str]]:
         passed = True
@@ -101,13 +100,14 @@ class DescriptorAnalyzer(object):
         if not use_authentication:
             proof.append(NO_AUTH_PROOF)
             return passed, proof, signed_install_passed, signed_install_proof, authz_passed, authz_proof
-        
+
         invalid_response = False
         authz_passed = True
         for link in scan_res:
             self.result_list = scan_res[link]
 
-            if self.check_same_response(0, 1) or self.check_same_response(2, 1) or self.check_same_response(3, 4) or self.check_same_response(5, 4):
+            if self.check_same_response(0, 1) or self.check_same_response(2, 1) or \
+                    self.check_same_response(3, 4) or self.check_same_response(5, 4):
                 continue
 
             for res_index in range(len(self.result_list)):
@@ -122,8 +122,8 @@ class DescriptorAnalyzer(object):
 
             # Check for invalid responses in the body before failing the authn check
                 invalid_responses = ['Invalid JWT', 'unauthorized', 'forbidden', 'error', 'unlicensed', 'not licensed',
-                                    'no license', 'invalid', '401', '403', '404', '500']
-                
+                                     'no license', 'invalid', '401', '403', '404', '500']
+
                 if any(str(x).lower() in str(response).lower() for x in invalid_responses):
                     invalid_response = True
                 else:
@@ -161,7 +161,7 @@ class DescriptorAnalyzer(object):
         ref_passed, ref_proof = self._check_referrer_headers()
         cookies_passed, cookies_proof = self._check_cookie_headers()
         (auth_passed, auth_proof, signed_install_passed, signed_install_proof,
-        authz_passed, authz_proof) = self._check_authn_authz()
+            authz_passed, authz_proof) = self._check_authn_authz()
 
         req1_1 = RequirementsResult(
             passed=auth_passed,
@@ -203,7 +203,7 @@ class DescriptorAnalyzer(object):
             description=[NO_ISSUES] if cookies_passed else [MISSING_ATTRS_SESSION_COOKIE],
             proof=cookies_proof,
             title=REQ_TITLES['7.4']
-        ) 
+        )
 
         # Skip reporting other checks if we only run authz check
         if not authz_only:
