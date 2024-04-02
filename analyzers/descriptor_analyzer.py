@@ -99,16 +99,19 @@ class DescriptorAnalyzer(object):
         use_authentication = (False if authentication_method is None else authentication_method.get("type") == "jwt")
         if not use_authentication:
             proof.append(NO_AUTH_PROOF)
-            return passed, proof, signed_install_passed, signed_install_proof, authz_passed, authz_proof
+            return passed, proof, signed_install_passed, \
+                signed_install_proof, authz_passed, authz_proof
 
         invalid_response = False
         authz_passed = True
         for link in scan_res:
             self.result_list = scan_res[link]
-            signed_install_passed_get, authz_passed_get, invalid_response_get, passed_get = self.check_in_range(link, signed_install_proof, authz_proof, proof, invalid_response, 0, 3)
+            signed_install_passed_get, authz_passed_get, invalid_response_get, passed_get \
+                = self.check_in_range(link, signed_install_proof, authz_proof, proof, invalid_response, 0, 3)
             invalid_response = invalid_response and invalid_response_get
             passed = passed and passed_get
-            signed_install_passed_post, authz_passed_post, invalid_response_post, passed_post = self.check_in_range(link, signed_install_proof, authz_proof, proof, invalid_response, 3, 6)
+            signed_install_passed_post, authz_passed_post, invalid_response_post, passed_post \
+                = self.check_in_range(link, signed_install_proof, authz_proof, proof, invalid_response, 3, 6)
             invalid_response = invalid_response and invalid_response_post
             passed = passed and passed_post
 
@@ -123,15 +126,17 @@ class DescriptorAnalyzer(object):
         return passed, proof, signed_install_passed, signed_install_proof, authz_passed, authz_proof
 
     # checks for invalid responses, verifies signed install, and checks authz passes, in a range of responses
-    def check_in_range(self, link: str, signed_install_proof: List, authz_proof: List, proof: List, invalid_response: bool, start_index: int, end_index: int) -> Tuple[bool, bool, bool, bool]:
+    def check_in_range(self, link: str, signed_install_proof: List, authz_proof: List, proof: List,
+                       invalid_response: bool, start_index: int, end_index: int) -> Tuple[bool, bool, bool, bool]:
         signed_install_passed, authz_passed, passed = True, True, True
-        
-        if self.check_same_response(start_index, start_index + 1) or self.check_same_response(start_index + 2, start_index + 1):
+
+        if self.check_same_response(start_index, start_index + 1) \
+                or self.check_same_response(start_index + 2, start_index + 1):
             return True, True, invalid_response, passed
-        
+
         for res_index in range(start_index, end_index):
             if res_index >= len(self.result_list):
-                break 
+                break
             result = self.result_list[res_index]
             res_code = int(result.res_code) if result.res_code else 0
             auth_header = result.auth_header
@@ -143,7 +148,7 @@ class DescriptorAnalyzer(object):
 
             # Check for invalid responses in the body before failing the authn check
             invalid_responses = ['Invalid JWT', 'unauthorized', 'forbidden', 'error', 'unlicensed', 'not licensed',
-                                    'no license', 'invalid', '401', '403', '404', '500']
+                                 'no license', 'invalid', '401', '403', '404', '500']
 
             if any(str(x).lower() in str(response).lower() for x in invalid_responses):
                 invalid_response = True
