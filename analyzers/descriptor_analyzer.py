@@ -105,49 +105,15 @@ class DescriptorAnalyzer(object):
         authz_passed = True
         for link in scan_res:
             self.result_list = scan_res[link]
+            signed_install_passed_get, authz_passed_get, invalid_response_get, passed_get = self.check_in_range(link, signed_install_proof, authz_proof, proof, invalid_response, 0, 3)
+            invalid_response = invalid_response and invalid_response_get
+            passed = passed and passed_get
+            signed_install_passed_post, authz_passed_post, invalid_response_post, passed_post = self.check_in_range(link, signed_install_proof, authz_proof, proof, invalid_response, 3, 6)
+            invalid_response = invalid_response and invalid_response_post
+            passed = passed and passed_post
 
-            if self.check_same_response(0, 1) or self.check_same_response(2, 1) or \
-                    self.check_same_response(3, 4) or self.check_same_response(5, 4):
-                continue
-
-            for res_index in range(len(self.result_list)):
-                result = self.result_list[res_index]
-                res_code = int(result.res_code) if result.res_code else 0
-                auth_header = result.auth_header
-                req_method = result.req_method
-                response = result.response
-                authz_req_method = result.authz_req_method
-                authz_code = int(result.authz_code) if result.authz_code else 0
-                authz_header = result.authz_header
-
-            # Check for invalid responses in the body before failing the authn check
-                invalid_responses = ['Invalid JWT', 'unauthorized', 'forbidden', 'error', 'unlicensed', 'not licensed',
-                                     'no license', 'invalid', '401', '403', '404', '500']
-
-                if any(str(x).lower() in str(response).lower() for x in invalid_responses):
-                    invalid_response = True
-                else:
-                    invalid_response = False
-
-                # We shouldn't be able to visit this link if the app uses authentication.
-                if res_code >= 200 and res_code < 400 and not invalid_response:
-                    if any(x in link for x in ('installed', 'install', 'uninstalled', 'uninstall')):
-                        signed_install_passed = False
-                        signed_install_proof_text = f"Lifecycle endpoint: {link} | Res Code: {res_code}" \
-                                                    f" Auth Header: {auth_header}"
-                        signed_install_proof.append(signed_install_proof_text)
-
-                    else:
-                        passed = False
-                        proof_text = f"{link} | Res Code: {res_code} Req Method: {req_method} Auth Header: {auth_header}"
-                        proof.append(proof_text)
-
-                # similarly check for authorization status codes for authorization bypass
-                if authz_code >= 200 and authz_code < 400:
-                    authz_passed = False
-                    authz_proof_text = (f"{link} | Authz Res Code: {authz_code} Req Method: {authz_req_method}"
-                                        f" Authz Header: {authz_header}")
-                    authz_proof.append(authz_proof_text)
+            signed_install_passed = signed_install_passed_post and signed_install_passed_get
+            authz_passed = authz_passed_get and authz_passed_post
 
         if passed:
             proof.append(VALID_AUTH_PROOF)
@@ -155,6 +121,55 @@ class DescriptorAnalyzer(object):
             authz_proof.append(VALID_AUTHZ_PROOF)
 
         return passed, proof, signed_install_passed, signed_install_proof, authz_passed, authz_proof
+
+    # checks for invalid responses, verifies signed install, and checks authz passes, in a range of responses
+    def check_in_range(self, link: str, signed_install_proof: List, authz_proof: List, proof: List, invalid_response: bool, start_index: int, end_index: int) -> Tuple[bool, bool, bool, bool]:
+        signed_install_passed, authz_passed, passed = True, True, True
+        
+        if self.check_same_response(start_index, start_index + 1) or self.check_same_response(start_index + 2, start_index + 1):
+            return True, True, invalid_response, passed
+        
+        for res_index in range(start_index, end_index):
+            if res_index >= len(self.result_list):
+                break 
+            result = self.result_list[res_index]
+            res_code = int(result.res_code) if result.res_code else 0
+            auth_header = result.auth_header
+            req_method = result.req_method
+            response = result.response
+            authz_req_method = result.authz_req_method
+            authz_code = int(result.authz_code) if result.authz_code else 0
+            authz_header = result.authz_header
+
+            # Check for invalid responses in the body before failing the authn check
+            invalid_responses = ['Invalid JWT', 'unauthorized', 'forbidden', 'error', 'unlicensed', 'not licensed',
+                                    'no license', 'invalid', '401', '403', '404', '500']
+
+            if any(str(x).lower() in str(response).lower() for x in invalid_responses):
+                invalid_response = True
+            else:
+                invalid_response = False
+
+            # We shouldn't be able to visit this link if the app uses authentication.
+            if res_code >= 200 and res_code < 400 and not invalid_response:
+                if any(x in link for x in ('installed', 'install', 'uninstalled', 'uninstall')):
+                    signed_install_passed = False
+                    signed_install_proof_text = f"Lifecycle endpoint: {link} | Res Code: {res_code}" \
+                                                f" Auth Header: {auth_header}"
+                    signed_install_proof.append(signed_install_proof_text)
+
+                else:
+                    passed = False
+                    proof_text = f"{link} | Res Code: {res_code} Req Method: {req_method} Auth Header: {auth_header}"
+                    proof.append(proof_text)
+
+            # similarly check for authorization status codes for authorization bypass
+            if authz_code >= 200 and authz_code < 400:
+                authz_passed = False
+                authz_proof_text = (f"{link} | Authz Res Code: {authz_code} Req Method: {authz_req_method}"
+                                    f" Authz Header: {authz_header}")
+                authz_proof.append(authz_proof_text)
+        return signed_install_passed, authz_passed, invalid_response, passed
 
     def analyze(self, authz_only=False) -> Requirements:
         cache_passed, cache_proof = self._check_cache_headers()
