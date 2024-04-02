@@ -24,5 +24,5 @@ class DescriptorResult(JsonObject):
     scopes = ListProperty(StringProperty())
     links = ListProperty(StringProperty())
     link_errors = DictProperty()
-    scan_results = DictProperty(DescriptorLink)
+    scan_results = DictProperty(ListProperty(DescriptorLink))
     response = StringProperty()
