@@ -5,8 +5,8 @@ verify_ssl = true
 
 [dev-packages]
 flake8 = "*"
-pytest = "*"
 pytest-cov = "*"
+pytest = "*"
 
 [packages]
 requests = "2.31"
@@ -23,7 +23,7 @@ dnspython = "2.4.2"
 tldextract = "3.5.0"
 
 [requires]
-python_version = "3.9"
+python_version = "3.10"
 
 [scripts]
 test = "pipenv run pytest -s --cov --cov-config=.coveragerc --disable-warnings"
