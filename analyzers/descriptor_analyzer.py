@@ -1,5 +1,4 @@
 import re
-from distutils import util
 from typing import List, Tuple
 
 from models.descriptor_result import DescriptorResult
@@ -12,6 +11,17 @@ from reports.constants import (MISSING_ATTRS_SESSION_COOKIE,
 REQ_CACHE_HEADERS = ['no-cache', 'no-store']
 REF_DENYLIST = ['no-referrer-when-downgrade', 'unsafe-url']
 COOKIE_PARSE = r'(.*); Domain=(.*); Secure=(.*); HttpOnly=(.*)'
+
+
+def _strtobool(value: str) -> bool:
+    # https://setuptools.pypa.io/en/latest/deprecated/distutils/apiref.html#distutils.util.strtobool
+
+    match v := value.lower():
+        case "y" | "yes" | "on" | "1" | "true" | "t":
+            return True
+        case "n" | "no" | "off" | "0" | "false" | "f":
+            return False
+    raise ValueError(f"value {v} should be one of y, yes, t, true, on, 1, false, n, no, f, false, off or 0.")
 
 
 class DescriptorAnalyzer(object):
@@ -58,8 +68,8 @@ class DescriptorAnalyzer(object):
                 # Parsing the cookie string became messy, so we use a regex to match and tear
                 # the string apart into its relevant pieces
                 parsed = re.match(COOKIE_PARSE, cookie)
-                secure = bool(util.strtobool(parsed.group(3)))
-                httponly = bool(util.strtobool(parsed.group(4)))
+                secure = _strtobool(parsed.group(3))
+                httponly = _strtobool(parsed.group(4))
 
                 if not secure or not httponly:
                     proof.append(f"{link} | Cookie: {cookie}")
