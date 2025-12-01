@@ -13,6 +13,8 @@ session = None
 class TimeoutHTTPAdapter(HTTPAdapter):
     def __init__(self, *args, **kwargs):
         timeout = kwargs.get("timeout", 30)
+        if "timeout" in kwargs:
+            del kwargs["timeout"]
         super().__init__(*args, **kwargs)
         self.timeout = timeout
 
