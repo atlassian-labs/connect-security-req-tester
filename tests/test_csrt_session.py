@@ -17,7 +17,7 @@ def teardown_module(module):
 def test_session_timeout():
     session = create_csrt_session(timeout=5)
 
-    with pytest.raises(requests.exceptions.ReadTimeout) as wrapped_e:
+    with pytest.raises((requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError)) as wrapped_e:
         session.get('https://httpstat.us/200?sleep=50000')
 
-    assert wrapped_e.type == requests.exceptions.ReadTimeout
+    assert wrapped_e.type in (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError)

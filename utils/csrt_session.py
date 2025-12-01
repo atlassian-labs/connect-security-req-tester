@@ -12,10 +12,9 @@ session = None
 # a timeout on all requests
 class TimeoutHTTPAdapter(HTTPAdapter):
     def __init__(self, *args, **kwargs):
-        if "timeout" in kwargs:
-            self.timeout = kwargs["timeout"]
-            del kwargs["timeout"]
+        timeout = kwargs.get("timeout", 30)
         super().__init__(*args, **kwargs)
+        self.timeout = timeout
 
     def send(self, request, **kwargs):
         timeout = kwargs.get("timeout")

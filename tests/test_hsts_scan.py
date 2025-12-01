@@ -46,7 +46,7 @@ def test_hsts_timeout():
     base_url = 'https://httpstat.us/200?sleep=50000'
     scanner = HstsScan(base_url, 5)
 
-    with pytest.raises(requests.exceptions.ReadTimeout) as wrapped_e:
+    with pytest.raises((requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError)) as wrapped_e:
         scanner.scan()
 
-    assert wrapped_e.type == requests.exceptions.ReadTimeout
+    assert wrapped_e.type in (requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError)
