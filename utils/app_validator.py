@@ -28,7 +28,7 @@ class AppValidator(object):
         return descriptor
 
     def _validate_base_url(self) -> bool:
-        res = validators.url(self.descriptor['baseUrl'], public=True)
+        res = validators.url(self.descriptor['baseUrl'], rfc_1034=True)
         if not res:
             logging.error(f"{self.descriptor['baseUrl']} was not a valid URL.")
         return bool(res)
