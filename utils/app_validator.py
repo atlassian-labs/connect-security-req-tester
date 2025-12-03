@@ -28,7 +28,9 @@ class AppValidator(object):
         return descriptor
 
     def _validate_base_url(self) -> bool:
-        res = validators.url(self.descriptor['baseUrl'], rfc_1034=True)
+        url = self.descriptor['baseUrl']
+        # optional trailing dot not handled correctly for .io domains
+        res = validators.url(url, rfc_1034=True) or validators.url(url)
         if not res:
             logging.error(f"{self.descriptor['baseUrl']} was not a valid URL.")
         return bool(res)
