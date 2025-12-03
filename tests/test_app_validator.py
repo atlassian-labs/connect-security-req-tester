@@ -52,6 +52,7 @@ def test_missing_keys():
 
 def test_invalid_base_url():
     descriptor_file = 'tests/examples/descriptor_invalid_base_url.json'
+    # avoid calling constructor
     validator = object.__new__(AppValidator)
     validator.session = None
     validator.descriptor_url = 'https://example.com'
@@ -65,6 +66,15 @@ def test_invalid_base_url():
     assert wrapped_e.type == SystemExit
     assert wrapped_e.value.code == 1
 
+def test_invalid_base_url():
+    descriptor_file = 'tests/examples/descriptor_io_base_url.json'
+    validator = object.__new__(AppValidator)
+    validator.session = None
+    validator.descriptor_url = 'https://example.com'
+    validator.descriptor = json.loads(open(descriptor_file, 'r').read())
+    validator.timeout = 30
+
+    assert validator._validate_base_url()
 
 def test_invalid_remote_descriptor():
     # Test for exceptions on non-JSON responses and when a descriptor returns an error HTTP status code
