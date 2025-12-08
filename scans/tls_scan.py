@@ -76,8 +76,6 @@ class TlsScan(object):
                 for dep in cert_info.result.certificate_deployments:
                     if dep.verified_certificate_chain is None:
                         return False
-                    if not dep.leaf_certificate_subject_matches_hostname:
-                        return False
             else:
                 # If the cert info scan failed, return false
                 logging.error(f"SSL/TLS scan failed to retrieve HTTPS certificate information for: {self.domain}")
@@ -112,10 +110,11 @@ class TlsScan(object):
 
         # Undocumented, but useful helper function to convert the sslyze output to JSON
         raw_output = SslyzeOutputAsJson(
-            server_scan_results=[ServerScanResultAsJson.from_orm(result) for result in scan_res],
+            server_scan_results=[ServerScanResultAsJson.model_validate(result) for result in scan_res],
+            invalid_server_strings=[],
             date_scans_started=datetime.utcnow(),  # Required but not used
             date_scans_completed=datetime.utcnow()  # Required but not used
-        ).json()
+        ).model_dump_json()
 
         tls_res = TlsResult(
             domain=self.domain,
