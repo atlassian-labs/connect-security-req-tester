@@ -11,7 +11,7 @@ pytest = "*"
 [packages]
 requests = "2.31"
 fire = "0.5.0"
-jsonobject = "2.1"
+jsonobject = "2.2"
 jinja2 = "3.1.6"
 markdown2 = "2.4.9"
 validators = "0.21.1"
@@ -23,7 +23,7 @@ tldextract = "3.5.0"
 cryptography = "44.0.3"
 
 [requires]
-python_version = "3.10"
+python_version = "3.12"
 
 [scripts]
 test = "pipenv run pytest -s --cov --cov-config=.coveragerc --disable-warnings"
