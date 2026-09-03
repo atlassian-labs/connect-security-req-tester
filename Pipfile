@@ -9,6 +9,7 @@ flake8 = "*"
 pytest = "*"
 
 [packages]
+cryptography = "==49"
 requests = "2.31"
 fire = "0.5.0"
 jsonobject = "2.2"
@@ -16,11 +17,10 @@ jinja2 = "3.1.6"
 markdown2 = "2.4.9"
 validators = "0.21.1"
 pyjwt = "2.13"
-sslyze = "6.1.0"
+sslyze = {path = "./vendor/sslyze"}
 python-json-logger = "2.0.7"
 dnspython = "2.6.1"
 tldextract = "3.5.0"
-cryptography = "44.0.3"
 
 [requires]
 python_version = "3.12"
