@@ -1,5 +1,5 @@
 import re
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 from models.descriptor_result import DescriptorResult
 from models.requirements import Requirements, RequirementsResult
@@ -11,6 +11,27 @@ from reports.constants import (MISSING_ATTRS_SESSION_COOKIE,
 REQ_CACHE_HEADERS = ['no-cache', 'no-store']
 REF_DENYLIST = ['no-referrer-when-downgrade', 'unsafe-url']
 COOKIE_PARSE = r'(.*); Domain=(.*); Secure=(.*); HttpOnly=(.*)'
+
+
+def _extract_meta_referrer_policy(html: str) -> Optional[str]:
+    """Extract the referrer policy declared via a <meta name="referrer"> tag.
+
+    A meta tag is a valid delivery mechanism for the Referrer-Policy, but the
+    HTTP header takes precedence, so callers should only consult this when the
+    header is missing. When several matching tags are present the last one
+    wins, matching browser behavior.
+    """
+    if not html:
+        return None
+    policies = []
+    for tag in re.finditer(r'<meta\b[^>]*>', html, re.IGNORECASE):
+        tag_html = tag.group(0)
+        if not re.search(r'\bname\s*=\s*["\']?referrer["\']?(?=[\s>/])', tag_html, re.IGNORECASE):
+            continue
+        content = re.search(r'\bcontent\s*=\s*["\']?([^"\'\s>]+)', tag_html, re.IGNORECASE)
+        if content and content.group(1).strip():
+            policies.append(content.group(1).strip().lower())
+    return policies[-1] if policies else None
 
 
 def _strtobool(value: str) -> bool:
@@ -50,7 +71,14 @@ class DescriptorAnalyzer(object):
         for link in scan_res:
             ref_headers = scan_res[link].referrer_header.split(',')
             ref_headers = [x.strip().lower() for x in ref_headers]
-            policy = ref_headers[0] not in REF_DENYLIST if ref_headers[0] != 'header missing' else False
+            header_missing = ref_headers[0] == 'header missing'
+            policy = ref_headers[0] not in REF_DENYLIST if not header_missing else False
+            if header_missing:
+                # The HTTP header takes precedence, but a <meta name="referrer">
+                # tag is also a valid way to set the policy
+                # (https://github.com/atlassian-labs/connect-security-req-tester/issues/19)
+                meta_policy = _extract_meta_referrer_policy(getattr(scan_res[link], 'response', None) or '')
+                policy = meta_policy is not None and meta_policy not in REF_DENYLIST
             if not policy:
                 proof.append(f"{link} | Referrer header: {scan_res[link].referrer_header}")
             passed = passed and policy
