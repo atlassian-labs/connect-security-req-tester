@@ -20,8 +20,8 @@ COMMON_SESSION_COOKIES = ['PHPSESSID', 'JSESSIONID', 'CFID', 'CFTOKEN', 'ASP.NET
 KEY_IGNORELIST = ['icon', 'icons', 'documentation', 'imagePlaceholder', 'template', 'post-install-page']
 MODULE_IGNORELIST = ['jiraBackgroundScripts', 'postInstallPage']
 ADMIN_MODULES = ['configurePage', 'adminPages', 'jiraProjectAdminTabPanels', 'jiraProjectPermissions']
-CONDITION_MATCHER = r'{condition\..*}'
-BRACES_MATCHER = r'\$?{.*}'
+CONDITION_MATCHER = r'{condition\..*?}'
+BRACES_MATCHER = r'\$?{.*?}'
 
 
 class DescriptorScan(object):
