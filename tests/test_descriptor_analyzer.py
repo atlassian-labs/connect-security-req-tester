@@ -151,3 +151,50 @@ def test_authz_check():
     assert res.req7_2.passed is True
     assert res.req7_2.description == [NO_ISSUES]
     assert res.req7_2.proof == []
+
+
+def test_referrer_meta_tag():
+    # Referrer policy set via <meta name="referrer"> instead of the HTTP
+    # header is a valid policy (issue #19)
+    file = 'tests/examples/desc_scan_referrer_meta.json'
+    scan = DescriptorResult(json.load(open(file, 'r')))
+    reqs = Requirements()
+    analyzer = DescriptorAnalyzer(scan, reqs)
+
+    res = analyzer.analyze()
+
+    assert res.req7_2.passed is True
+    assert res.req7_2.description == [NO_ISSUES]
+    assert res.req7_2.proof == []
+
+
+def test_referrer_meta_tag_bad_policy():
+    # A denylisted policy in the meta tag still fails the check
+    file = 'tests/examples/desc_scan_referrer_meta_bad.json'
+    scan = DescriptorResult(json.load(open(file, 'r')))
+    reqs = Requirements()
+    analyzer = DescriptorAnalyzer(scan, reqs)
+
+    res = analyzer.analyze()
+
+    assert res.req7_2.passed is False
+    assert res.req7_2.description == [MISSING_REF_HEADERS]
+    assert res.req7_2.proof == [
+        'https://bbc7069740af.ngrok.io/my-admin-page | Referrer header: Header missing'
+    ]
+
+
+def test_extract_meta_referrer_policy():
+    from analyzers.descriptor_analyzer import _extract_meta_referrer_policy
+
+    assert _extract_meta_referrer_policy('<meta name="referrer" content="strict-origin-when-cross-origin">') == \
+        'strict-origin-when-cross-origin'
+    assert _extract_meta_referrer_policy("<meta content='no-referrer' name='referrer'>") == 'no-referrer'
+    assert _extract_meta_referrer_policy('<META NAME=referrer CONTENT=origin>') == 'origin'
+    # last matching tag wins
+    assert _extract_meta_referrer_policy(
+        '<meta name="referrer" content="unsafe-url"><meta name="referrer" content="no-referrer">') == 'no-referrer'
+    # unrelated meta tags are ignored
+    assert _extract_meta_referrer_policy('<meta name="description" content="hello">') is None
+    assert _extract_meta_referrer_policy('') is None
+    assert _extract_meta_referrer_policy(None) is None
