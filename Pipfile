@@ -18,7 +18,7 @@ validators = "0.21.1"
 pyjwt = "2.13"
 sslyze = "6.1.0"
 python-json-logger = "2.0.7"
-dnspython = "2.6.1"
+dnspython = "2.9.0"
 tldextract = "3.5.0"
 cryptography = "44.0.3"
 
